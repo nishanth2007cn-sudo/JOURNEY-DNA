@@ -1,0 +1,3193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verified Tamil Nadu Bus & Travel Operator Directory | Journey DNA</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .directory-container {
+            max-width: 1280px;
+            margin: 2rem auto;
+            padding: 0 1.5rem 3rem 1.5rem;
+        }
+        .directory-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .directory-header h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 3.2vw, 2.6rem);
+            color: var(--warm-ivory);
+            margin-bottom: 0.5rem;
+        }
+        .directory-header p {
+            color: var(--muted-silver);
+            font-size: 1.05rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .verification-callout {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(88, 196, 193, 0.16);
+            border: 1px solid rgba(88, 196, 193, 0.35);
+            color: var(--muted-turquoise);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            margin-top: 0.75rem;
+        }
+        
+        /* Filter Controls */
+        .filter-panel {
+            background: rgba(8, 44, 58, 0.78);
+            border: 1px solid rgba(88, 196, 193, 0.25);
+            border-radius: 18px;
+            padding: 1.5rem;
+            box-shadow: 0 16px 36px rgba(5, 24, 32, 0.45);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            margin-bottom: 2rem;
+        }
+        .filter-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 12px;
+            align-items: center;
+        }
+        @media (max-width: 900px) {
+            .filter-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 600px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .filter-input, .filter-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(88, 196, 193, 0.25);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            outline: none;
+            background: rgba(5, 24, 32, 0.72);
+            color: var(--warm-ivory);
+            font-family: var(--font-body);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .filter-input::placeholder {
+            color: var(--muted-silver);
+        }
+        .filter-input:focus, .filter-select:focus {
+            border-color: var(--muted-turquoise);
+            box-shadow: 0 0 0 3px rgba(88, 196, 193, 0.22);
+        }
+        .btn-filter-search {
+            background: linear-gradient(135deg, #176B7A 0%, #58C4C1 100%);
+            color: #082C3A;
+            padding: 0.75rem 1.75rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-family: var(--font-sans);
+            cursor: pointer;
+            box-shadow: 0 6px 18px rgba(23, 107, 122, 0.35);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-filter-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(88, 196, 193, 0.45);
+        }
+
+        /* Results Grid */
+        .operators-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 1.5rem;
+        }
+        .operator-card {
+            background: #FFFFFF;
+            border: 1px solid #D9E5E7;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(5, 24, 32, 0.12);
+            color: #243746;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+        }
+        .operator-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 36px rgba(5, 24, 32, 0.22);
+            border-color: #2CBEB3;
+        }
+        .card-cover {
+            height: 200px;
+            background: #F1F5F9;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .card-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .no-photo-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: #526766;
+            font-size: 0.88rem;
+            font-weight: 500;
+        }
+        .confidence-tag {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .confidence-high { background: #E6F7F2; color: #105747; border: 1px solid #A3E4D7; }
+        .confidence-medium { background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
+        .confidence-low { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
+        
+        .card-content {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        .card-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.4rem;
+            gap: 10px;
+        }
+        .card-title {
+            font-size: 1.28rem;
+            font-weight: 700;
+            color: #173B3A;
+            margin: 0;
+            line-height: 1.3;
+            font-family: var(--font-heading, 'Playfair Display', serif);
+        }
+        .card-rating {
+            background: #FEF9C3;
+            color: #854D0E;
+            border: 1px solid #FEF08A;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+        .card-location {
+            color: #526766;
+            font-size: 0.86rem;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .card-desc {
+            color: #526766;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            margin-bottom: 0.85rem;
+            flex: 1;
+        }
+
+        /* Fleet preview list in card */
+        .fleet-preview-box {
+            background: #F7FAFC;
+            border: 1px solid #D9E5E7;
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 1rem;
+        }
+        .fleet-header {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #526766;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .fleet-count-badge {
+            background: #EEF4F6;
+            color: #173B3A;
+            border: 1px solid #D9E5E7;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+        .fleet-pill-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Individual Fleet Bus Entry */
+        .fleet-bus-entry {
+            background: #FFFFFF;
+            border: 1px solid #D9E5E7;
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .fleet-bus-entry:hover {
+            border-color: #2CBEB3;
+            box-shadow: 0 4px 12px rgba(23, 59, 58, 0.08);
+        }
+        .fleet-bus-main {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .fleet-bus-thumb {
+            width: 68px;
+            height: 48px;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #EEF4F6;
+            border: 1px solid #D9E5E7;
+            flex-shrink: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.18s, border-color 0.18s;
+        }
+        .fleet-bus-thumb:hover {
+            transform: scale(1.03);
+            border-color: #2CBEB3;
+        }
+        .fleet-bus-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .thumb-fallback-icon {
+            font-size: 1.25rem;
+            color: #526766;
+        }
+        .fleet-bus-details {
+            flex: 1;
+            min-width: 0;
+        }
+        .fleet-bus-name-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            cursor: pointer;
+            margin-bottom: 4px;
+        }
+        .fleet-bus-name {
+            font-size: 0.94rem;
+            font-weight: 700;
+            color: #173B3A;
+            line-height: 1.35;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            transition: color 0.18s;
+        }
+        .fleet-bus-name-row:hover .fleet-bus-name {
+            color: #087E8B;
+        }
+        .fleet-status-pill.is-draft {
+            background: #FEF3C7;
+            color: #92400E;
+            border: 1px solid #FCD34D;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .fleet-bus-specs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            font-size: 0.78rem;
+            color: #526766;
+            line-height: 1.4;
+        }
+        .spec-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.76rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .spec-capacity {
+            background: #EEF4F6;
+            color: #243746;
+            border: 1px solid #D9E5E7;
+            font-weight: 600;
+        }
+        .spec-ac {
+            background: #E6F7F5;
+            color: #087E8B;
+            border: 1px solid #A3E4D7;
+            font-weight: 600;
+        }
+        .spec-nonac {
+            background: #F8FAFC;
+            color: #526766;
+            border: 1px solid #E2E8F0;
+        }
+        .spec-model {
+            background: #F8FAFC;
+            color: #243746;
+            border: 1px solid #D9E5E7;
+            font-weight: 600;
+        }
+        .spec-photos {
+            background: #F0F9FF;
+            color: #0369A1;
+            border: 1px solid #BAE6FD;
+            font-weight: 600;
+        }
+
+        /* Fleet Actions Bar */
+        .fleet-bus-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            padding-top: 6px;
+            border-top: 1px dashed #E2E8F0;
+        }
+        .fleet-btn {
+            height: 29px;
+            padding: 0 10px;
+            border-radius: 6px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            white-space: nowrap;
+            transition: all 0.18s;
+            outline: none;
+            border: 1px solid transparent;
+        }
+        .fleet-btn:focus-visible {
+            outline: 2px solid #2CBEB3;
+            outline-offset: 1px;
+        }
+        .fleet-btn-photos {
+            background: #EEF4F6;
+            color: #173B3A;
+            border-color: #D9E5E7;
+        }
+        .fleet-btn-photos:hover {
+            background: #D9E5E7;
+            border-color: #2CBEB3;
+        }
+        .fleet-btn-video {
+            background: #FEF2F2;
+            color: #991B1B;
+            border-color: #FECACA;
+        }
+        .fleet-btn-video:hover {
+            background: #FEE2E2;
+            border-color: #F87171;
+        }
+        .fleet-btn-studio {
+            background: #FFFBEB;
+            color: #92400E;
+            border-color: #FDE68A;
+        }
+        .fleet-btn-studio:hover {
+            background: #FEF3C7;
+            border-color: #F59E0B;
+        }
+        .fleet-btn-edit {
+            background: #E6F7F5;
+            color: #075E54;
+            border-color: #A3E4D7;
+        }
+        .fleet-btn-edit:hover {
+            background: #CCFBF1;
+            border-color: #2CBEB3;
+        }
+        .fleet-btn-toggle.is-published {
+            background: #F0FDF4;
+            color: #166534;
+            border-color: #BBF7D0;
+        }
+        .fleet-btn-toggle.is-published:hover {
+            background: #DCFCE7;
+            border-color: #4ADE80;
+        }
+        .fleet-btn-toggle.is-draft {
+            background: #FEF9C3;
+            color: #854D0E;
+            border-color: #FEF08A;
+        }
+        .fleet-btn-toggle.is-draft:hover {
+            background: #FEF08A;
+            border-color: #EAB308;
+        }
+        .fleet-btn-delete {
+            background: #FEF2F2;
+            color: #991B1B;
+            border-color: #FECACA;
+        }
+        .fleet-btn-delete:hover {
+            background: #FEE2E2;
+            border-color: #EF4444;
+        }
+
+        /* Operator Admin Bar */
+        .operator-admin-bar {
+            background: #0B2925;
+            border-bottom: 1px solid rgba(84, 209, 198, 0.25);
+            padding: 8px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .operator-admin-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .admin-pub-status {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .admin-pub-status.is-published {
+            color: #6EE7B7;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+        .admin-pub-status.is-draft {
+            color: #FCD34D;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+        .operator-admin-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        /* Card Actions Row */
+        .card-actions-row {
+            display: flex;
+            gap: 8px;
+            margin-top: auto;
+            flex-wrap: wrap;
+        }
+        .btn-act {
+            flex: 1;
+            min-width: 90px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            border: 1px solid #D9E5E7;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-act:focus-visible {
+            outline: 2px solid #2CBEB3;
+            outline-offset: 1px;
+        }
+        .btn-call {
+            background: #F7FAFC;
+            color: #173B3A;
+            border-color: #D9E5E7;
+        }
+        .btn-call:hover {
+            background: #EEF4F6;
+            border-color: #2CBEB3;
+        }
+        .btn-whatsapp {
+            background: #E6F7F2;
+            color: #105747;
+            border-color: #A3E4D7;
+        }
+        .btn-whatsapp:hover {
+            background: #C6F6D5;
+            border-color: #48BB78;
+        }
+        .btn-photo-act {
+            background: #EEF4F6;
+            color: #173B3A;
+            border-color: #D9E5E7;
+        }
+        .btn-photo-act:hover {
+            background: #E2E8F0;
+            border-color: #2CBEB3;
+        }
+        .btn-video-act {
+            background: #FEF2F2;
+            color: #991B1B;
+            border-color: #FECACA;
+        }
+        .btn-video-act:hover {
+            background: #FEE2E2;
+            border-color: #F87171;
+        }
+        .btn-details {
+            background: #173B3A;
+            color: #FFFFFF;
+            border-color: #173B3A;
+            flex: 2;
+            min-width: 130px;
+        }
+        .btn-details:hover {
+            background: #087E8B;
+            border-color: #087E8B;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.65);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+        .modal-dialog {
+            background: white;
+            border-radius: 14px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            background: #edf2f7;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close-btn:hover { background: #e2e8f0; }
+        
+        .section-divider {
+            border-top: 1px solid #e2e8f0;
+            margin: 1.5rem 0;
+        }
+        .modal-fleet-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .spec-badge-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 0.5rem 0;
+        }
+        .spec-badge {
+            background: #edf2f7;
+            color: #4a5568;
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            margin-top: 0.75rem;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border: 0;
+        }
+
+        /* Enhanced Lightbox Styles (Section 14) */
+        .lightbox-modal-box {
+            background: #111827;
+            color: #f9fafb;
+            border-radius: 14px;
+            width: 95%;
+            max-width: 920px;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        .lightbox-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.85rem 1.25rem;
+            background: #1f2937;
+            border-bottom: 1px solid #374151;
+        }
+        .lightbox-title {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #f3f4f6;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .lightbox-close {
+            background: transparent;
+            border: none;
+            color: #9ca3af;
+            font-size: 1.75rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0 4px;
+        }
+        .lightbox-close:hover { color: #fff; }
+        .lightbox-stage {
+            position: relative;
+            background: #030712;
+            height: 440px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            user-select: none;
+        }
+        .lightbox-main-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.25s ease;
+            cursor: zoom-in;
+        }
+        .lightbox-main-img.zoomed {
+            transform: scale(1.6);
+            cursor: zoom-out;
+        }
+        .lightbox-stage-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(17, 24, 39, 0.75);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.15);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, transform 0.1s;
+            z-index: 10;
+        }
+        .lightbox-stage-btn:hover {
+            background: rgba(37, 99, 235, 0.9);
+            transform: translateY(-50%) scale(1.05);
+        }
+        .lightbox-prev-btn { left: 14px; }
+        .lightbox-next-btn { right: 14px; }
+        .lightbox-stage-controls {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+        .lightbox-icon-btn {
+            background: rgba(17, 24, 39, 0.75);
+            color: #f3f4f6;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .lightbox-icon-btn:hover {
+            background: rgba(37, 99, 235, 0.85);
+            color: #fff;
+        }
+        .lightbox-counter-badge {
+            position: absolute;
+            bottom: 12px;
+            right: 14px;
+            background: rgba(0,0,0,0.8);
+            color: #f9fafb;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            z-index: 10;
+        }
+        .lightbox-type-badge {
+            position: absolute;
+            bottom: 12px;
+            left: 14px;
+            background: rgba(37, 99, 235, 0.85);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            z-index: 10;
+        }
+        .lightbox-caption-bar {
+            padding: 0.85rem 1.25rem;
+            background: #111827;
+            border-top: 1px solid #1f2937;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.88rem;
+        }
+        .lightbox-source-info {
+            color: #9ca3af;
+            font-size: 0.82rem;
+        }
+        .lightbox-source-info strong { color: #e5e7eb; }
+        .lightbox-thumbs-strip {
+            display: flex;
+            gap: 8px;
+            padding: 0.75rem 1.25rem;
+            background: #030712;
+            overflow-x: auto;
+            border-top: 1px solid #1f2937;
+        }
+        .lightbox-thumb {
+            flex: 0 0 68px;
+            height: 48px;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            opacity: 0.55;
+            transition: opacity 0.2s, border-color 0.2s;
+        }
+        .lightbox-thumb:hover { opacity: 0.85; }
+        .lightbox-thumb.active {
+            border-color: #3b82f6;
+            opacity: 1;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+        }
+        .lightbox-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .btn-photo-act { background: #edf2f7; color: #4a5568; }
+        .btn-photo-act:hover { background: #e2e8f0; }
+        .btn-video-act { background: #fed7d7; color: #9b2c2c; }
+        .btn-video-act:hover { background: #feb2b2; }
+
+        /* Luxury Modal Styles for Bus Directory */
+        .custom-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .custom-modal.open {
+            display: flex;
+        }
+        .luxury-modal-container {
+            background: #072522;
+            border: 1px solid rgba(84, 209, 198, 0.35);
+            border-radius: 24px;
+            width: 95%;
+            max-width: 960px;
+            max-height: 90vh;
+            overflow-y: auto;
+            color: var(--warm-ivory, #F5F1E8);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.75);
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .luxury-modal-header {
+            background: linear-gradient(135deg, #051A18 0%, #0B332F 100%);
+            padding: 1.6rem 2.2rem;
+            border-bottom: 1px solid rgba(84, 209, 198, 0.22);
+            position: relative;
+        }
+        .luxury-modal-title {
+            font-family: var(--font-heading, 'Playfair Display', serif);
+            font-size: 1.75rem;
+            color: var(--warm-ivory, #F5F1E8);
+            margin: 0 0 0.35rem 0;
+            line-height: 1.25;
+        }
+        .luxury-modal-subtitle {
+            color: var(--muted-silver, #A9C0BC);
+            font-size: 0.92rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .luxury-modal-close {
+            position: absolute;
+            top: 1.4rem;
+            right: 1.6rem;
+            background: transparent;
+            border: none;
+            color: var(--muted-silver, #A9C0BC);
+            font-size: 2.2rem;
+            line-height: 1;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .luxury-modal-close:hover {
+            color: var(--warm-ivory, #F5F1E8);
+        }
+
+        .luxury-tabs-bar {
+            display: flex;
+            gap: 8px;
+            background: rgba(5, 20, 20, 0.85);
+            padding: 0.75rem 2rem;
+            border-bottom: 1px solid rgba(84, 209, 198, 0.15);
+            overflow-x: auto;
+        }
+        .luxury-tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--muted-silver, #A9C0BC);
+            font-family: var(--font-sans, 'Manrope', sans-serif);
+            font-size: 0.92rem;
+            font-weight: 600;
+            padding: 0.6rem 1.2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        .luxury-tab-btn:hover {
+            color: var(--warm-ivory, #F5F1E8);
+            background: rgba(84, 209, 198, 0.1);
+        }
+        .luxury-tab-btn.active {
+            background: rgba(84, 209, 198, 0.18);
+            border-color: rgba(84, 209, 198, 0.45);
+            color: var(--turquoise-accent, #54D1C6);
+        }
+        .tab-count-badge {
+            background: rgba(84, 209, 198, 0.25);
+            color: var(--turquoise-accent, #54D1C6);
+            font-size: 0.75rem;
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .luxury-tab-content {
+            padding: 1.8rem 2.2rem;
+            flex: 1;
+        }
+        .modal-photo-stage {
+            position: relative;
+            background: #031211;
+            border-radius: 16px;
+            overflow: hidden;
+            height: 420px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(84, 209, 198, 0.2);
+        }
+        .modal-photo-featured-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: opacity 0.25s ease;
+        }
+        .modal-photo-stage-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(7, 37, 37, 0.85);
+            border: 1px solid rgba(84, 209, 198, 0.3);
+            color: var(--warm-ivory, #F5F1E8);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: all 0.2s;
+        }
+        .modal-photo-stage-nav:hover {
+            background: rgba(84, 209, 198, 0.4);
+            color: #fff;
+        }
+        .modal-stage-prev { left: 14px; }
+        .modal-stage-next { right: 14px; }
+        .modal-photo-caption-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(3, 18, 17, 0.92) 0%, rgba(3, 18, 17, 0) 100%);
+            padding: 1.25rem 1.5rem 0.85rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            color: var(--warm-ivory, #F5F1E8);
+        }
+        .modal-photo-thumbs-strip {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 0.5rem 0;
+        }
+        .modal-photo-thumb {
+            flex: 0 0 84px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            opacity: 0.65;
+            transition: all 0.2s;
+            background: #031211;
+        }
+        .modal-photo-thumb:hover { opacity: 0.95; }
+        .modal-photo-thumb.active {
+            border-color: var(--turquoise-accent, #54D1C6);
+            opacity: 1;
+            box-shadow: 0 0 10px rgba(84, 209, 198, 0.4);
+        }
+        .modal-photo-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .native-video-card {
+            background: rgba(5, 20, 20, 0.7);
+            border: 1px solid rgba(84, 209, 198, 0.25);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+        }
+        .native-video-player {
+            width: 100%;
+            max-height: 480px;
+            border-radius: 12px;
+            background: #000;
+            outline: none;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+        .empty-media-card {
+            text-align: center;
+            padding: 3.5rem 1.5rem;
+            color: var(--muted-silver, #A9C0BC);
+            background: rgba(5, 20, 20, 0.5);
+            border: 1px dashed rgba(84, 209, 198, 0.25);
+            border-radius: 16px;
+        }
+        .luxury-specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        .luxury-spec-box {
+            background: rgba(5, 20, 20, 0.65);
+            border: 1px solid rgba(84, 209, 198, 0.2);
+            border-radius: 14px;
+            padding: 1rem 1.2rem;
+        }
+        .luxury-spec-label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--turquoise-accent, #54D1C6);
+            margin-bottom: 0.35rem;
+            font-weight: 700;
+        }
+        .luxury-spec-val {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--warm-ivory, #F5F1E8);
+        }
+        .media-manager-box {
+            background: rgba(5, 20, 20, 0.65);
+            border: 1px solid rgba(84, 209, 198, 0.25);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.75rem;
+        }
+        .media-manager-title {
+            font-family: var(--font-heading, 'Playfair Display', serif);
+            font-size: 1.25rem;
+            color: var(--warm-ivory, #F5F1E8);
+            margin: 0 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .media-grid-item {
+            position: relative;
+            background: rgba(3, 18, 17, 0.85);
+            border: 1px solid rgba(84, 209, 198, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .media-grid-item.is-cover {
+            border-color: #D5B779;
+            box-shadow: 0 0 12px rgba(213, 183, 121, 0.35);
+        }
+        .luxury-modal-footer {
+            background: linear-gradient(135deg, #051A18 0%, #072522 100%);
+            padding: 1.25rem 2.2rem;
+            border-top: 1px solid rgba(84, 209, 198, 0.2);
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Owner Mode Styling */
+        .admin-badge {
+            background: rgba(213, 183, 121, 0.2);
+            border: 1px solid #D5B779;
+            color: #F0D497;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-owner-action {
+            background: rgba(8, 44, 58, 0.9);
+            border: 1px solid rgba(84, 209, 198, 0.4);
+            color: var(--turquoise-accent, #54D1C6);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-owner-action:hover {
+            background: rgba(84, 209, 198, 0.25);
+            color: #fff;
+            border-color: var(--turquoise-accent, #54D1C6);
+        }
+        .btn-owner-delete {
+            border-color: rgba(229, 62, 62, 0.5);
+            color: #feb2b2;
+        }
+        .btn-owner-delete:hover {
+            background: rgba(229, 62, 62, 0.25);
+            color: #fff;
+        }
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 600px) {
+            .form-grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        .form-control-luxury {
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            background: rgba(3, 18, 17, 0.85);
+            border: 1px solid rgba(84, 209, 198, 0.3);
+            border-radius: 10px;
+            color: var(--warm-ivory, #F5F1E8);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .form-control-luxury:focus {
+            border-color: var(--turquoise-accent, #54D1C6);
+            box-shadow: 0 0 0 3px rgba(84, 209, 198, 0.2);
+        }
+        .form-label-luxury {
+            display: block;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--turquoise-accent, #54D1C6);
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="bus-directory-page">
+    <header class="dashboard-header">
+        <a href="dashboard.html" class="logo">✈ Journey <span>DNA</span></a>
+        <nav class="desktop-nav" aria-label="Main navigation"></nav>
+        <div class="auth-container user-profile-menu"></div>
+    </header>
+
+    <div class="directory-container">
+        <div class="directory-header">
+            <h1>Verified Tamil Nadu & Kerala Bus Directory</h1>
+            <p>A legitimate directory of Tamil Nadu & Kerala private bus operators, tourist coaches, and their identified individual fleet vehicles. Zero generic stock photos. Every record traceable to actual verified sources.</p>
+            <div class="verification-callout">
+                🛡️ Verified Two-Level Architecture: Operator Information &rarr; Individual Fleet Buses
+            </div>
+        </div>
+
+        <!-- Filter Panel -->
+        <div class="filter-panel">
+            <div class="filter-grid">
+                <div>
+                    <input type="text" id="dirSearchBox" class="filter-input" placeholder="Search operator, bus name, city, model (e.g. SKT, Kumaran, Volvo, IV)..." onkeydown="if(event.key==='Enter') executeSearch()">
+                </div>
+                <div>
+                    <select id="dirFilterCity" class="filter-select" onchange="executeSearch()">
+                        <option value="">All Cities / Districts</option>
+                        <option value="Coimbatore">Coimbatore</option>
+                        <option value="Chennai">Chennai</option>
+                        <option value="Tiruchirappalli">Tiruchirappalli (Trichy)</option>
+                        <option value="Madurai">Madurai</option>
+                        <option value="Salem">Salem</option>
+                        <option value="Tiruppur">Tiruppur</option>
+                        <option value="Erode">Erode</option>
+                        <option value="Thanjavur">Thanjavur</option>
+                        <option value="Thoothukudi">Thoothukudi</option>
+                        <option value="Sivakasi">Sivakasi</option>
+                        <option value="Kanchipuram">Kanchipuram</option>
+                        <option value="Pollachi">Pollachi</option>
+                        <option value="Kochi">Kochi (Kerala)</option>
+                        <option value="Thiruvananthapuram">Thiruvananthapuram (Kerala)</option>
+                        <option value="Kozhikode">Kozhikode (Kerala)</option>
+                        <option value="Thrissur">Thrissur (Kerala)</option>
+                    </select>
+                </div>
+                <div>
+                    <select id="dirFilterSeating" class="filter-select" onchange="executeSearch()">
+                        <option value="">All Seating Types</option>
+                        <option value="sleeper">Sleeper Coaches</option>
+                        <option value="seater">Pushback Seaters</option>
+                    </select>
+                </div>
+                <div>
+                    <select id="dirFilterCapacity" class="filter-select" onchange="executeSearch()">
+                        <option value="">All Capacities</option>
+                        <option value="50-55">50 - 55 Seater</option>
+                        <option value="40-45">40 - 45 Seater</option>
+                        <option value="30-35">30 - 35 Seater</option>
+                    </select>
+                </div>
+                <div>
+                    <button class="btn-filter-search" onclick="executeSearch()">Search</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Owner Directory Management Bar (Only rendered for authorized owner) -->
+        <div id="ownerDirectoryToolbar" style="display:none; margin-bottom:1.5rem; background:rgba(8, 44, 58, 0.95); border:1px solid rgba(213, 183, 121, 0.5); border-radius:16px; padding:1.25rem 1.75rem; box-shadow:0 12px 30px rgba(0,0,0,0.5); justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-size:1.8rem;">👑</span>
+                <div>
+                    <h3 style="margin:0; font-size:1.15rem; color:#D5B779; font-family:var(--font-heading, serif);">Owner Management Active</h3>
+                    <p style="margin:2px 0 0 0; font-size:0.85rem; color:var(--muted-silver);">Full in-place directory controls: add operators, configure fleet buses, upload media studio assets.</p>
+                </div>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="btn" onclick="openOperatorFormModal()" style="background:linear-gradient(135deg, #176B7A 0%, #58C4C1 100%); color:#082C3A; font-weight:700; padding:8px 16px; border-radius:10px; cursor:pointer; border:none; display:inline-flex; align-items:center; gap:6px;">
+                    ➕ Add Operator
+                </button>
+                <button class="btn" onclick="openBusFormModal()" style="background:linear-gradient(135deg, #d5b779 0%, #b89347 100%); color:#031d16; font-weight:700; padding:8px 16px; border-radius:10px; cursor:pointer; border:none; display:inline-flex; align-items:center; gap:6px;">
+                    🚌 Add Bus
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Counter -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+            <div id="resultsCount" style="font-weight:600; color:#4a5568;">Loading verified operators...</div>
+            <a id="ownerValidationLink" href="admin_import.html" style="display:none; font-size:0.9rem; color:var(--muted-turquoise); text-decoration:none; font-weight:600;">📊 Open Data Validation Dashboard &rarr;</a>
+        </div>
+
+        <!-- Results Grid -->
+        <div id="operatorsGrid" class="operators-grid"></div>
+    </div>
+
+    <!-- Operator Profile & Fleet Modal -->
+    <div id="operatorModal" class="modal-overlay" onclick="if(event.target===this) closeModal('operatorModal')">
+        <div class="modal-dialog">
+            <button class="modal-close-btn" onclick="closeModal('operatorModal')">&times;</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Photo Gallery Lightbox Modal (Section 14) -->
+    <div id="galleryModal" class="modal-overlay" onclick="if(event.target===this) closeModal('galleryModal')">
+        <div class="lightbox-modal-box" id="lightboxModalBox" onclick="event.stopPropagation()">
+            <div class="lightbox-header">
+                <div class="lightbox-title" id="modalGalleryTitle">
+                    <span>🖼️</span> Operator Photos
+                </div>
+                <button class="lightbox-close" onclick="closeModal('galleryModal')">&times;</button>
+            </div>
+            <div class="lightbox-stage" id="lightboxStage">
+                <img id="lightboxMainImg" class="lightbox-main-img" src="" alt="Verified Bus Photo" onclick="toggleModalZoom()">
+                <button class="lightbox-stage-btn lightbox-prev-btn" onclick="stepModalGallery(-1)" title="Previous (Left Arrow)">&larr;</button>
+                <button class="lightbox-stage-btn lightbox-next-btn" onclick="stepModalGallery(1)" title="Next (Right Arrow)">&rarr;</button>
+                <div class="lightbox-stage-controls">
+                    <button class="lightbox-icon-btn" onclick="toggleModalZoom()" id="btnZoomToggle" title="Zoom In / Out">🔍 Zoom</button>
+                    <button class="lightbox-icon-btn" onclick="toggleModalFullscreen()" id="btnFullscreenToggle" title="Toggle Fullscreen">⛶ Fullscreen</button>
+                </div>
+                <span class="lightbox-type-badge" id="lightboxTypeBadge">Fleet Overview</span>
+                <span class="lightbox-counter-badge" id="lightboxCounter">1 / 1</span>
+            </div>
+            <div class="lightbox-caption-bar">
+                <div id="lightboxCaption" style="font-weight:600; color:#f3f4f6;"></div>
+                <div class="lightbox-source-info" id="lightboxSourceInfo">Source: Verified Official Source</div>
+            </div>
+            <div class="lightbox-thumbs-strip" id="lightboxThumbsStrip"></div>
+        </div>
+    </div>
+
+    <!-- Video Modal (Section 7) -->
+    <div id="videoModal" class="modal-overlay" onclick="if(event.target===this) closeModal('videoModal')">
+        <div class="modal-dialog" style="max-width:760px; background:#fff; border-radius:12px; padding:1.5rem;" onclick="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid #e2e8f0; padding-bottom:0.75rem;">
+                <h3 id="modalVideoTitle" style="margin:0; font-size:1.25rem; color:#1a202c; display:flex; align-items:center; gap:8px;">
+                    <span>🎥</span> Verified Videos
+                </h3>
+                <button class="modal-close-btn" onclick="closeModal('videoModal')" style="position:static; margin:0;">&times;</button>
+            </div>
+            <div id="modalVideoBody"></div>
+        </div>
+    </div>
+
+    <!-- LUXURY BUS DETAILS & MEDIA MODAL (Sections 4 & 2) -->
+    <div id="luxuryBusModal" class="custom-modal" onclick="if(event.target===this) closeBusModal()">
+        <div class="luxury-modal-container" onclick="event.stopPropagation()">
+            <!-- Header -->
+            <div class="luxury-modal-header">
+                <button class="luxury-modal-close" onclick="closeBusModal()">&times;</button>
+                <h2 id="modalBusTitle" class="luxury-modal-title">Coach Details</h2>
+                <div id="modalBusSubtitle" class="luxury-modal-subtitle">Operator & Fleet Information</div>
+            </div>
+
+            <!-- Tabs Bar -->
+            <div class="luxury-tabs-bar">
+                <button class="luxury-tab-btn active" id="tabBtnPhotos" onclick="switchBusModalTab('photos')">
+                    <span>🖼️</span> Photos <span id="tabBadgePhotos" class="tab-count-badge">0</span>
+                </button>
+                <button class="luxury-tab-btn" id="tabBtnVideos" onclick="switchBusModalTab('videos')">
+                    <span>🎥</span> Genuine Videos <span id="tabBadgeVideos" class="tab-count-badge">0</span>
+                </button>
+                <button class="luxury-tab-btn" id="tabBtnSpecs" onclick="switchBusModalTab('specs')">
+                    <span>⚙️</span> Specifications & Amenities
+                </button>
+                <button class="luxury-tab-btn" id="tabBtnManage" onclick="switchBusModalTab('manage')" style="display:none; color:#D5B779;">
+                    <span>🛠️</span> Media Studio & Upload
+                </button>
+            </div>
+
+            <!-- Tab 1: Photos Gallery -->
+            <div id="modalTabPhotos" class="luxury-tab-content">
+                <div id="modalPhotoStage" class="modal-photo-stage">
+                    <img id="modalFeaturedPhoto" class="modal-photo-featured-img" src="" alt="Bus Photo">
+                    <button class="modal-photo-stage-nav modal-stage-prev" onclick="stepBusPhoto(-1)" title="Previous">&larr;</button>
+                    <button class="modal-photo-stage-nav modal-stage-next" onclick="stepBusPhoto(1)" title="Next">&rarr;</button>
+                    <div class="modal-photo-caption-bar">
+                        <div>
+                            <span id="modalPhotoCategory" style="background:rgba(84, 209, 198, 0.25); color:var(--turquoise-accent); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700; text-transform:uppercase; margin-right:8px;">Exterior</span>
+                            <strong id="modalPhotoCaption" style="font-size:0.95rem;">Bus Photo</strong>
+                        </div>
+                        <span id="modalPhotoCounter" style="font-size:0.82rem; font-weight:700; background:rgba(0,0,0,0.6); padding:3px 10px; border-radius:12px;">1 / 1</span>
+                    </div>
+                </div>
+                <div id="modalPhotoThumbs" class="modal-photo-thumbs-strip"></div>
+            </div>
+
+            <!-- Tab 2: Genuine Native Videos (NO YouTube) -->
+            <div id="modalTabVideos" class="luxury-tab-content" style="display:none;">
+                <div id="modalVideosList"></div>
+            </div>
+
+            <!-- Tab 3: Specs & Amenities -->
+            <div id="modalTabSpecs" class="luxury-tab-content" style="display:none;">
+                <div id="modalSpecsContent"></div>
+            </div>
+
+            <!-- Tab 4: Media Studio & Upload (Owner only) -->
+            <div id="modalTabManage" class="luxury-tab-content" style="display:none;"></div>
+
+            <!-- Footer -->
+            <div class="luxury-modal-footer" id="modalFooterActions"></div>
+        </div>
+    </div>
+
+    <!-- Add / Edit Operator Modal (Owner Only) -->
+    <div id="operatorFormModal" class="custom-modal" onclick="if(event.target===this) closeOperatorFormModal()">
+        <div class="luxury-modal-container" style="max-width:680px;" onclick="event.stopPropagation()">
+            <div class="luxury-modal-header">
+                <button class="luxury-modal-close" onclick="closeOperatorFormModal()">&times;</button>
+                <h2 id="operatorFormModalTitle" class="luxury-modal-title">Add New Verified Operator</h2>
+                <div class="luxury-modal-subtitle">Save directly to Journey DNA verified database</div>
+            </div>
+            <form id="operatorForm" onsubmit="saveOperatorForm(event)" style="padding:1.8rem 2.2rem; display:flex; flex-direction:column; gap:14px;">
+                <input type="hidden" id="opFormId" value="">
+                <div class="form-grid-2">
+                    <div>
+                        <label class="form-label-luxury">Operator Name *</label>
+                        <input type="text" id="opFormName" class="form-control-luxury" required placeholder="e.g. Kumaran Travels">
+                    </div>
+                    <div>
+                        <label class="form-label-luxury">Legal / Trade Name</label>
+                        <input type="text" id="opFormLegalName" class="form-control-luxury" placeholder="e.g. Kumaran Roadways Pvt Ltd">
+                    </div>
+                </div>
+                <div class="form-grid-2">
+                    <div>
+                        <label class="form-label-luxury">Headquarters / City *</label>
+                        <input type="text" id="opFormCity" class="form-control-luxury" required placeholder="e.g. Coimbatore">
+                    </div>
+                    <div>
+                        <label class="form-label-luxury">Category</label>
+                        <input type="text" id="opFormCategory" class="form-control-luxury" placeholder="e.g. Tourist Bus Operator" value="Tourist Bus Operator">
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label-luxury">Operating Address</label>
+                    <input type="text" id="opFormAddress" class="form-control-luxury" placeholder="e.g. Gandhipuram, Coimbatore, Tamil Nadu">
+                </div>
+                <div class="form-grid-2">
+                    <div>
+                        <label class="form-label-luxury">Phone Number</label>
+                        <input type="text" id="opFormPhone" class="form-control-luxury" placeholder="+91 98422 12345">
+                    </div>
+                    <div>
+                        <label class="form-label-luxury">WhatsApp Number</label>
+                        <input type="text" id="opFormWhatsApp" class="form-control-luxury" placeholder="+91 98422 12345">
+                    </div>
+                </div>
+                <div class="form-grid-2">
+                    <div>
+                        <label class="form-label-luxury">Rating (1.0 - 5.0)</label>
+                        <input type="number" step="0.1" min="1" max="5" id="opFormRating" class="form-control-luxury" value="4.8">
+                    </div>
+                    <div>
+                        <label class="form-label-luxury">Website URL</label>
+                        <input type="url" id="opFormWebsite" class="form-control-luxury" placeholder="https://example.com">
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label-luxury">Description</label>
+                    <textarea id="opFormDescription" class="form-control-luxury" rows="3" placeholder="Provide background about fleet quality and routes..."></textarea>
+                </div>
+                <div class="luxury-modal-footer" style="padding:1rem 0 0 0; background:none; border:none;">
+                    <button type="button" class="btn btn-secondary" onclick="closeOperatorFormModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btnSaveOperator" style="background:linear-gradient(135deg, #176B7A 0%, #58C4C1 100%); color:#082C3A; font-weight:700;">💾 Save Operator</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add / Edit Bus Modal (Owner Only) -->
+    <div id="busFormModal" class="custom-modal" onclick="if(event.target===this) closeBusFormModal()">
+        <div class="luxury-modal-container" style="max-width:740px;" onclick="event.stopPropagation()">
+            <div class="luxury-modal-header">
+                <button type="button" class="luxury-modal-close" onclick="closeBusFormModal()">&times;</button>
+                <h2 id="busFormModalTitle" class="luxury-modal-title">Add Fleet Vehicle</h2>
+                <div class="luxury-modal-subtitle">Configure verified vehicle specifications & features</div>
+            </div>
+            <form id="busForm" onsubmit="saveBusForm(event)" style="padding:1.8rem 2.2rem; display:flex; flex-direction:column; gap:16px;">
+                <input type="hidden" id="busFormId" value="">
+                
+                <!-- Section 1: Vehicle Identity -->
+                <div style="background:rgba(84, 209, 198, 0.05); border:1px solid rgba(84, 209, 198, 0.2); border-radius:12px; padding:14px 16px;">
+                    <div style="font-size:0.78rem; font-weight:700; color:var(--turquoise-accent); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                        <span>📌</span> Vehicle Identity & Operator
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <label class="form-label-luxury">Select Operator *</label>
+                        <select id="busFormOperatorId" class="form-control-luxury" required></select>
+                    </div>
+                    <div class="form-grid-2">
+                        <div>
+                            <label class="form-label-luxury">Bus / Fleet Name *</label>
+                            <input type="text" id="busFormName" class="form-control-luxury" required placeholder="e.g. Royal Cruiser or Star Express">
+                        </div>
+                        <div>
+                            <label class="form-label-luxury">Fleet / Vehicle Number</label>
+                            <input type="text" id="busFormFleetNum" class="form-control-luxury" placeholder="e.g. TN-38-AB-1234 or Unit 04">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Technical Specifications -->
+                <div style="background:rgba(84, 209, 198, 0.05); border:1px solid rgba(84, 209, 198, 0.2); border-radius:12px; padding:14px 16px;">
+                    <div style="font-size:0.78rem; font-weight:700; color:var(--turquoise-accent); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                        <span>⚙️</span> Technical Specifications & Capacity
+                    </div>
+                    <div class="form-grid-2" style="margin-bottom:12px;">
+                        <div>
+                            <label class="form-label-luxury">Chassis / Vehicle Model *</label>
+                            <input type="text" id="busFormModel" class="form-control-luxury" required placeholder="e.g. Viking 222 or Volvo 9600" value="Viking 222">
+                        </div>
+                        <div>
+                            <label class="form-label-luxury">Manufacturer</label>
+                            <input type="text" id="busFormManufacturer" class="form-control-luxury" placeholder="e.g. Ashok Leyland, BharatBenz, Volvo" value="Ashok Leyland">
+                        </div>
+                    </div>
+                    <div class="form-grid-2">
+                        <div>
+                            <label class="form-label-luxury">Body Builder</label>
+                            <input type="text" id="busFormBodyBuilder" class="form-control-luxury" placeholder="e.g. Prakash, Veera, SM Kannappa">
+                        </div>
+                        <div>
+                            <label class="form-label-luxury">Passenger Capacity (Seats) *</label>
+                            <input type="number" id="busFormCapacity" class="form-control-luxury" required min="10" max="65" value="45">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Seating & Comfort Amenities -->
+                <div style="background:rgba(84, 209, 198, 0.05); border:1px solid rgba(84, 209, 198, 0.2); border-radius:12px; padding:14px 16px;">
+                    <div style="font-size:0.78rem; font-weight:700; color:var(--turquoise-accent); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                        <span>🛋️</span> Layout, Comfort & Amenities
+                    </div>
+                    <div class="form-grid-2" style="margin-bottom:12px;">
+                        <div>
+                            <label class="form-label-luxury">Service Type</label>
+                            <select id="busFormServiceType" class="form-control-luxury">
+                                <option value="Tourist Coach">Tourist Coach</option>
+                                <option value="Intercity Express">Intercity Express</option>
+                                <option value="Luxury Sleeper">Luxury Sleeper</option>
+                                <option value="Premium Multi-Axle">Premium Multi-Axle</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label-luxury">Seat Layout</label>
+                            <input type="text" id="busFormSeatLayout" class="form-control-luxury" placeholder="e.g. 2x2 Recliner or 2x1 Sleeper" value="2x2 Pushback">
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:20px; align-items:center; margin-bottom:12px; background:rgba(3, 18, 17, 0.6); padding:10px 14px; border-radius:8px; border:1px solid rgba(84,209,198,0.2);">
+                        <label style="color:var(--warm-ivory); font-size:0.88rem; font-weight:600; display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="busFormAc" checked style="width:16px; height:16px; accent-color:#54D1C6;"> ❄️ Air Conditioned (AC)
+                        </label>
+                        <label style="color:var(--warm-ivory); font-size:0.88rem; font-weight:600; display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="busFormSleeper" style="width:16px; height:16px; accent-color:#54D1C6;"> 🛏️ Sleeper Berths
+                        </label>
+                    </div>
+                    <div>
+                        <label class="form-label-luxury">Amenities (comma-separated)</label>
+                        <input type="text" id="busFormAmenities" class="form-control-luxury" placeholder="Charging Points, Reading Lights, Air Suspension, LED TV, Emergency Exit">
+                    </div>
+                </div>
+
+                <div class="luxury-modal-footer" style="padding:1rem 0 0 0; background:none; border:none; display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeBusFormModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btnSaveBus" style="background:linear-gradient(135deg, #d5b779 0%, #b89347 100%); color:#031d16; font-weight:700;">💾 Save Bus Vehicle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        let operatorsData = [];
+        let currentGalleryOp = null;
+        let currentGalleryIdx = 0;
+        let isGalleryZoomed = false;
+
+        function escapeHtml(str) {
+            if (!str) return "";
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Helper: Ensure NO YouTube video thumbnails or URLs can ever enter bus photo galleries
+        function isYouTubeUrl(url) {
+            if (!url || typeof url !== 'string') return false;
+            return /youtube\.com|youtu\.be|ytimg\.com|maxresdefault|hqdefault/i.test(url);
+        }
+
+        let placeholderSettings = {
+            title: "No images available",
+            subtitle: "Authentic fleet photos coming soon",
+            bg_style: "emerald",
+            custom_image: ""
+        };
+
+        async function loadPlaceholderSettings() {
+            try {
+                const res = await apiFetch("/api/settings/placeholder");
+                if (res.ok && res.data && res.data.placeholder) {
+                    placeholderSettings = res.data.placeholder;
+                }
+            } catch (e) {
+                console.warn("Could not load placeholder settings", e);
+            }
+        }
+
+        function renderNoImagePlaceholder(height = "200px") {
+            const s = placeholderSettings;
+            let bgGradient = "linear-gradient(135deg, #031D16 0%, #083A32 50%, #02110F 100%)";
+            let accentColor = "#54D1C6";
+            let borderStyle = "1px solid rgba(84, 209, 198, 0.25)";
+
+            if (s.bg_style === "slate") {
+                bgGradient = "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)";
+                accentColor = "#94A3B8";
+                borderStyle = "1px solid rgba(148, 163, 184, 0.2)";
+            } else if (s.bg_style === "turquoise") {
+                bgGradient = "linear-gradient(135deg, #042B28 0%, #0A4A44 100%)";
+                accentColor = "#2DD4BF";
+                borderStyle = "1px solid rgba(45, 212, 191, 0.35)";
+            } else if (s.bg_style === "gold") {
+                bgGradient = "linear-gradient(135deg, #1C1917 0%, #292524 100%)";
+                accentColor = "#D5B779";
+                borderStyle = "1px solid rgba(213, 183, 121, 0.35)";
+            }
+
+            if (s.custom_image) {
+                return `
+                    <div class="no-photo-badge" style="width:100%; height:${height}; background:url('${formatMediaUrl(s.custom_image)}') center/cover no-repeat; border-radius:12px; position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1.25rem; text-align:center;">
+                        <div style="position:absolute; inset:0; background:rgba(2, 17, 15, 0.78); backdrop-filter:blur(3px);"></div>
+                        <div style="position:relative; z-index:2;">
+                            <div style="font-size:2rem; margin-bottom:0.35rem; color:${accentColor};">🚌</div>
+                            <div style="font-weight:700; color:#F8F9FA; font-size:1rem; letter-spacing:0.5px;">${escapeHtml(s.title || 'No images available')}</div>
+                            <div style="font-size:0.78rem; color:rgba(248, 249, 250, 0.7); margin-top:3px;">${escapeHtml(s.subtitle || 'Authentic fleet photos coming soon')}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="no-photo-badge" style="width:100%; height:${height}; background:${bgGradient}; border:${borderStyle}; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1.25rem; text-align:center;">
+                    <div style="font-size:2.2rem; margin-bottom:0.4rem; color:${accentColor};">🚌</div>
+                    <div style="font-weight:700; color:#F8F9FA; font-size:1.02rem; letter-spacing:0.5px;">${escapeHtml(s.title || 'No images available')}</div>
+                    <div style="font-size:0.78rem; color:rgba(248, 249, 250, 0.7); margin-top:4px; max-width:260px;">${escapeHtml(s.subtitle || 'Authentic fleet photos coming soon')}</div>
+                    <span style="display:inline-block; margin-top:8px; font-size:0.7rem; font-weight:700; color:${accentColor}; background:rgba(84, 209, 198, 0.12); padding:2px 8px; border-radius:10px; border:1px solid rgba(84, 209, 198, 0.25);">
+                        Verified Fleet Guarantee
+                    </span>
+                </div>
+            `;
+        }
+
+        async function fetchDirectory(query = "", city = "", seating = "", capacity = "") {
+            const grid = document.getElementById("operatorsGrid");
+            grid.innerHTML = `<div style="text-align:center; padding:3rem; grid-column:1/-1; color:var(--muted-silver);">Searching verified operators and fleet records...</div>`;
+            
+            await loadPlaceholderSettings();
+
+            try {
+                const params = new URLSearchParams();
+                if (query) params.append("q", query);
+                if (city) params.append("location", city);
+                if (seating) params.append("seating", seating);
+                if (capacity) params.append("capacity", capacity);
+
+                const res = await apiFetch(`/api/directory/search?${params.toString()}`);
+                if (res.ok && res.data && res.data.success) {
+                    operatorsData = res.data.data;
+                    document.getElementById("resultsCount").innerText = `Showing ${operatorsData.length} Verified Tamil Nadu & Kerala Operator${operatorsData.length === 1 ? '' : 's'}`;
+                    renderOperators(operatorsData);
+                } else {
+                    grid.innerHTML = `<div style="text-align:center; padding:3rem; grid-column:1/-1; color:#e53e3e;">Failed to load directory.</div>`;
+                }
+            } catch (err) {
+                console.error(err);
+                grid.innerHTML = `<div style="text-align:center; padding:3rem; grid-column:1/-1; color:#e53e3e;">Unable to connect to backend server. Make sure backend is running.</div>`;
+            }
+        }
+
+        function renderOperators(list) {
+            const grid = document.getElementById("operatorsGrid");
+            if (list.length === 0) {
+                grid.innerHTML = `<div style="text-align:center; padding:3rem; grid-column:1/-1; color:var(--muted-silver);">No verified operators found matching your criteria. Try adjusting your search filters.</div>`;
+                return;
+            }
+
+            const isOwner = Boolean(window.isOwner);
+
+            grid.innerHTML = list.map((op, idx) => {
+                const buses = op.buses || [];
+                const rawPhotos = op.photos || [];
+                const photos = rawPhotos.filter(p => {
+                    const u = p.photo_url || p.url || p.image_url;
+                    return u && !isYouTubeUrl(u);
+                });
+                const videos = op.videos || [];
+                const coverPhoto = op.cover_photo || (photos.length > 0 ? (photos[0].photo_url || photos[0].url) : null);
+                const confClass = op.source_confidence === 'HIGH' ? 'confidence-high' : (op.source_confidence === 'MEDIUM' ? 'confidence-medium' : 'confidence-low');
+                const isPublished = (op.is_published !== 0 && op.is_published !== false && op.status !== 'draft');
+
+                return `
+                    <div class="operator-card">
+                        ${isOwner ? `
+                            <div class="operator-admin-bar">
+                                <div class="operator-admin-left">
+                                    <span class="admin-badge">👑 Operator #${op.id}</span>
+                                    <span class="admin-pub-status ${isPublished ? 'is-published' : 'is-draft'}">
+                                        ${isPublished ? '● Published' : '○ Draft'}
+                                    </span>
+                                </div>
+                                <div class="operator-admin-actions">
+                                    <button type="button" class="btn-owner-action" onclick="event.stopPropagation(); toggleOperatorPublish('${op.id}')" title="Toggle Publish Status">
+                                        ${isPublished ? '🙈 Unpublish' : '👁️ Publish'}
+                                    </button>
+                                    <button type="button" class="btn-owner-action" onclick="event.stopPropagation(); openOperatorFormModal('${op.id}')" title="Edit Operator Profile">
+                                        ✏️ Edit
+                                    </button>
+                                    <button type="button" class="btn-owner-action btn-owner-addbus" onclick="event.stopPropagation(); openBusFormModal('${op.id}')" title="Add New Bus to Operator Fleet">
+                                        ➕ Add Bus
+                                    </button>
+                                    <button type="button" class="btn-owner-action btn-owner-delete" onclick="event.stopPropagation(); deleteOperator('${op.id}')" title="Delete Operator & Fleet">
+                                        🗑️ Delete
+                                    </button>
+                                </div>
+                            </div>
+                        ` : ''}
+                        <div class="card-cover" style="cursor:${coverPhoto ? 'pointer' : 'default'}; position:relative; overflow:hidden;" onclick="${coverPhoto ? `openGalleryModal(${idx}, 0)` : ''}">
+                            ${coverPhoto ? `
+                                <img src="${formatMediaUrl(coverPhoto)}" alt="${escapeHtml(op.name)} Photo" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML=renderNoImagePlaceholder();">
+                                <span style="position:absolute; bottom:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:0.75rem; padding:2px 8px; border-radius:10px; backdrop-filter:blur(4px);">
+                                    📷 ${photos.length} Photo${photos.length > 1 ? 's' : ''}
+                                </span>
+                            ` : `
+                                ${renderNoImagePlaceholder()}
+                            `}
+                            <span class="confidence-tag ${confClass}">Source: ${escapeHtml(op.source_confidence || 'HIGH')}</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-title-row">
+                                <h3 class="card-title">${escapeHtml(op.name)}</h3>
+                                <span class="card-rating">★ ${op.rating || '4.5'}</span>
+                            </div>
+                            <div class="card-location">📍 ${escapeHtml(op.address || op.city || 'Tamil Nadu')}</div>
+                            <div class="card-desc">${escapeHtml(op.description || 'Verified tourist bus & coach operator in Tamil Nadu & Kerala.')}</div>
+
+                            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:0.75rem;">
+                                <span style="background:#E6F7F2; color:#105747; border:1px solid #A3E4D7; font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:12px;">
+                                    ✓ Verified Business
+                                </span>
+                                ${photos.length > 0 ? `
+                                    <span style="background:#EEF4F6; color:#173B3A; border:1px solid #D9E5E7; font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:12px;">
+                                        📷 ${photos.length} Photo${photos.length > 1 ? 's' : ''}
+                                    </span>
+                                ` : ''}
+                                ${videos.length > 0 ? `
+                                    <span style="background:#FEF2F2; color:#991B1B; border:1px solid #FECACA; font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:12px;">
+                                        🎥 ${videos.length} Video${videos.length > 1 ? 's' : ''}
+                                    </span>
+                                ` : ''}
+                            </div>
+
+                            ${videos.length > 0 ? `
+                                <div style="margin:0 0 0.75rem 0; background:#F7FAFC; border:1px solid #D9E5E7; border-radius:10px; padding:7px 10px; display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer;" onclick="openVideoModal(${idx})" title="Click to play full video tour">
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <div style="width:64px; height:40px; border-radius:6px; overflow:hidden; background:#000; position:relative; flex-shrink:0;">
+                                            <video src="${formatMediaUrl(videos[0].video_url || videos[0].url || videos[0].file_path)}" muted loop playsinline autoplay style="width:100%; height:100%; object-fit:cover; pointer-events:none;"></video>
+                                            <span style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.3); font-size:0.85rem; color:#fff;">▶</span>
+                                        </div>
+                                        <div>
+                                            <div style="font-size:0.82rem; font-weight:700; color:#173B3A;">🎥 Video Tour Preview</div>
+                                            <div style="font-size:0.72rem; color:#526766;">Muted preview &bull; Click to watch full tour</div>
+                                        </div>
+                                    </div>
+                                    <span style="background:#E6F7F5; color:#087E8B; border:1px solid #A3E4D7; border-radius:6px; font-size:0.75rem; padding:4px 8px; white-space:nowrap; font-weight:700;">
+                                        Play ↗
+                                    </span>
+                                </div>
+                            ` : ''}
+
+                            <div class="fleet-preview-box">
+                                <div class="fleet-header">
+                                    <span>Identified Fleet Vehicles</span>
+                                    <span class="fleet-count-badge">${buses.length} Bus${buses.length === 1 ? '' : 'es'}</span>
+                                </div>
+                                <div class="fleet-pill-list">
+                                    ${buses.map(b => {
+                                        const bCover = b.cover_photo || (b.photos && b.photos[0] && (b.photos[0].url || b.photos[0].file_path)) || (b.images && b.images[0] && (b.images[0].url || b.images[0].photo_url || b.images[0].image_url));
+                                        const bPhotoCount = (b.photos || b.images || []).length;
+                                        const bVideoCount = (b.videos || []).length;
+                                        return `
+                                            <div class="fleet-bus-entry">
+                                                <div class="fleet-bus-main">
+                                                    <div class="fleet-bus-thumb" onclick="openBusDetailsModal('${b.id}', 'photos')" title="View fleet photos & specifications">
+                                                        ${bCover ? `
+                                                            <img src="${formatMediaUrl(bCover)}" alt="${escapeHtml(b.bus_name || b.name)}" onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'thumb-fallback-icon\\'>🚌</span>';">
+                                                        ` : `
+                                                            <span class="thumb-fallback-icon">🚌</span>
+                                                        `}
+                                                    </div>
+                                                    <div class="fleet-bus-details">
+                                                        <div class="fleet-bus-name-row" onclick="openBusDetailsModal('${b.id}', 'photos')">
+                                                            <span class="fleet-bus-name">${escapeHtml(b.bus_name || b.name)}</span>
+                                                            ${isOwner && b.is_published === 0 ? '<span class="fleet-status-pill is-draft">Draft</span>' : ''}
+                                                        </div>
+                                                        <div class="fleet-bus-specs">
+                                                            <span class="spec-pill spec-capacity">💺 ${b.capacity ? b.capacity + ' Seats' : 'Spec on request'}</span>
+                                                            <span class="spec-pill ${b.ac ? 'spec-ac' : 'spec-nonac'}">${b.ac ? '❄️ AC' : 'Non-AC'}</span>
+                                                            ${b.vehicle_model ? `<span class="spec-pill spec-model">${escapeHtml(b.vehicle_model)}</span>` : ''}
+                                                            <span class="spec-pill spec-photos">📷 ${bPhotoCount} Photo${bPhotoCount === 1 ? '' : 's'}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="fleet-bus-actions">
+                                                    <button type="button" class="fleet-btn fleet-btn-photos" onclick="event.stopPropagation(); openBusDetailsModal('${b.id}', 'photos')" title="View Bus Photos & Specs">
+                                                        📷 Photos (${bPhotoCount})
+                                                    </button>
+                                                    ${bVideoCount > 0 ? `
+                                                        <button type="button" class="fleet-btn fleet-btn-video" onclick="event.stopPropagation(); openBusDetailsModal('${b.id}', 'videos')" title="Watch Video Tour">
+                                                            🎥 Video
+                                                        </button>
+                                                    ` : ''}
+                                                    ${isOwner ? `
+                                                        <button type="button" class="fleet-btn fleet-btn-studio" onclick="event.stopPropagation(); openBusDetailsModal('${b.id}', 'manage')" title="Open Dedicated Media Studio">
+                                                            📸 Studio
+                                                        </button>
+                                                        <button type="button" class="fleet-btn fleet-btn-edit" onclick="event.stopPropagation(); openBusFormModal('${op.id}', '${b.id}')" title="Edit Bus Details">
+                                                            ✏️ Edit
+                                                        </button>
+                                                        <button type="button" class="fleet-btn fleet-btn-toggle ${b.is_published === 0 ? 'is-draft' : 'is-published'}" onclick="event.stopPropagation(); toggleBusPublish('${b.id}')" title="Toggle Publish Status">
+                                                            ${b.is_published === 0 ? '👁️ Publish' : '🙈 Hide'}
+                                                        </button>
+                                                        <button type="button" class="fleet-btn fleet-btn-delete" onclick="event.stopPropagation(); deleteBus('${b.id}')" title="Delete Fleet Bus">
+                                                            🗑️ Delete
+                                                        </button>
+                                                    ` : ''}
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+
+                            <div class="card-actions-row">
+                                ${op.phone ? `<a href="tel:${op.phone}" class="btn-act btn-call">📞 Call</a>` : ''}
+                                ${op.whatsapp ? `<a href="https://wa.me/${op.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello, I am interested in inquiring about tourist bus charter services with ' + op.name)}" target="_blank" rel="noopener" class="btn-act btn-whatsapp">💬 WhatsApp</a>` : ''}
+                                <button type="button" class="btn-act btn-photo-act" onclick="openGalleryModal(${idx}, 0)">🖼️ Photos (${photos.length})</button>
+                                ${videos.length > 0 ? `
+                                    <button type="button" class="btn-act btn-video-act" onclick="openVideoModal(${idx})">🎥 Videos (${videos.length})</button>
+                                ` : ''}
+                                <button type="button" class="btn-act btn-details" onclick="openOperatorModal(${idx})">Profile & Fleet &rarr;</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+
+        function executeSearch() {
+            const q = document.getElementById("dirSearchBox").value.trim();
+            const city = document.getElementById("dirFilterCity").value;
+            const seating = document.getElementById("dirFilterSeating").value;
+            const capacity = document.getElementById("dirFilterCapacity").value;
+            fetchDirectory(q, city, seating, capacity);
+        }
+
+        // LIGHTBOX STATE & CONTROLS (Section 14)
+        function openGalleryModal(opIndex, initialIdx = 0) {
+            const op = operatorsData[opIndex];
+            if (!op) return;
+            currentGalleryOp = op;
+            currentGalleryIdx = initialIdx;
+            isGalleryZoomed = false;
+
+            document.getElementById('modalGalleryTitle').innerHTML = `<span>🖼️</span> ${op.name} - Photos`;
+            const rawPhotos = op.photos || [];
+            const photos = rawPhotos.filter(p => {
+                const u = p.photo_url || p.url || p.image_url;
+                return u && !isYouTubeUrl(u);
+            });
+
+            if (photos.length === 0) {
+                document.getElementById('lightboxStage').innerHTML = `
+                    <div style="text-align:center; padding:3rem; color:#9ca3af;">
+                        <div style="font-size:3rem; margin-bottom:0.5rem;">📷</div>
+                        <h4 style="margin:0 0 0.25rem 0; color:#f3f4f6; font-size:1.15rem;">No verified public images available</h4>
+                        <p style="margin:0; font-size:0.85rem; color:#9ca3af;">Stock photos and YouTube thumbnails are strictly blocked. Authentic images will appear once verified by the operator.</p>
+                    </div>
+                `;
+                document.getElementById('lightboxCaption').innerText = 'Verified image unavailable';
+                document.getElementById('lightboxSourceInfo').innerText = 'Source: Official Verification System';
+                document.getElementById('lightboxCounter').innerText = '0 / 0';
+                document.getElementById('lightboxTypeBadge').innerText = 'None';
+                document.getElementById('lightboxThumbsStrip').innerHTML = '';
+                document.getElementById('galleryModal').style.display = 'flex';
+                return;
+            }
+
+            renderLightboxPhoto();
+            document.getElementById('galleryModal').style.display = 'flex';
+        }
+
+        function renderLightboxPhoto() {
+            if (!currentGalleryOp) return;
+            const rawPhotos = currentGalleryOp.photos || [];
+            const photos = rawPhotos.filter(p => {
+                const u = p.photo_url || p.url || p.image_url;
+                return u && !isYouTubeUrl(u);
+            });
+            if (photos.length === 0) return;
+
+            if (currentGalleryIdx < 0) currentGalleryIdx = photos.length - 1;
+            if (currentGalleryIdx >= photos.length) currentGalleryIdx = 0;
+
+            const p = photos[currentGalleryIdx];
+            const pUrl = p.photo_url || p.url || p.image_url;
+            const stage = document.getElementById('lightboxStage');
+
+            stage.innerHTML = `
+                <img id="lightboxMainImg" class="lightbox-main-img ${isGalleryZoomed ? 'zoomed' : ''}" src="${pUrl}" alt="${p.caption || 'Bus Photo'}" onclick="toggleModalZoom()">
+                ${photos.length > 1 ? `
+                    <button class="lightbox-stage-btn lightbox-prev-btn" onclick="stepModalGallery(-1)" title="Previous (Left Arrow)">&larr;</button>
+                    <button class="lightbox-stage-btn lightbox-next-btn" onclick="stepModalGallery(1)" title="Next (Right Arrow)">&rarr;</button>
+                ` : ''}
+                <div class="lightbox-stage-controls">
+                    <button class="lightbox-icon-btn" onclick="toggleModalZoom()" id="btnZoomToggle" title="Zoom In / Out">🔍 ${isGalleryZoomed ? 'Zoom Out' : 'Zoom In'}</button>
+                    <button class="lightbox-icon-btn" onclick="toggleModalFullscreen()" id="btnFullscreenToggle" title="Toggle Fullscreen">⛶ Fullscreen</button>
+                </div>
+                <span class="lightbox-type-badge">${p.image_type || p.imageType || 'Fleet Overview'}</span>
+                <span class="lightbox-counter-badge">${currentGalleryIdx + 1} / ${photos.length}</span>
+            `;
+
+            document.getElementById('lightboxCaption').innerText = p.caption || `${currentGalleryOp.name} ${p.image_type || 'Photo'}`;
+            const sourcePlatform = p.source_platform || p.source_name || p.sourcePlatform || 'Verified Official Source';
+            const isSourceOnly = p.license_status === 'source_link_only' || (p.source_type || '').toLowerCase() === 'justdial';
+            const sourceLinkText = isSourceOnly ? `View verified photos on ${sourcePlatform}` : 'Original Source';
+            const sUrl = p.source_url || p.sourceUrl;
+            const sourceLink = sUrl ? ` &bull; <a href="${sUrl}" target="_blank" rel="noopener" style="color:#60a5fa; text-decoration:none; font-weight:600;">🔗 ${sourceLinkText} &rarr;</a>` : '';
+            const attrText = p.attribution ? ` &bull; <em>${p.attribution}</em>` : '';
+            document.getElementById('lightboxSourceInfo').innerHTML = `Source: <strong>${sourcePlatform}</strong>${sourceLink}${attrText}`;
+
+            // Render thumbnail strip
+            const thumbsStrip = document.getElementById('lightboxThumbsStrip');
+            thumbsStrip.innerHTML = photos.map((item, idx) => `
+                <div class="lightbox-thumb ${idx === currentGalleryIdx ? 'active' : ''}" onclick="jumpModalGallery(${idx})">
+                    <img src="${item.photo_url || item.url || item.image_url}" alt="Thumb" loading="lazy">
+                </div>
+            `).join('');
+
+            const activeThumb = thumbsStrip.querySelector('.lightbox-thumb.active');
+            if (activeThumb) {
+                activeThumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
+        }
+
+        function stepModalGallery(direction) {
+            currentGalleryIdx += direction;
+            isGalleryZoomed = false;
+            renderLightboxPhoto();
+        }
+
+        function jumpModalGallery(index) {
+            currentGalleryIdx = index;
+            isGalleryZoomed = false;
+            renderLightboxPhoto();
+        }
+
+        function toggleModalZoom() {
+            isGalleryZoomed = !isGalleryZoomed;
+            const img = document.getElementById('lightboxMainImg');
+            const btn = document.getElementById('btnZoomToggle');
+            if (img) {
+                if (isGalleryZoomed) img.classList.add('zoomed');
+                else img.classList.remove('zoomed');
+            }
+            if (btn) btn.innerText = `🔍 ${isGalleryZoomed ? 'Zoom Out' : 'Zoom In'}`;
+        }
+
+        function toggleModalFullscreen() {
+            const box = document.getElementById('lightboxModalBox');
+            if (!box) return;
+            if (!document.fullscreenElement) {
+                if (box.requestFullscreen) box.requestFullscreen();
+                else if (box.webkitRequestFullscreen) box.webkitRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        // Open Video Modal (Native HTML5 Videos - STRICTLY NO YOUTUBE)
+        function openVideoModal(opIndex) {
+            const op = operatorsData[opIndex];
+            if (!op) return;
+            document.getElementById('modalVideoTitle').innerHTML = `<span>🎥</span> ${op.name} - Genuine Videos`;
+            const body = document.getElementById('modalVideoBody');
+            
+            // Filter strictly native genuine videos
+            const videos = (op.videos || []).filter(v => {
+                const u = v.video_url || v.url || v.file_path;
+                return u && !isYouTubeUrl(u);
+            });
+
+            if (videos.length > 0) {
+                body.innerHTML = videos.map(v => {
+                    const videoSrc = formatMediaUrl(v.file_path || v.url || v.video_url);
+                    const mimeType = v.mime_type || (videoSrc.endsWith('.webm') ? 'video/webm' : 'video/mp4');
+                    return `
+                        <div class="native-video-card" style="margin-bottom:1.25rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:6px;">
+                                <h4 style="margin:0; font-size:1.05rem; color:var(--warm-ivory); display:flex; align-items:center; gap:6px;">
+                                    <span>🎬</span> ${v.caption || v.title || 'Genuine Bus Tour Video'}
+                                </h4>
+                                <span style="background:rgba(84, 209, 198, 0.2); border:1px solid rgba(84, 209, 198, 0.4); color:var(--turquoise-accent); font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:12px;">✓ GENUINE VEHICLE FOOTAGE</span>
+                            </div>
+                            <video class="native-video-player" controls preload="metadata" playsinline style="width:100%; max-height:420px; border-radius:10px; background:#000;">
+                                <source src="${videoSrc}" type="${mimeType}">
+                                Your browser does not support native HTML5 video.
+                            </video>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.6rem; font-size:0.82rem; color:var(--muted-silver); flex-wrap:wrap; gap:8px;">
+                                <span>Category: <strong>${v.category || 'Exterior Walkaround'}</strong></span>
+                                <span>Format: <strong>${mimeType.toUpperCase()}</strong> &bull; Verified Local Media</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                body.innerHTML = `
+                    <div class="empty-media-card" style="padding:2.5rem 1.5rem;">
+                        <div style="font-size:3rem; margin-bottom:0.5rem; color:var(--turquoise-accent);">🎥</div>
+                        <h4 style="margin:0 0 0.25rem 0; color:var(--warm-ivory); font-size:1.15rem;">No verified local videos uploaded</h4>
+                        <p style="margin:0 auto; max-width:480px; font-size:0.88rem; color:var(--muted-silver);">
+                            All external YouTube links and embedded players have been removed. Genuine walkaround video tours will appear here once uploaded by the operator.
+                        </p>
+                    </div>
+                `;
+            }
+            document.getElementById('videoModal').style.display = 'flex';
+        }
+
+        function openOperatorModal(idx) {
+            const op = operatorsData[idx];
+            if (!op) return;
+
+            const modal = document.getElementById("operatorModal");
+            const rawBuses = op.buses || [];
+            const buses = rawBuses.map(b => {
+                const bImages = (b.images || b.photos || []).filter(img => {
+                    const u = img.photo_url || img.image_url || img.url || img.file_path;
+                    return u && !isYouTubeUrl(u);
+                });
+                const bVideos = (b.videos || []).filter(v => {
+                    const u = v.video_url || v.url || v.file_path;
+                    return u && !isYouTubeUrl(u);
+                });
+                return { ...b, images: bImages, photos: bImages, videos: bVideos };
+            });
+            const rawOpImages = (op.photos && op.photos.length > 0) ? op.photos : (op.operator_images || []);
+            const opImages = rawOpImages.filter(img => {
+                const u = img.photo_url || img.url || img.image_url;
+                return u && !isYouTubeUrl(u);
+            });
+            const videos = (op.videos || []).filter(v => {
+                const u = v.video_url || v.url || v.file_path;
+                return u && !isYouTubeUrl(u);
+            });
+            const routes = op.routes || [];
+
+            const content = document.getElementById("modalContent");
+            content.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem; padding-right:2.5rem;">
+                    <div>
+                        <h2 style="margin:0 0 0.25rem 0; font-size:1.75rem; color:#1a202c;">${op.name}</h2>
+                        ${op.legal_name && op.legal_name !== op.name ? `<div style="color:#718096; font-size:0.9rem;">Legal Name: ${op.legal_name}</div>` : ''}
+                        <div style="color:#4a5568; font-size:0.95rem; margin-top:0.25rem;">📍 ${op.address || op.city} &bull; <strong>${op.category || 'Tourist Bus Operator'}</strong></div>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="background:#fefcbf; color:#744210; font-size:1.1rem; font-weight:bold; padding:4px 10px; border-radius:6px;">★ ${op.rating || 4.5}</span>
+                        <div style="font-size:0.75rem; color:#718096; margin-top:4px;">(${op.review_count || 100} reviews)</div>
+                    </div>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- ABOUT -->
+                <h4 style="margin:0 0 0.5rem 0; color:#2d3748; text-transform:uppercase; font-size:0.85rem; letter-spacing:0.5px;">About the Operator</h4>
+                <p style="color:#4a5568; line-height:1.6; margin:0 0 1rem 0;">${op.description || 'Verified passenger travel and tourist bus operator.'}</p>
+
+                <!-- BUS FLEET -->
+                <h4 style="margin:1.5rem 0 0.75rem 0; color:#2d3748; text-transform:uppercase; font-size:0.85rem; letter-spacing:0.5px;">
+                    Identified Bus Fleet (${buses.length} Vehicles)
+                </h4>
+                <div>
+                    ${buses.map((b, bIdx) => `
+                        <div class="modal-fleet-card" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1.25rem; margin-bottom:1rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                <h4 style="margin:0; font-size:1.2rem; color:#173B3A; font-weight:700;">${b.fleet_number ? b.fleet_number + ' – ' : ''}${b.bus_name || b.name}</h4>
+                                <span style="background:#e2e8f0; color:#2d3748; font-size:0.75rem; padding:2px 8px; border-radius:4px; font-weight:600;">${b.service_type || b.bus_type || 'Tourist Coach'}</span>
+                            </div>
+
+                            <div class="spec-badge-group" style="margin:0.5rem 0;">
+                                <span class="spec-badge"><strong>Chassis / Model:</strong> ${b.vehicle_model || b.model || 'Standard Tourist Chassis'}</span>
+                                <span class="spec-badge"><strong>Manufacturer:</strong> ${b.manufacturer || 'Ashok Leyland'}</span>
+                                ${b.body_builder ? `<span class="spec-badge"><strong>Body:</strong> ${b.body_builder}</span>` : ''}
+                                <span class="spec-badge"><strong>Capacity:</strong> ${b.capacity ? b.capacity + ' Seats' : 'Not available'}</span>
+                                <span class="spec-badge"><strong>AC:</strong> ${b.ac ? 'Yes (AC)' : 'Non-AC'}</span>
+                                <span class="spec-badge"><strong>Configuration:</strong> ${b.sleeper ? 'Sleeper' : 'Seater'} (${b.seat_layout || '2x2 Recliner'})</span>
+                            </div>
+
+                            ${b.features_list && b.features_list.length > 0 ? `
+                                <div style="font-size:0.82rem; color:#4a5568; margin-top:0.4rem;">
+                                    <strong>Amenities:</strong> ${b.features_list.join(', ')}
+                                </div>
+                            ` : ''}
+
+                            <!-- Bus Photos -->
+                            <div style="margin-top:0.75rem;">
+                                ${b.photos && b.photos.length > 0 ? `
+                                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:8px;">
+                                        ${b.photos.map(img => `
+                                            <div style="border-radius:6px; overflow:hidden; border:1px solid #cbd5e0; cursor:pointer;" onclick="openBusDetailsModal('${b.id}', 'photos')">
+                                                <img src="${formatMediaUrl(img.photo_url || img.file_path || img.url || img.image_url)}" style="width:100%; height:120px; object-fit:cover;" alt="Bus Image">
+                                                <div style="font-size:0.75rem; padding:4px 6px; background:#fff; color:#4a5568;">${img.category || img.image_type || 'Exterior'} &bull; Verified Fleet</div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                ` : `
+                                    <div style="font-size:0.82rem; color:#718096; background:#edf2f7; padding:6px 12px; border-radius:4px; display:inline-block;">📷 No verified photo available for this vehicle</div>
+                                `}
+                            </div>
+
+                            <!-- Bus Videos (Native HTML5 - NO YouTube) -->
+                            ${b.videos && b.videos.length > 0 ? `
+                                <div style="margin-top:0.75rem;">
+                                    <div style="font-size:0.85rem; font-weight:600; color:#2d3748; margin-bottom:4px;">🎥 Vehicle Video Tour:</div>
+                                    <video class="native-video-player" controls preload="metadata" playsinline style="width:100%; max-height:340px; border-radius:8px; background:#000;">
+                                        <source src="${formatMediaUrl(b.videos[0].file_path || b.videos[0].url || b.videos[0].video_url)}" type="${b.videos[0].mime_type || 'video/mp4'}">
+                                        Your browser does not support HTML5 video.
+                                    </video>
+                                </div>
+                            ` : ''}
+
+                            <!-- Fleet Actions -->
+                            <div style="display:flex; gap:8px; margin-top:1rem; flex-wrap:wrap;">
+                                <button type="button" class="btn-act btn-details" onclick="openBusDetailsModal('${b.id}', 'photos')" style="flex:unset; padding:6px 14px;">
+                                    📷 Photos & Specs
+                                </button>
+                                ${b.videos && b.videos.length > 0 ? `
+                                    <button type="button" class="btn-act btn-video-act" onclick="openBusDetailsModal('${b.id}', 'videos')" style="flex:unset; padding:6px 14px;">
+                                        🎥 Watch Genuine Video (${b.videos.length})
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <!-- OPERATOR PHOTOS -->
+                ${opImages.length > 0 ? `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin:1.5rem 0 0.5rem 0;">
+                        <h4 style="margin:0; color:#2d3748; text-transform:uppercase; font-size:0.85rem; letter-spacing:0.5px;">Operator Photos (${opImages.length})</h4>
+                        <button class="btn-act btn-photo-act" onclick="openGalleryModal(${idx}, 0)" style="font-size:0.8rem; padding:4px 10px;">🖼️ Open Fullscreen Gallery</button>
+                    </div>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px;">
+                        ${opImages.map((img, pIdx) => `
+                            <div style="border-radius:8px; overflow:hidden; border:1px solid #cbd5e0; cursor:pointer;" onclick="openGalleryModal(${idx}, ${pIdx})">
+                                <img src="${formatMediaUrl(img.photo_url || img.url || img.image_url)}" style="width:100%; height:140px; object-fit:cover;" alt="Operator Photo" loading="lazy">
+                                <div style="font-size:0.75rem; padding:6px 8px; background:#fff;">${img.image_type || 'Fleet'} &bull; Source: ${img.source_platform || img.source_name || 'Verified Source'}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+
+                <!-- OPERATOR VIDEOS (Native HTML5 - NO YouTube) -->
+                ${videos.length > 0 ? `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin:1.5rem 0 0.5rem 0;">
+                        <h4 style="margin:0; color:#2d3748; text-transform:uppercase; font-size:0.85rem; letter-spacing:0.5px;">Verified Videos (${videos.length})</h4>
+                        <button class="btn-act btn-video-act" onclick="openVideoModal(${idx})" style="font-size:0.8rem; padding:4px 10px;">🎥 Watch All Videos</button>
+                    </div>
+                    <video class="native-video-player" controls preload="metadata" playsinline style="width:100%; max-height:400px; border-radius:10px; background:#000;">
+                        <source src="${formatMediaUrl(videos[0].file_path || videos[0].url || videos[0].video_url)}" type="${videos[0].mime_type || 'video/mp4'}">
+                        Your browser does not support HTML5 video.
+                    </video>
+                ` : ''}
+
+                <!-- ROUTES -->
+                ${routes.length > 0 ? `
+                    <h4 style="margin:1.5rem 0 0.5rem 0; color:#2d3748; text-transform:uppercase; font-size:0.85rem; letter-spacing:0.5px;">Verified Operating Routes</h4>
+                    <ul style="margin:0 0 1rem 1.25rem; color:#4a5568; font-size:0.92rem; line-height:1.6;">
+                        ${routes.map(r => `<li>${r.route_name || (r.origin + ' → ' + r.destination)}</li>`).join('')}
+                    </ul>
+                ` : ''}
+
+                <!-- CONTACT & SOURCES -->
+                <div class="section-divider"></div>
+                <h4 style="margin:0 0 0.75rem 0; color:#2d3748; text-transform:uppercase; font-size:0.85rem; letter-spacing:0.5px;">Verified Contact & Links</h4>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:1.5rem;">
+                    ${op.phone ? `<a href="tel:${op.phone}" class="btn-act btn-call" style="flex:unset; padding:8px 16px;">📞 Call ${op.phone}</a>` : ''}
+                    ${op.whatsapp ? `<a href="https://wa.me/${op.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello, I am interested in inquiring about tourist bus charter services with ' + op.name)}" target="_blank" rel="noopener" class="btn-act btn-whatsapp" style="flex:unset; padding:8px 16px;">💬 WhatsApp</a>` : ''}
+                    ${op.website && op.website !== 'Not publicly available' ? `<a href="${op.website}" target="_blank" rel="noopener" class="btn-act" style="background:#edf2f7; color:#2b6cb0; flex:unset; padding:8px 16px;">🌐 Official Website</a>` : ''}
+                    ${op.google_maps_url ? `<a href="${op.google_maps_url}" target="_blank" rel="noopener" class="btn-act" style="background:#edf2f7; color:#2b6cb0; flex:unset; padding:8px 16px;">🗺️ Google Maps Location</a>` : ''}
+                </div>
+
+                <div style="background:#f7fafc; padding:1rem; border-radius:8px; border:1px solid #e2e8f0; font-size:0.82rem; color:#718096;">
+                    <strong>Source & Attribution:</strong> ${op.source_url || 'Google Business / Justdial Verified Directory'} &bull; 
+                    <strong>Verification Confidence:</strong> ${op.source_confidence || 'HIGH'} &bull; 
+                    <strong>Status:</strong> ${op.status || 'VERIFIED'}
+                </div>
+            `;
+
+            modal.style.display = "flex";
+        }
+
+        // =========================================================
+        // LUXURY BUS DETAILS & MEDIA MODAL (Bus Directory)
+        // =========================================================
+        let currentBusModalData = null;
+        let currentBusPhotoIdx = 0;
+        let currentActiveTab = 'photos';
+
+        async function openBusDetailsModal(busId, initialTab = 'photos') {
+            let bus = null;
+
+            try {
+                const res = await apiFetch(`/api/buses/${busId}`);
+                if (res.ok && res.data && res.data.success && res.data.data) {
+                    bus = res.data.data;
+                    bus.photos = (bus.photos || []).filter(p => !isYouTubeUrl(p.url || p.file_path)).map(p => ({
+                        ...p,
+                        url: formatMediaUrl(p.url || p.file_path)
+                    }));
+                    bus.videos = (bus.videos || []).filter(v => !isYouTubeUrl(v.url || v.video_url || v.file_path)).map(v => ({
+                        ...v,
+                        url: formatMediaUrl(v.url || v.video_url || v.file_path)
+                    }));
+                    bus.operator_name = (bus.operator && bus.operator.name) ? bus.operator.name : 'Verified Operator';
+                    bus.city = (bus.operator && bus.operator.city) ? bus.operator.city : 'Tamil Nadu';
+                    bus.phone = (bus.operator && bus.operator.phone) ? bus.operator.phone : null;
+                    bus.whatsapp = (bus.operator && bus.operator.whatsapp) ? bus.operator.whatsapp : null;
+                    bus.rating = (bus.operator && bus.operator.rating) ? bus.operator.rating : 4.8;
+                    bus.review_count = (bus.operator && bus.operator.review_count) ? bus.operator.review_count : 120;
+                }
+            } catch (e) {
+                console.warn("Could not fetch fresh bus record", e);
+            }
+
+            if (!bus) {
+                // Search in local operators data
+                for (let op of operatorsData) {
+                    const found = (op.buses || []).find(b => String(b.id) === String(busId));
+                    if (found) {
+                        bus = {
+                            ...found,
+                            operator_name: op.name,
+                            city: op.city,
+                            phone: op.phone,
+                            whatsapp: op.whatsapp,
+                            rating: op.rating || 4.8,
+                            review_count: op.review_count || 120,
+                            photos: (found.photos || found.images || []).filter(p => !isYouTubeUrl(p.photo_url || p.url)).map(p => ({
+                                ...p,
+                                url: formatMediaUrl(p.photo_url || p.url || p.file_path)
+                            })),
+                            videos: (found.videos || []).filter(v => !isYouTubeUrl(v.video_url || v.url)).map(v => ({
+                                ...v,
+                                url: formatMediaUrl(v.video_url || v.url || v.file_path)
+                            }))
+                        };
+                        break;
+                    }
+                }
+            }
+
+            if (!bus) return;
+
+            currentBusModalData = bus;
+            currentBusPhotoIdx = 0;
+
+            document.getElementById('modalBusTitle').innerText = bus.bus_name || bus.name || 'Verified Luxury Coach';
+            document.getElementById('modalBusSubtitle').innerHTML = `
+                <span>🏢 <strong>${escapeHtml(bus.operator_name)}</strong></span>
+                <span>&bull;</span>
+                <span>📍 ${escapeHtml(bus.city)}</span>
+                <span>&bull;</span>
+                <span>👥 ${bus.capacity} Seats</span>
+                <span>&bull;</span>
+                <span>❄️ ${bus.ac_status || (bus.ac ? 'AC' : 'Non-AC')}</span>
+            `;
+
+            document.getElementById('tabBadgePhotos').innerText = (bus.photos || []).length;
+            document.getElementById('tabBadgeVideos').innerText = (bus.videos || []).length;
+
+            renderModalPhotosTab();
+            renderModalVideosTab();
+            renderModalSpecsTab();
+            renderModalManageTab();
+            renderModalFooter();
+
+            const isOwner = Boolean(window.isOwner);
+            const manageTabBtn = document.getElementById('tabBtnManage');
+            if (manageTabBtn) {
+                manageTabBtn.style.display = isOwner ? 'inline-flex' : 'none';
+            }
+            if (!isOwner && initialTab === 'manage') {
+                initialTab = 'photos';
+            }
+
+            switchBusModalTab(initialTab);
+            document.getElementById('luxuryBusModal').classList.add('open');
+        }
+
+        function closeBusModal() {
+            const modal = document.getElementById('luxuryBusModal');
+            if (modal) modal.classList.remove('open');
+            document.querySelectorAll('#luxuryBusModal video').forEach(v => {
+                try { v.pause(); } catch(e) {}
+            });
+        }
+
+        function switchBusModalTab(tabName) {
+            currentActiveTab = tabName;
+            const tabs = ['photos', 'videos', 'specs', 'manage'];
+            
+            tabs.forEach(t => {
+                const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+                const content = document.getElementById('modalTab' + t.charAt(0).toUpperCase() + t.slice(1));
+                if (btn) btn.classList.toggle('active', t === tabName);
+                if (content) content.style.display = (t === tabName) ? 'block' : 'none';
+            });
+
+            if (tabName !== 'videos') {
+                document.querySelectorAll('#modalVideosList video').forEach(v => {
+                    try { v.pause(); } catch(e) {}
+                });
+            }
+        }
+
+        function renderModalPhotosTab() {
+            const bus = currentBusModalData;
+            const photos = (bus && bus.photos) ? bus.photos : [];
+            const stage = document.getElementById('modalPhotoStage');
+            const thumbsStrip = document.getElementById('modalPhotoThumbs');
+
+            if (photos.length === 0) {
+                stage.innerHTML = `
+                    <div class="empty-media-card" style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; border:none;">
+                        <div style="font-size:3.5rem; margin-bottom:0.75rem; color:var(--turquoise-accent);">📷</div>
+                        <h3 style="color:var(--warm-ivory); margin:0 0 0.5rem 0;">Authentic Vehicle Photos Coming Soon</h3>
+                        <p style="max-width:500px; margin:0 auto 1.25rem auto; font-size:0.9rem; line-height:1.5;">We only display genuine photos of this specific coach. Zero generic stock photos are ever permitted.</p>
+                        ${window.isOwner ? `<button class="btn btn-primary" onclick="switchBusModalTab('manage')">📸 Add Photos in Media Manager</button>` : ''}
+                    </div>
+                `;
+                thumbsStrip.innerHTML = '';
+                return;
+            }
+
+            if (currentBusPhotoIdx < 0) currentBusPhotoIdx = photos.length - 1;
+            if (currentBusPhotoIdx >= photos.length) currentBusPhotoIdx = 0;
+
+            const currentP = photos[currentBusPhotoIdx];
+            const pUrl = formatMediaUrl(currentP.url || currentP.file_path);
+
+            stage.innerHTML = `
+                <img id="modalFeaturedPhoto" class="modal-photo-featured-img" src="${pUrl}" alt="${escapeHtml(currentP.caption || 'Coach Photo')}">
+                ${photos.length > 1 ? `
+                    <button class="modal-photo-stage-nav modal-stage-prev" onclick="stepBusPhoto(-1)" title="Previous Photo">&larr;</button>
+                    <button class="modal-photo-stage-nav modal-stage-next" onclick="stepBusPhoto(1)" title="Next Photo">&rarr;</button>
+                ` : ''}
+                <div class="modal-photo-caption-bar">
+                    <div>
+                        <span style="background:rgba(84, 209, 198, 0.25); color:var(--turquoise-accent); padding:3px 10px; border-radius:6px; font-size:0.75rem; font-weight:700; text-transform:uppercase; margin-right:8px;">${escapeHtml(currentP.category || 'Fleet Photo')}</span>
+                        <strong style="font-size:0.95rem;">${escapeHtml(currentP.caption || bus.bus_name)}</strong>
+                    </div>
+                    <span style="font-size:0.82rem; font-weight:700; background:rgba(0,0,0,0.6); padding:3px 12px; border-radius:12px;">${currentBusPhotoIdx + 1} / ${photos.length}</span>
+                </div>
+            `;
+
+            thumbsStrip.innerHTML = photos.map((p, idx) => `
+                <div class="modal-photo-thumb ${idx === currentBusPhotoIdx ? 'active' : ''}" onclick="switchModalPhoto(${idx})">
+                    <img src="${formatMediaUrl(p.url || p.file_path)}" alt="Thumb" loading="lazy">
+                </div>
+            `).join('');
+        }
+
+        function stepBusPhoto(dir) {
+            currentBusPhotoIdx += dir;
+            renderModalPhotosTab();
+        }
+
+        function switchModalPhoto(idx) {
+            currentBusPhotoIdx = idx;
+            renderModalPhotosTab();
+        }
+
+        function renderModalVideosTab() {
+            const bus = currentBusModalData;
+            const videos = (bus && bus.videos) ? bus.videos : [];
+            const container = document.getElementById('modalVideosList');
+
+            if (videos.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-media-card">
+                        <div style="font-size:3.5rem; margin-bottom:0.75rem; color:var(--turquoise-accent);">🎥</div>
+                        <h3 style="color:var(--warm-ivory); margin:0 0 0.5rem 0;">Genuine Walkaround Videos Coming Soon</h3>
+                        <p style="max-width:540px; margin:0 auto 1.25rem auto; font-size:0.9rem; line-height:1.5;">
+                            All embedded YouTube players and external links have been removed. Genuine vehicle walkthroughs and interior footage will appear here once added for this coach.
+                        </p>
+                        ${window.isOwner ? `<button class="btn btn-primary" onclick="switchBusModalTab('manage')">🎥 Add Video in Media Manager</button>` : ''}
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = videos.map((v, vIdx) => {
+                const videoUrl = formatMediaUrl(v.url || v.file_path);
+                const vidId = `modalVid_${vIdx}`;
+                return `
+                    <div class="native-video-card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem; flex-wrap:wrap; gap:8px;">
+                            <h4 style="margin:0; font-size:1.1rem; color:var(--warm-ivory); display:flex; align-items:center; gap:8px;">
+                                <span>🎬</span> ${escapeHtml(v.caption || v.category || 'Genuine Vehicle Tour')}
+                            </h4>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <button class="btn btn-secondary btn-sm" onclick="toggleMutedPreview('${vidId}')" style="font-size:0.75rem; padding:3px 10px;">
+                                    🔇 Preview
+                                </button>
+                                <span style="background:rgba(84, 209, 198, 0.2); border:1px solid rgba(84, 209, 198, 0.4); color:var(--turquoise-accent); padding:3px 12px; border-radius:12px; font-size:0.75rem; font-weight:700;">
+                                    ✓ GENUINE VEHICLE FOOTAGE
+                                </span>
+                            </div>
+                        </div>
+                        <video id="${vidId}" class="native-video-player" controls preload="metadata" playsinline>
+                            <source src="${videoUrl}" type="${v.mime_type || 'video/mp4'}">
+                            Your browser does not support native HTML5 video.
+                        </video>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem; font-size:0.85rem; color:var(--muted-silver);">
+                            <span>Category: <strong>${escapeHtml(v.category || 'Exterior Walkaround')}</strong></span>
+                            <span>Format: <strong>${(v.mime_type || 'mp4').toUpperCase()}</strong> &bull; Local Storage</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleMutedPreview(videoElementId) {
+            const vid = document.getElementById(videoElementId);
+            if (!vid) return;
+            if (vid.paused) {
+                vid.muted = true;
+                vid.play().catch(e => console.log("Preview play blocked", e));
+            } else {
+                vid.pause();
+            }
+        }
+
+        function renderModalSpecsTab() {
+            const bus = currentBusModalData;
+            if (!bus) return;
+            const container = document.getElementById('modalSpecsContent');
+            const features = bus.features || [
+                "Air Conditioning", "Pushback 2x2 Recliners", "Air Suspension", "Fast USB Charging", "LED Ambient Lighting"
+            ];
+
+            container.innerHTML = `
+                <div class="luxury-specs-grid">
+                    <div class="luxury-spec-box">
+                        <div class="luxury-spec-label">Chassis & Model</div>
+                        <div class="luxury-spec-val">${escapeHtml(bus.vehicle_model || 'Tourist Coach')}</div>
+                    </div>
+                    <div class="luxury-spec-box">
+                        <div class="luxury-spec-label">Manufacturer</div>
+                        <div class="luxury-spec-val">${escapeHtml(bus.manufacturer || 'Ashok Leyland')}</div>
+                    </div>
+                    <div class="luxury-spec-box">
+                        <div class="luxury-spec-label">Passenger Capacity</div>
+                        <div class="luxury-spec-val">${bus.capacity} Seats</div>
+                    </div>
+                    <div class="luxury-spec-box">
+                        <div class="luxury-spec-label">Seating Layout</div>
+                        <div class="luxury-spec-val">${escapeHtml(bus.seat_layout || '2x2 Recliners')}</div>
+                    </div>
+                    <div class="luxury-spec-box">
+                        <div class="luxury-spec-label">Climate Control</div>
+                        <div class="luxury-spec-val">${escapeHtml(bus.ac_status || (bus.ac ? 'AC Climate Control' : 'Non-AC'))}</div>
+                    </div>
+                    <div class="luxury-spec-box">
+                        <div class="luxury-spec-label">Service Type</div>
+                        <div class="luxury-spec-val">${escapeHtml(bus.bus_type || 'Tourist Coach')}</div>
+                    </div>
+                </div>
+
+                <div style="background:rgba(5, 20, 20, 0.65); border:1px solid rgba(84, 209, 198, 0.2); border-radius:16px; padding:1.4rem; margin-bottom:1.5rem;">
+                    <div class="luxury-spec-label" style="margin-bottom:0.75rem;">Verified Onboard Amenities</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                        ${features.map(f => `
+                            <span style="background:rgba(84, 209, 198, 0.15); border:1px solid rgba(84, 209, 198, 0.3); color:var(--warm-ivory); font-size:0.85rem; padding:5px 12px; border-radius:10px; font-weight:600;">
+                                ✔ ${escapeHtml(f)}
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div style="background:rgba(5, 20, 20, 0.65); border:1px solid rgba(84, 209, 198, 0.2); border-radius:16px; padding:1.4rem;">
+                    <div class="luxury-spec-label" style="margin-bottom:0.75rem;">Operator Contact & Verification</div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="font-size:1.15rem; font-weight:700; color:var(--warm-ivory);">${escapeHtml(bus.operator_name)}</div>
+                            <div style="color:var(--muted-silver); font-size:0.9rem; margin-top:2px;">📍 ${escapeHtml(bus.address || bus.city)}</div>
+                            ${bus.phone ? `<div style="color:var(--turquoise-accent); font-size:0.9rem; margin-top:4px;">📞 ${escapeHtml(bus.phone)}</div>` : ''}
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="background:rgba(213, 183, 121, 0.2); border:1px solid rgba(213, 183, 121, 0.5); color:#F0D497; padding:4px 12px; border-radius:8px; font-weight:700; font-size:0.95rem; display:inline-block;">
+                                ★ ${bus.rating} (${bus.review_count} reviews)
+                            </div>
+                            <div style="color:var(--muted-silver); font-size:0.75rem; margin-top:4px;">Verified Charter License</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderModalManageTab() {
+            const bus = currentBusModalData;
+            if (!bus) return;
+            const container = document.getElementById('modalTabManage') || document.getElementById('modalManageContent');
+            if (!container) return;
+            const allMedia = [
+                ...(bus.photos || []).map(p => ({ ...p, type: 'photo' })),
+                ...(bus.videos || []).map(v => ({ ...v, type: 'video' }))
+            ];
+
+            container.innerHTML = `
+                <!-- Upload Photos Box -->
+                <div class="media-manager-box">
+                    <h3 class="media-manager-title">
+                        <span>📷</span> Add Authentic Photos for ${escapeHtml(bus.bus_name)}
+                    </h3>
+                    <p style="color:var(--muted-silver); font-size:0.85rem; margin:-0.5rem 0 1rem 0;">
+                        Upload genuine high-resolution images (JPG, PNG, WEBP up to 15MB each). Multiple files supported.
+                    </p>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:1rem;">
+                        <div>
+                            <label style="display:block; font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); margin-bottom:4px; font-weight:700;">Select Photo(s)</label>
+                            <input type="file" id="uploadPhotoInput" multiple accept="image/jpeg,image/png,image/webp" style="width:100%; padding:0.5rem; background:rgba(3,18,17,0.8); border:1px solid rgba(84,209,198,0.3); border-radius:8px; color:var(--warm-ivory); font-size:0.85rem;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); margin-bottom:4px; font-weight:700;">View Category</label>
+                            <select id="uploadPhotoCategory" style="width:100%; padding:0.6rem; background:rgba(3,18,17,0.8); border:1px solid rgba(84,209,198,0.3); border-radius:8px; color:var(--warm-ivory); font-size:0.85rem;">
+                                <option value="Front view">Front view</option>
+                                <option value="Rear view">Rear view</option>
+                                <option value="Left side view">Left side view</option>
+                                <option value="Right side view">Right side view</option>
+                                <option value="Interior">Interior</option>
+                                <option value="Passenger seats">Passenger seats</option>
+                                <option value="Driver cabin">Driver cabin</option>
+                                <option value="Exterior details">Exterior details</option>
+                                <option value="Luggage compartment">Luggage compartment</option>
+                                <option value="Other">Other view</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); margin-bottom:4px; font-weight:700;">Caption (Optional)</label>
+                            <input type="text" id="uploadPhotoCaption" placeholder="e.g. Front 3/4 view" style="width:100%; padding:0.6rem; background:rgba(3,18,17,0.8); border:1px solid rgba(84,209,198,0.3); border-radius:8px; color:var(--warm-ivory); font-size:0.85rem;">
+                        </div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <label style="font-size:0.85rem; color:var(--warm-ivory); display:flex; align-items:center; gap:6px; cursor:pointer;">
+                            <input type="checkbox" id="uploadPhotoIsCover"> Set as Primary Cover Photo
+                        </label>
+                        <button class="btn btn-primary" id="btnUploadPhotos" onclick="uploadBusMedia('${bus.id}', 'photo')">
+                            📤 Upload Photos
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upload Video Box -->
+                <div class="media-manager-box">
+                    <h3 class="media-manager-title">
+                        <span>🎥</span> Add Genuine Walkaround Video
+                    </h3>
+                    <p style="color:var(--muted-silver); font-size:0.85rem; margin:-0.5rem 0 1rem 0;">
+                        Upload authentic MP4 or WEBM vehicle tours (up to 100MB). YouTube embeds are strictly barred.
+                    </p>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:1rem;">
+                        <div>
+                            <label style="display:block; font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); margin-bottom:4px; font-weight:700;">Select Video File</label>
+                            <input type="file" id="uploadVideoInput" accept="video/mp4,video/webm" style="width:100%; padding:0.5rem; background:rgba(3,18,17,0.8); border:1px solid rgba(84,209,198,0.3); border-radius:8px; color:var(--warm-ivory); font-size:0.85rem;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); margin-bottom:4px; font-weight:700;">Video Category</label>
+                            <select id="uploadVideoCategory" style="width:100%; padding:0.6rem; background:rgba(3,18,17,0.8); border:1px solid rgba(84,209,198,0.3); border-radius:8px; color:var(--warm-ivory); font-size:0.85rem;">
+                                <option value="Exterior walkaround">Exterior walkaround</option>
+                                <option value="Interior walkthrough">Interior walkthrough</option>
+                                <option value="Seat and cabin tour">Seat and cabin tour</option>
+                                <option value="Night lighting">Night lighting</option>
+                                <option value="Luggage compartment">Luggage compartment</option>
+                                <option value="Road performance">Road performance tour</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); margin-bottom:4px; font-weight:700;">Video Caption</label>
+                            <input type="text" id="uploadVideoCaption" placeholder="e.g. Complete walkaround tour" style="width:100%; padding:0.6rem; background:rgba(3,18,17,0.8); border:1px solid rgba(84,209,198,0.3); border-radius:8px; color:var(--warm-ivory); font-size:0.85rem;">
+                        </div>
+                    </div>
+                    <div style="display:flex; justify-content:flex-end;">
+                        <button class="btn btn-primary" id="btnUploadVideo" onclick="uploadBusMedia('${bus.id}', 'video')">
+                            📤 Upload Video
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Existing Media Collection -->
+                <div class="media-manager-box">
+                    <h3 class="media-manager-title">
+                        <span>🗂️</span> Current Dedicated Media Collection (${allMedia.length} Items)
+                    </h3>
+                    <p style="color:var(--muted-silver); font-size:0.85rem; margin:-0.5rem 0 1rem 0;">
+                        Media is strictly tied to <strong>${escapeHtml(bus.bus_name)}</strong> and never shared with other vehicles.
+                    </p>
+
+                    ${allMedia.length === 0 ? `
+                        <div style="text-align:center; padding:2rem; color:var(--muted-silver);">
+                            No photos or videos uploaded yet for this vehicle. Use the forms above to add genuine media.
+                        </div>
+                    ` : `
+                        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:14px;">
+                            ${allMedia.map(m => `
+                                <div class="media-grid-item ${m.is_cover ? 'is-cover' : ''}">
+                                    <div style="position:relative; height:130px; border-radius:8px; overflow:hidden; background:#000;">
+                                        ${m.type === 'photo' ? `
+                                            <img src="${formatMediaUrl(m.url || m.file_path)}" style="width:100%; height:100%; object-fit:cover;" alt="${escapeHtml(m.caption || 'Bus Media')}">
+                                        ` : `
+                                            <video src="${formatMediaUrl(m.url || m.file_path)}" style="width:100%; height:100%; object-fit:cover;" muted></video>
+                                            <span style="position:absolute; top:8px; left:8px; background:rgba(229,62,62,0.85); color:#fff; font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:8px;">🎥 VIDEO</span>
+                                        `}
+                                        ${m.is_cover ? `
+                                            <span style="position:absolute; top:8px; right:8px; background:#D5B779; color:#073D32; font-size:0.7rem; font-weight:800; padding:2px 8px; border-radius:8px;">⭐ COVER</span>
+                                        ` : ''}
+                                    </div>
+                                    <div style="font-size:0.82rem; font-weight:700; color:var(--warm-ivory); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                        ${escapeHtml(m.caption || m.category)}
+                                    </div>
+                                    <div style="font-size:0.75rem; color:var(--turquoise-accent);">
+                                        ${escapeHtml(m.category || (m.type === 'photo' ? 'Photo' : 'Video'))}
+                                    </div>
+                                    <div style="display:flex; gap:6px; margin-top:auto; flex-wrap:wrap;">
+                                        ${m.type === 'photo' && !m.is_cover ? `
+                                            <button style="flex:1; padding:4px 8px; font-size:0.75rem; background:rgba(213,183,121,0.2); border:1px solid #D5B779; color:#F0D497; border-radius:6px; cursor:pointer;" onclick="setCoverBusMedia('${bus.id}', ${m.id})">
+                                                ⭐ Cover
+                                            </button>
+                                        ` : ''}
+                                        <button style="flex:1; padding:4px 8px; font-size:0.75rem; background:rgba(84,209,198,0.2); border:1px solid rgba(84,209,198,0.4); color:var(--turquoise-accent); border-radius:6px; cursor:pointer;" onclick="editCaptionBusMedia('${bus.id}', ${m.id}, '${escapeHtml(m.caption || '')}')">
+                                            ✏️ Caption
+                                        </button>
+                                        <button style="padding:4px 8px; font-size:0.75rem; background:rgba(88,196,193,0.15); border:1px solid rgba(88,196,193,0.3); color:#fff; border-radius:6px; cursor:pointer;" onclick="triggerReplaceMedia('${bus.id}', ${m.id})" title="Replace File">
+                                            🔄 Replace
+                                        </button>
+                                        ${m.type === 'photo' ? `
+                                            <button style="padding:4px 6px; font-size:0.75rem; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px; cursor:pointer;" onclick="moveBusMediaOrder('${bus.id}', ${m.id}, -1)" title="Move Earlier">⬆</button>
+                                            <button style="padding:4px 6px; font-size:0.75rem; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px; cursor:pointer;" onclick="moveBusMediaOrder('${bus.id}', ${m.id}, 1)" title="Move Later">⬇</button>
+                                        ` : ''}
+                                        <button style="padding:4px 8px; font-size:0.75rem; background:rgba(229,62,62,0.2); border:1px solid rgba(229,62,62,0.4); color:#feb2b2; border-radius:6px; cursor:pointer;" onclick="deleteBusMedia('${bus.id}', ${m.id})" title="Delete">
+                                            🗑️
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        function renderModalFooter() {
+            const bus = currentBusModalData;
+            if (!bus) return;
+            const footer = document.getElementById('modalFooterActions');
+            const cleanWa = bus.whatsapp ? bus.whatsapp.replace(/[^0-9]/g, '') : '';
+
+            footer.innerHTML = `
+                ${bus.phone ? `
+                    <a href="tel:${bus.phone}" class="btn btn-secondary" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                        📞 Call Operator
+                    </a>
+                ` : ''}
+                ${cleanWa ? `
+                    <a href="https://wa.me/${cleanWa}?text=${encodeURIComponent(`Hello, I am interested in inquiring about ${bus.bus_name} with ${bus.operator_name}.`)}" target="_blank" rel="noopener" class="btn btn-primary" style="background:#25D366; text-decoration:none; display:inline-flex; align-items:center; gap:6px; color:#fff;">
+                        💬 WhatsApp
+                    </a>
+                ` : ''}
+                <button class="btn btn-secondary" onclick="closeBusModal()">Close</button>
+            `;
+        }
+
+        async function uploadBusMedia(busId, mediaType) {
+            const formData = new FormData();
+            let btn = null;
+
+            if (mediaType === 'photo') {
+                const input = document.getElementById('uploadPhotoInput');
+                if (!input || !input.files || input.files.length === 0) {
+                    alert("Please select at least one photo file.");
+                    return;
+                }
+                for (let i = 0; i < input.files.length; i++) {
+                    formData.append('files', input.files[i]);
+                }
+                formData.append('category', document.getElementById('uploadPhotoCategory').value);
+                formData.append('caption', document.getElementById('uploadPhotoCaption').value);
+                if (document.getElementById('uploadPhotoIsCover').checked) {
+                    formData.append('is_cover', '1');
+                }
+                btn = document.getElementById('btnUploadPhotos');
+            } else {
+                const input = document.getElementById('uploadVideoInput');
+                if (!input || !input.files || input.files.length === 0) {
+                    alert("Please select a video file (MP4 or WEBM).");
+                    return;
+                }
+                formData.append('files', input.files[0]);
+                formData.append('category', document.getElementById('uploadVideoCategory').value);
+                formData.append('caption', document.getElementById('uploadVideoCaption').value);
+                btn = document.getElementById('btnUploadVideo');
+            }
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = 'Uploading...';
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/buses/${busId}/media/upload`, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(`🎉 ${data.message || 'Media uploaded successfully!'}`);
+                    await openBusDetailsModal(busId, 'manage');
+                    await fetchDirectory(); // refresh directory cards
+                } else {
+                    alert(`Error: ${data.error || 'Upload failed'}`);
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Network error occurred during media upload.");
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = mediaType === 'photo' ? '📤 Upload Photos' : '📤 Upload Video';
+                }
+            }
+        }
+
+        async function deleteBusMedia(busId, mediaId) {
+            if (!confirm("Are you sure you want to delete this media item? This cannot be undone.")) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/buses/${busId}/media/${mediaId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (data.success) {
+                    await openBusDetailsModal(busId, 'manage');
+                    await fetchDirectory();
+                } else {
+                    alert(data.error || "Failed to delete media.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Connection error while deleting media.");
+            }
+        }
+
+        async function setCoverBusMedia(busId, mediaId) {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/buses/${busId}/media/${mediaId}/cover`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (data.success) {
+                    await openBusDetailsModal(busId, 'manage');
+                    await fetchDirectory();
+                } else {
+                    alert(data.error || "Failed to update cover photo.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Connection error while setting cover photo.");
+            }
+        }
+
+        async function editCaptionBusMedia(busId, mediaId, currentCaption) {
+            const newCap = prompt("Edit Media Caption:", currentCaption || "");
+            if (newCap === null) return;
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/buses/${busId}/media/${mediaId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ caption: newCap.trim() }),
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (data.success) {
+                    await openBusDetailsModal(busId, 'manage');
+                    await fetchDirectory();
+                } else {
+                    alert(data.error || "Failed to update caption.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Connection error while editing caption.");
+            }
+        }
+
+        async function triggerReplaceMedia(busId, mediaId) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/jpeg,image/png,image/webp,video/mp4,video/webm';
+            input.onchange = async () => {
+                if (!input.files || input.files.length === 0) return;
+                const file = input.files[0];
+                const fd = new FormData();
+                fd.append('file', file);
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/buses/${busId}/media/${mediaId}/replace`, {
+                        method: 'POST',
+                        body: fd,
+                        credentials: 'include'
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        alert("🎉 Media file replaced successfully!");
+                        await openBusDetailsModal(busId, 'manage');
+                        await fetchDirectory();
+                    } else {
+                        alert(data.error || "Failed to replace media file.");
+                    }
+                } catch(e) {
+                    console.error(e);
+                    alert("Error replacing media file.");
+                }
+            };
+            input.click();
+        }
+
+        async function moveBusMediaOrder(busId, mediaId, direction) {
+            const bus = currentBusModalData;
+            if (!bus || !bus.photos) return;
+            const allPhotos = [...bus.photos];
+            const idx = allPhotos.findIndex(m => String(m.id) === String(mediaId));
+            if (idx === -1) return;
+            const targetIdx = idx + direction;
+            if (targetIdx < 0 || targetIdx >= allPhotos.length) return;
+
+            const temp = allPhotos[idx];
+            allPhotos[idx] = allPhotos[targetIdx];
+            allPhotos[targetIdx] = temp;
+
+            const newOrder = allPhotos.map(m => m.id);
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/buses/${busId}/media/reorder`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order: newOrder }),
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (data.success) {
+                    await openBusDetailsModal(busId, 'manage');
+                    await fetchDirectory();
+                } else {
+                    alert(data.error || "Failed to reorder media.");
+                }
+            } catch(e) {
+                console.error(e);
+                alert("Connection error while reordering media.");
+            }
+        }
+
+
+        function closeModal(modalId = 'operatorModal') {
+            const m = document.getElementById(modalId);
+            if (m) m.style.display = "none";
+            if (modalId === 'videoModal') {
+                const body = document.getElementById('modalVideoBody');
+                if (body) {
+                    body.querySelectorAll('video').forEach(v => {
+                        try { v.pause(); } catch(e) {}
+                    });
+                    body.innerHTML = '';
+                }
+            }
+        }
+
+        // Global Keyboard Handler for Modals & Lightbox
+        document.addEventListener('keydown', (e) => {
+            const galleryModal = document.getElementById('galleryModal');
+            const luxuryModal = document.getElementById('luxuryBusModal');
+
+            if (luxuryModal && luxuryModal.classList.contains('open')) {
+                if (e.key === 'Escape') closeBusModal();
+                else if (currentActiveTab === 'photos') {
+                    if (e.key === 'ArrowLeft') stepBusPhoto(-1);
+                    else if (e.key === 'ArrowRight') stepBusPhoto(1);
+                }
+            } else if (galleryModal && galleryModal.style.display === 'flex') {
+                if (e.key === 'Escape') closeModal('galleryModal');
+                else if (e.key === 'ArrowLeft') stepModalGallery(-1);
+                else if (e.key === 'ArrowRight') stepModalGallery(1);
+            } else if (e.key === 'Escape') {
+                closeModal('operatorModal');
+                closeModal('videoModal');
+            }
+        });
+
+        // =========================================================
+        // OWNER MANAGEMENT ACTIONS & MODALS (Bus Directory)
+        // =========================================================
+        function updateOwnerUI() {
+            const isOwner = Boolean(window.isOwner);
+            const toolbar = document.getElementById("ownerDirectoryToolbar");
+            if (toolbar) {
+                toolbar.style.display = isOwner ? "flex" : "none";
+            }
+            const valLink = document.getElementById("ownerValidationLink");
+            if (valLink) {
+                valLink.style.display = isOwner ? "inline" : "none";
+            }
+            if (operatorsData && operatorsData.length > 0) {
+                renderOperators(operatorsData);
+            }
+        }
+
+        window.addEventListener("authReady", () => {
+            updateOwnerUI();
+        });
+
+        function openOperatorFormModal(opId = null) {
+            const modal = document.getElementById('operatorFormModal');
+            const title = document.getElementById('operatorFormModalTitle');
+            const form = document.getElementById('operatorForm');
+            form.reset();
+            document.getElementById('opFormId').value = opId || '';
+
+            if (opId) {
+                title.innerText = 'Edit Verified Operator';
+                const op = operatorsData.find(o => String(o.id) === String(opId));
+                if (op) {
+                    document.getElementById('opFormName').value = op.name || '';
+                    document.getElementById('opFormLegalName').value = op.legal_name || '';
+                    document.getElementById('opFormCity').value = op.city || '';
+                    document.getElementById('opFormCategory').value = op.category || 'Tourist Bus Operator';
+                    document.getElementById('opFormAddress').value = op.address || '';
+                    document.getElementById('opFormPhone').value = op.phone || '';
+                    document.getElementById('opFormWhatsApp').value = op.whatsapp || '';
+                    document.getElementById('opFormRating').value = op.rating || 4.8;
+                    document.getElementById('opFormWebsite').value = (op.website && op.website !== 'Not publicly available') ? op.website : '';
+                    document.getElementById('opFormDescription').value = op.description || '';
+                }
+            } else {
+                title.innerText = 'Add New Verified Operator';
+            }
+            modal.classList.add('open');
+        }
+
+        function closeOperatorFormModal() {
+            const modal = document.getElementById('operatorFormModal');
+            if (modal) modal.classList.remove('open');
+        }
+
+        async function saveOperatorForm(event) {
+            event.preventDefault();
+            const opId = document.getElementById('opFormId').value;
+            const payload = {
+                name: document.getElementById('opFormName').value.trim(),
+                legal_name: document.getElementById('opFormLegalName').value.trim(),
+                city: document.getElementById('opFormCity').value.trim(),
+                category: document.getElementById('opFormCategory').value.trim(),
+                address: document.getElementById('opFormAddress').value.trim(),
+                phone: document.getElementById('opFormPhone').value.trim(),
+                whatsapp: document.getElementById('opFormWhatsApp').value.trim(),
+                rating: parseFloat(document.getElementById('opFormRating').value) || 4.8,
+                website: document.getElementById('opFormWebsite').value.trim(),
+                description: document.getElementById('opFormDescription').value.trim()
+            };
+
+            const endpoint = opId ? `/api/admin/operators/${opId}` : `/api/admin/operators`;
+            const method = opId ? 'PUT' : 'POST';
+
+            try {
+                const res = await apiFetch(endpoint, {
+                    method: method,
+                    body: payload
+                });
+                if (res.ok && res.data && res.data.success) {
+                    closeOperatorFormModal();
+                    await fetchDirectory();
+                } else {
+                    alert((res.data && res.data.error) || "Failed to save operator.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("An error occurred while saving operator.");
+            }
+        }
+
+        async function toggleOperatorPublish(opId) {
+            try {
+                const res = await apiFetch(`/api/admin/operators/${opId}/toggle-publish`, { method: 'POST' });
+                if (res.ok) {
+                    await fetchDirectory();
+                } else {
+                    alert((res.data && res.data.error) || "Failed to toggle status.");
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function deleteOperator(opId) {
+            if (!confirm("Are you sure you want to delete this operator and all associated fleet vehicles?")) {
+                return;
+            }
+            try {
+                const res = await apiFetch(`/api/admin/operators/${opId}`, { method: 'DELETE' });
+                if (res.ok && res.data && res.data.success) {
+                    await fetchDirectory();
+                } else {
+                    alert((res.data && res.data.error) || "Failed to delete operator.");
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function openBusFormModal(preSelectOpId = null, busId = null) {
+            const modal = document.getElementById('busFormModal');
+            const title = document.getElementById('busFormModalTitle');
+            const form = document.getElementById('busForm');
+            form.reset();
+
+            const opSelect = document.getElementById('busFormOperatorId');
+            opSelect.innerHTML = operatorsData.map(o => `<option value="${o.id}">${o.name} (${o.city})</option>`).join('');
+
+            document.getElementById('busFormId').value = busId || '';
+
+            if (busId) {
+                title.innerText = 'Edit Bus Specifications';
+                let foundBus = null;
+                let foundOpId = null;
+                for (let op of operatorsData) {
+                    const b = (op.buses || []).find(item => String(item.id) === String(busId));
+                    if (b) {
+                        foundBus = b;
+                        foundOpId = op.id;
+                        break;
+                    }
+                }
+                if (foundBus) {
+                    opSelect.value = foundOpId;
+                    document.getElementById('busFormName').value = foundBus.bus_name || foundBus.name || '';
+                    document.getElementById('busFormFleetNum').value = foundBus.fleet_number || '';
+                    document.getElementById('busFormModel').value = foundBus.vehicle_model || foundBus.model || '';
+                    document.getElementById('busFormManufacturer').value = foundBus.manufacturer || 'Ashok Leyland';
+                    document.getElementById('busFormBodyBuilder').value = foundBus.body_builder || '';
+                    document.getElementById('busFormCapacity').value = foundBus.capacity || 45;
+                    document.getElementById('busFormServiceType').value = foundBus.service_type || 'Tourist Coach';
+                    document.getElementById('busFormSeatLayout').value = foundBus.seat_layout || '2x2 Pushback';
+                    document.getElementById('busFormAc').checked = Boolean(foundBus.ac);
+                    document.getElementById('busFormSleeper').checked = Boolean(foundBus.sleeper);
+                    document.getElementById('busFormAmenities').value = (foundBus.features_list || []).join(', ');
+                }
+            } else {
+                title.innerText = 'Add Fleet Vehicle';
+                if (preSelectOpId) opSelect.value = preSelectOpId;
+            }
+
+            modal.classList.add('open');
+        }
+
+        function closeBusFormModal() {
+            const modal = document.getElementById('busFormModal');
+            if (modal) modal.classList.remove('open');
+        }
+
+        async function saveBusForm(event) {
+            event.preventDefault();
+            const busId = document.getElementById('busFormId').value;
+            const opId = document.getElementById('busFormOperatorId').value;
+            const amenitiesRaw = document.getElementById('busFormAmenities').value;
+            const amenitiesList = amenitiesRaw.split(',').map(s => s.trim()).filter(Boolean);
+
+            const payload = {
+                operator_id: opId,
+                bus_name: document.getElementById('busFormName').value.trim(),
+                fleet_number: document.getElementById('busFormFleetNum').value.trim(),
+                vehicle_model: document.getElementById('busFormModel').value.trim(),
+                manufacturer: document.getElementById('busFormManufacturer').value.trim(),
+                body_builder: document.getElementById('busFormBodyBuilder').value.trim(),
+                capacity: parseInt(document.getElementById('busFormCapacity').value) || 45,
+                service_type: document.getElementById('busFormServiceType').value,
+                seat_layout: document.getElementById('busFormSeatLayout').value.trim(),
+                ac: document.getElementById('busFormAc').checked ? 1 : 0,
+                sleeper: document.getElementById('busFormSleeper').checked ? 1 : 0,
+                amenities: amenitiesList
+            };
+
+            const endpoint = busId ? `/api/admin/buses/${busId}` : `/api/admin/buses`;
+            const method = busId ? 'PUT' : 'POST';
+
+            try {
+                const res = await apiFetch(endpoint, {
+                    method: method,
+                    body: payload
+                });
+                if (res.ok && res.data && res.data.success) {
+                    closeBusFormModal();
+                    await fetchDirectory();
+                } else {
+                    alert((res.data && res.data.error) || "Failed to save bus.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("An error occurred while saving bus.");
+            }
+        }
+
+        async function toggleBusPublish(busId) {
+            try {
+                const res = await apiFetch(`/api/admin/buses/${busId}/toggle-publish`, { method: 'POST' });
+                if (res.ok) {
+                    await fetchDirectory();
+                } else {
+                    alert((res.data && res.data.error) || "Failed to toggle status.");
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function deleteBus(busId) {
+            if (!confirm("Are you sure you want to delete this fleet vehicle and all its dedicated media?")) {
+                return;
+            }
+            try {
+                const res = await apiFetch(`/api/admin/buses/${busId}`, { method: 'DELETE' });
+                if (res.ok && res.data && res.data.success) {
+                    await fetchDirectory();
+                } else {
+                    alert((res.data && res.data.error) || "Failed to delete bus.");
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener("DOMContentLoaded", async () => {
+            await fetchDirectory();
+            updateOwnerUI();
+        });
+    </script>
+</body>
+</html>

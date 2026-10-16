@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Administration Portal | Journey DNA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --bg-deep: #031412;
+            --emerald-surface: rgba(7, 61, 50, 0.72);
+            --gold-accent: #D5B779;
+            --gold-gradient: linear-gradient(135deg, #ECC880 0%, #D5B779 50%, #A58242 100%);
+            --teal-accent: #54D1C6;
+            --border-glass: rgba(84, 209, 198, 0.22);
+        }
+
+        body.owner-portal-body {
+            min-height: 100vh;
+            background: radial-gradient(circle at 50% 20%, #083c32 0%, #031412 80%);
+            color: #F8F9FA;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Subtle luxury backdrop grid pattern */
+        body.owner-portal-body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(rgba(84, 209, 198, 0.08) 1px, transparent 1px),
+                radial-gradient(rgba(213, 183, 121, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .portal-card-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 460px;
+        }
+
+        .portal-glass-card {
+            background: rgba(4, 28, 23, 0.88);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 2.75rem 2.25rem;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 30px rgba(84, 209, 198, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portal-glass-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent 0%, var(--gold-accent) 50%, transparent 100%);
+        }
+
+        .brand-crest {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .crest-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: rgba(213, 183, 121, 0.12);
+            border: 1px solid rgba(213, 183, 121, 0.35);
+            font-size: 1.6rem;
+            margin-bottom: 0.9rem;
+            box-shadow: 0 0 20px rgba(213, 183, 121, 0.2);
+        }
+
+        .brand-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.65rem;
+            letter-spacing: 2.5px;
+            color: #fff;
+            margin: 0;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .portal-subtitle {
+            font-size: 0.78rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gold-accent);
+            font-weight: 600;
+            margin-top: 0.4rem;
+        }
+
+        .owner-desc {
+            text-align: center;
+            font-size: 0.88rem;
+            color: rgba(248, 249, 250, 0.7);
+            margin: 0 0 2rem 0;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 1.35rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.78rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(248, 249, 250, 0.85);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(2, 18, 14, 0.75);
+            border: 1px solid rgba(84, 209, 198, 0.28);
+            border-radius: 12px;
+            padding: 12px 14px 12px 42px;
+            color: #fff;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .input-field:focus {
+            border-color: var(--gold-accent);
+            box-shadow: 0 0 0 3px rgba(213, 183, 121, 0.2);
+            background: rgba(2, 18, 14, 0.95);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.05rem;
+            color: rgba(84, 209, 198, 0.7);
+            pointer-events: none;
+        }
+
+        .btn-owner-submit {
+            width: 100%;
+            background: var(--gold-gradient);
+            color: #031412;
+            border: none;
+            border-radius: 12px;
+            padding: 13px 20px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(213, 183, 121, 0.3);
+            transition: all 0.25s;
+            margin-top: 0.5rem;
+        }
+
+        .btn-owner-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(213, 183, 121, 0.45);
+            filter: brightness(1.05);
+        }
+
+        .btn-owner-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .form-footer-links {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.75rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid rgba(84, 209, 198, 0.15);
+            font-size: 0.82rem;
+        }
+
+        .form-footer-links a {
+            color: var(--teal-accent);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .form-footer-links a:hover {
+            color: var(--gold-accent);
+            text-decoration: underline;
+        }
+
+        .alert-box {
+            display: none;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 1.25rem;
+            line-height: 1.4;
+        }
+        .alert-box.error {
+            display: block;
+            background: rgba(220, 38, 38, 0.18);
+            border: 1px solid rgba(220, 38, 38, 0.45);
+            color: #FCA5A5;
+        }
+        .alert-box.success {
+            display: block;
+            background: rgba(16, 185, 129, 0.18);
+            border: 1px solid rgba(16, 185, 129, 0.45);
+            color: #6EE7B7;
+        }
+        .alert-box.info {
+            display: block;
+            background: rgba(84, 209, 198, 0.15);
+            border: 1px solid rgba(84, 209, 198, 0.35);
+            color: var(--teal-accent);
+        }
+
+        .owner-credential-badge {
+            background: rgba(213, 183, 121, 0.1);
+            border: 1px dashed rgba(213, 183, 121, 0.35);
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-top: 1.5rem;
+            font-size: 0.78rem;
+            color: rgba(248, 249, 250, 0.8);
+            text-align: center;
+        }
+        .owner-credential-badge strong {
+            color: var(--gold-accent);
+        }
+    </style>
+</head>
+<body class="owner-portal-body">
+
+    <div class="portal-card-wrapper">
+        <div class="portal-glass-card">
+            
+            <div class="brand-crest">
+                <div class="crest-icon">👑</div>
+                <h1 class="brand-title">Journey DNA</h1>
+                <div class="portal-subtitle">Master Owner Administration</div>
+            </div>
+
+            <p class="owner-desc">
+                Authorized system administrative access for website configuration, operators, fleet management, and destination media.
+            </p>
+
+            <div id="alertMessage" class="alert-box"></div>
+
+            <form id="ownerLoginForm" onsubmit="handleOwnerLogin(event)">
+                <div class="form-group">
+                    <label class="form-label" for="ownerEmail">Owner Email Address</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">✉️</span>
+                        <input 
+                            type="email" 
+                            id="ownerEmail" 
+                            class="input-field" 
+                            placeholder="Enter owner email"
+                            autocomplete="username"
+                        />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="ownerPassword">Master Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input 
+                            type="password" 
+                            id="ownerPassword" 
+                            class="input-field" 
+                            required 
+                            placeholder="Enter password"
+                            autocomplete="current-password"
+                        />
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="btn-owner-submit">
+                    Unlock Admin Control Center
+                </button>
+            </form>
+
+            <div class="form-footer-links">
+                <a href="forgot_password.html">Forgot Password?</a>
+                <a href="login.html">Customer Login &rarr;</a>
+            </div>
+
+            <div class="owner-credential-badge">
+                Restricted to authorized system owner credentials only
+            </div>
+
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        // Redirect if already logged in as admin or owner
+        document.addEventListener("DOMContentLoaded", async () => {
+            const user = await checkAuthStatus();
+            if (user && (user.role === "admin" || user.role === "owner")) {
+                window.location.replace("admin_panel.html");
+            }
+        });
+
+        async function handleOwnerLogin(e) {
+            e.preventDefault();
+            const alertBox = document.getElementById("alertMessage");
+            const submitBtn = document.getElementById("submitBtn");
+            const email = document.getElementById("ownerEmail").value.trim().toLowerCase();
+            const password = document.getElementById("ownerPassword").value;
+
+            alertBox.className = "alert-box";
+            alertBox.style.display = "none";
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Verifying Credentials...";
+
+            try {
+                const res = await apiFetch("/api/login", {
+                    method: "POST",
+                    body: { email, password }
+                });
+
+                if (res.ok && res.data && res.data.success) {
+                    const user = res.data.user;
+                    if (user.role === "owner" || user.role === "admin" || user.is_owner || user.is_admin) {
+                        alertBox.className = "alert-box success";
+                        alertBox.textContent = "Authentication confirmed. Launching Owner Admin Panel...";
+                        setTimeout(() => {
+                            window.location.replace("admin_panel.html");
+                        }, 700);
+                        return;
+                    } else {
+                        // Regular customer account entered
+                        alertBox.className = "alert-box info";
+                        alertBox.innerHTML = `This account is registered as a customer. <br><a href="dashboard.html" style="color:#54D1C6; font-weight:700; text-decoration:underline;">Click here to open the Customer Dashboard &rarr;</a>`;
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = "Unlock Admin Control Center";
+                        return;
+                    }
+                } else {
+                    alertBox.className = "alert-box error";
+                    alertBox.textContent = (res.data && res.data.message) ? res.data.message : "Incorrect credentials or account not authorized.";
+                }
+            } catch (err) {
+                alertBox.className = "alert-box error";
+                alertBox.textContent = "Connection to server failed. Please ensure the backend is running.";
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Unlock Admin Control Center";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | Journey DNA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="profile-page">
+
+    <!-- NAVBAR -->
+    <header class="dashboard-header">
+        <a href="dashboard.html" class="logo">✈ Journey <span>DNA</span></a>
+        <nav class="desktop-nav">
+            <!-- Dynamic Nav injected by auth.js -->
+        </nav>
+        <div class="auth-container user-profile-menu"></div>
+    </header>
+
+    <main class="page active" style="min-height: calc(100vh - 180px); padding-top: 40px;">
+        <div class="profile-card">
+            <div class="profile-avatar" id="avatarCircle">👤</div>
+            <h2 style="text-align: center; margin-bottom: 5px; font-family: var(--font-heading); color: var(--warm-ivory);" id="profileTitle">My Profile</h2>
+            <p style="text-align: center; color: var(--muted-silver); margin-bottom: 25px;">Manage your personal travel account & tourist place preferences</p>
+
+            <div id="alertContainer" style="display: none;"></div>
+
+            <!-- VIEW PROFILE MODE -->
+            <div id="viewMode">
+                <div class="profile-info-group">
+                    <label>Full Name</label>
+                    <span id="viewName">-</span>
+                </div>
+
+                <div class="profile-info-group">
+                    <label>Email ID</label>
+                    <span id="viewEmail">-</span>
+                </div>
+
+                <div class="profile-info-group">
+                    <label>Age</label>
+                    <span id="viewAge">-</span>
+                </div>
+
+                <div class="profile-info-group">
+                    <label>Gender</label>
+                    <span id="viewGender">-</span>
+                </div>
+
+                <div class="profile-info-group">
+                    <label>Phone Number</label>
+                    <span id="viewPhone">-</span>
+                </div>
+
+                <div style="background: rgba(5, 24, 32, 0.6); padding: 18px 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(88, 196, 193, 0.2);">
+                    <label style="font-weight: bold; color: var(--muted-turquoise); font-size: 13.5px; display: block; margin-bottom: 8px;">
+                        🗺️ Preferred Tourist Places (4 Selected)
+                    </label>
+                    <div id="viewPlacesList" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                        <!-- Badges rendered by JS -->
+                    </div>
+                </div>
+
+                <button type="button" id="editProfileBtn" class="btn-primary" style="margin-top: 20px;">
+                    ✏️ Edit Profile & Tourist Preferences
+                </button>
+
+                <button type="button" id="logoutProfileBtn" class="btn-danger">
+                    🚪 Logout
+                </button>
+            </div>
+
+            <!-- EDIT PROFILE MODE -->
+            <form id="editForm" style="display: none; padding: 0; box-shadow: none; max-width: 100%;" novalidate>
+                <div class="form-group">
+                    <label for="editName">Full Name *</label>
+                    <input type="text" id="editName" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editEmail">Email ID (Cannot be changed)</label>
+                    <input type="email" id="editEmail" class="form-control" disabled style="opacity: 0.7; cursor: not-allowed;">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editAge">Age *</label>
+                        <input type="number" id="editAge" class="form-control" min="1" max="120" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editGender">Gender *</label>
+                        <select id="editGender" class="form-control" required>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                            <option value="Prefer not to say">Prefer not to say</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editPhone">Phone Number *</label>
+                    <input type="tel" id="editPhone" class="form-control" required>
+                </div>
+
+                <!-- EDIT PREFERRED TOURIST PLACES -->
+                <div class="form-group" style="margin-top: 25px;">
+                    <label style="font-size: 14px; color: var(--muted-turquoise);">
+                        🗺️ Edit Your 4 Preferred Tourist Places *
+                        <span id="editSelectedCountBadge" style="float: right; font-size: 13px; color: var(--muted-silver); font-weight: normal;">(Selected: 0 / 4)</span>
+                    </label>
+                    <p style="font-size: 12.5px; color: var(--muted-silver); margin-bottom: 10px;">Select 4 destinations to update your recommended places on the dashboard.</p>
+
+                    <div style="margin-bottom: 15px;">
+                        <select id="editMoodCategoryFilter" class="form-control" style="width: auto; display: inline-block;">
+                            <option value="All">All Categories</option>
+                            <option value="Rainy">🌧️ Rainy</option>
+                            <option value="Adventure">🏔️ Adventure</option>
+                            <option value="Relaxed">🌿 Relaxed</option>
+                            <option value="Cultural">🏛️ Cultural</option>
+                            <option value="Energetic">⚡ Energetic</option>
+                        </select>
+                    </div>
+
+                    <div id="editPlacesSelector" class="place-options-grid" style="max-height: 400px; overflow-y: auto; padding: 10px; border: 1px solid rgba(88, 196, 193, 0.22); border-radius: 12px; background: rgba(5, 24, 32, 0.45);">
+                        <!-- Options injected dynamically by JS -->
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 20px;">
+                    <button type="submit" id="saveChangesBtn" class="btn-primary" style="margin-top: 0;">
+                        💾 Save Changes
+                    </button>
+                    <button type="button" id="cancelEditBtn" class="btn-secondary" style="margin-top: 0; width: 40%;">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <b>Journey DNA</b>
+        <p>Travel designed for who you are, not just where you go.</p>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script>
+        let userData = null;
+        const editSelectedPlaces = new Set();
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Protect page
+            const user = await requireAuth();
+            if (!user) return;
+
+            // Fetch full profile details
+            await loadProfile();
+
+            // Toggle Edit / View modes
+            const editBtn = document.getElementById("editProfileBtn");
+            const cancelBtn = document.getElementById("cancelEditBtn");
+            const logoutBtn = document.getElementById("logoutProfileBtn");
+            const editForm = document.getElementById("editForm");
+            const viewMode = document.getElementById("viewMode");
+
+            editBtn.addEventListener("click", () => {
+                populateEditForm();
+                viewMode.style.display = "none";
+                editForm.style.display = "block";
+                clearAlert("alertContainer");
+            });
+
+            cancelBtn.addEventListener("click", () => {
+                editForm.style.display = "none";
+                viewMode.style.display = "block";
+                clearAlert("alertContainer");
+            });
+
+            logoutBtn.addEventListener("click", handleLogout);
+
+            editForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                clearAlert("alertContainer");
+
+                const name = document.getElementById("editName").value.trim();
+                const age = document.getElementById("editAge").value.trim();
+                const gender = document.getElementById("editGender").value;
+                const phone = document.getElementById("editPhone").value.trim();
+
+                if (!name || !age || !gender || !phone) {
+                    showAlert("alertContainer", "Please fill in all required fields.");
+                    return;
+                }
+
+                const ageNum = parseInt(age, 10);
+                if (isNaN(ageNum) || ageNum <= 0 || ageNum > 120) {
+                    showAlert("alertContainer", "Please enter a valid age.");
+                    return;
+                }
+
+                const phoneRegex = /^\+?[0-9\s\-]{7,15}$/;
+                if (!phoneRegex.test(phone)) {
+                    showAlert("alertContainer", "Please enter a valid phone number.");
+                    return;
+                }
+
+                if (editSelectedPlaces.size !== 4) {
+                    showAlert("alertContainer", `Please select exactly 4 preferred tourist places (Currently selected: ${editSelectedPlaces.size}).`);
+                    return;
+                }
+
+                const saveBtn = document.getElementById("saveChangesBtn");
+                saveBtn.disabled = true;
+                saveBtn.textContent = "Saving...";
+
+                const res = await apiFetch("/api/profile", {
+                    method: "PUT",
+                    body: {
+                        name,
+                        age: ageNum,
+                        gender,
+                        phone,
+                        preferred_places: Array.from(editSelectedPlaces)
+                    }
+                });
+
+                saveBtn.disabled = false;
+                saveBtn.textContent = "💾 Save Changes";
+
+                if (res.ok && res.data.success) {
+                    showAlert("alertContainer", "Profile & tourist preferences updated successfully!", "success");
+                    userData = res.data.user;
+                    renderViewMode();
+                    editForm.style.display = "none";
+                    viewMode.style.display = "block";
+                    checkAuthStatus(); // Refresh navbar profile avatar & greeting
+                } else {
+                    const errorMsg = (res.data && res.data.error) ? res.data.error : "Failed to update profile.";
+                    showAlert("alertContainer", errorMsg);
+                }
+            });
+        });
+
+        async function loadProfile() {
+            const res = await apiFetch("/api/profile");
+            if (res.ok && res.data && res.data.user) {
+                userData = res.data.user;
+                renderViewMode();
+            } else {
+                showAlert("alertContainer", "Failed to load user profile. Please log in again.");
+            }
+        }
+
+        function renderViewMode() {
+            if (!userData) return;
+            document.getElementById("viewName").textContent = userData.name || "";
+            document.getElementById("viewEmail").textContent = userData.email || "";
+            document.getElementById("viewAge").textContent = userData.age || "";
+            document.getElementById("viewGender").textContent = userData.gender || "";
+            document.getElementById("viewPhone").textContent = userData.phone || "";
+            document.getElementById("profileTitle").textContent = `${userData.name}'s Profile`;
+
+            const avatarCircle = document.getElementById("avatarCircle");
+            if (avatarCircle && userData.name) {
+                avatarCircle.textContent = userData.name.charAt(0).toUpperCase();
+            }
+
+            // Render view places list
+            const placesContainer = document.getElementById("viewPlacesList");
+            if (placesContainer) {
+                const userPlaces = userData.preferred_places || [];
+                if (userPlaces.length === 0) {
+                    placesContainer.innerHTML = `<span style="color: #94a3b8; font-size: 13px;">No places selected yet</span>`;
+                } else {
+                    let badgeHTML = "";
+                    userPlaces.forEach(id => {
+                        const found = TOURIST_PLACES_CATALOGUE.find(p => p.id === id);
+                        if (found) {
+                            badgeHTML += `
+                                <span style="background: #e5f3f0; color: #0f766e; font-size: 12px; font-weight: bold; padding: 5px 10px; border-radius: 15px; border: 1px solid #b9e6de;">
+                                    📍 ${found.name}
+                                </span>
+                            `;
+                        }
+                    });
+                    placesContainer.innerHTML = badgeHTML;
+                }
+            }
+        }
+
+        function populateEditForm() {
+            if (!userData) return;
+            document.getElementById("editName").value = userData.name || "";
+            document.getElementById("editEmail").value = userData.email || "";
+            document.getElementById("editAge").value = userData.age || "";
+            document.getElementById("editGender").value = userData.gender || "Male";
+            document.getElementById("editPhone").value = userData.phone || "";
+
+            // Populate selected places set
+            editSelectedPlaces.clear();
+            (userData.preferred_places || []).forEach(p => editSelectedPlaces.add(p));
+
+            renderEditPlaceOptions();
+            updateEditBadgeCount();
+        }
+
+        function renderEditPlaceOptions(filterMood = "All") {
+            const container = document.getElementById("editPlacesSelector");
+            if (!container) return;
+
+            let html = "";
+            TOURIST_PLACES_CATALOGUE.forEach(place => {
+                if (filterMood !== "All" && !place.mood.includes(filterMood)) return;
+                const isSelected = editSelectedPlaces.has(place.id);
+                html += `
+                    <div class="place-option-card ${isSelected ? 'selected' : ''}" data-id="${place.id}">
+                        <input type="checkbox" id="edit_chk_${place.id}" value="${place.id}" ${isSelected ? 'checked' : ''}>
+                        <div class="place-option-info">
+                            <h4>${place.name}</h4>
+                            <span>${place.mood}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+
+            // Attach card click handlers
+            const cards = container.querySelectorAll(".place-option-card");
+            cards.forEach(card => {
+                card.addEventListener("click", (e) => {
+                    const placeId = card.dataset.id;
+                    const checkbox = document.getElementById(`edit_chk_${placeId}`);
+
+                    if (editSelectedPlaces.has(placeId)) {
+                        editSelectedPlaces.delete(placeId);
+                        card.classList.remove("selected");
+                        if (checkbox) checkbox.checked = false;
+                    } else {
+                        if (editSelectedPlaces.size >= 4) {
+                            showAlert("alertContainer", "You have already selected 4 tourist places! Uncheck one to pick a different destination.");
+                            return;
+                        }
+                        editSelectedPlaces.add(placeId);
+                        card.classList.add("selected");
+                        if (checkbox) checkbox.checked = true;
+                        clearAlert("alertContainer");
+                    }
+                    updateEditBadgeCount();
+                });
+            });
+        }
+        
+        document.getElementById("editMoodCategoryFilter").addEventListener("change", (e) => {
+            renderEditPlaceOptions(e.target.value);
+        });
+
+        function updateEditBadgeCount() {
+            const badge = document.getElementById("editSelectedCountBadge");
+            if (badge) {
+                badge.textContent = `(Selected: ${editSelectedPlaces.size} / 4)`;
+                if (editSelectedPlaces.size === 4) {
+                    badge.style.color = "#0f766e";
+                    badge.style.fontWeight = "bold";
+                } else {
+                    badge.style.color = "#64748b";
+                    badge.style.fontWeight = "normal";
+                }
+            }
+        }
+    </script>
+</body>
+</html>

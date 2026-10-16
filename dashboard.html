@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Journey DNA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Manrope:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-page">
+    <header class="dashboard-header">
+        <a href="dashboard.html" class="logo">✈ Journey <span>DNA</span></a>
+
+        <nav class="desktop-nav" aria-label="Main navigation">
+            <!-- Dynamic Nav injected by auth.js -->
+        </nav>
+
+        <div class="auth-container user-profile-menu" aria-label="User profile and logout controls">
+            <!-- Dynamic profile/logout injected by auth.js -->
+        </div>
+    </header>
+
+    <main class="dashboard-shell page active">
+        <section class="dashboard-hero">
+            <div class="dashboard-hero-copy">
+                <div id="userWelcomeBanner" class="welcome-badge">Welcome back, Nish! 👋</div>
+                <p class="eyebrow">Journey DNA Exploration Portal</p>
+                <h1>Welcome back, <span id="dashboardUserName">Nish</span>!</h1>
+                <p class="hero-subtext">Travel designed for who you are, not just where you go.</p>
+
+                <div class="dashboard-actions">
+                    <a href="places.html" class="btn btn-primary">📍 Explore Tourist Places</a>
+                    <a href="maps.html" class="btn btn-secondary">🗺️ Open Maps</a>
+                </div>
+            </div>
+
+            <div class="dashboard-hero-visual" aria-hidden="true">
+                <div class="travel-card">
+                    <div class="travel-card-top">
+                        <span class="travel-chip">Kerala + TN</span>
+                        <span class="travel-score">4.9/5</span>
+                    </div>
+                    <h3>Curated escapes</h3>
+                    <ul>
+                        <li>Beach mornings</li>
+                        <li>Hill-station getaways</li>
+                        <li>Temple trails</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-section">
+            <div class="section-heading">
+                <h2>Quick Access</h2>
+                <p>Your next destination is one tap away.</p>
+            </div>
+
+            <div class="dashboard-card-grid">
+                <article class="dashboard-card dashboard-card-primary">
+                    <div class="card-icon">🧳</div>
+                    <div class="card-copy">
+                        <span class="status-pill active">Plan</span>
+                        <h3>Plan Your Trip</h3>
+                        <p>Build a route around your interests, pace and preferred travel style.</p>
+                    </div>
+                    <a href="plan_trip.html" class="card-link">Start planning</a>
+                </article>
+
+                <article class="dashboard-card dashboard-card-secondary">
+                    <div class="card-icon">📍</div>
+                    <div class="card-copy">
+                        <span class="status-pill active">Active</span>
+                        <h3>Explore Tourist Places</h3>
+                        <p>Discover the best destinations across Tamil Nadu and Kerala.</p>
+                    </div>
+                    <a href="places.html" class="card-link">Explore places</a>
+                </article>
+
+                <article class="dashboard-card dashboard-card-secondary">
+                    <div class="card-icon">🗺️</div>
+                    <div class="card-copy">
+                        <span class="status-pill active">Live</span>
+                        <h3>Maps</h3>
+                        <p>Switch between normal and satellite views for smart destination discovery.</p>
+                    </div>
+                    <a href="maps.html" class="card-link">Open map</a>
+                </article>
+
+                <article class="dashboard-card dashboard-card-primary">
+                    <div class="card-icon">🧭</div>
+                    <div class="card-copy">
+                        <span class="status-pill active">Live</span>
+                        <h3>My Trips</h3>
+                        <p>Keep track of your upcoming routes, bookings and travel memories.</p>
+                    </div>
+                    <a href="my_trips.html" class="card-link">View trips</a>
+                </article>
+            </div>
+        </section>
+
+        <!-- OWNER MANAGEMENT SUITE (Rendered only when isOwner is true) -->
+        <section id="ownerManagementSuite" class="dashboard-section" style="display:none; margin-top:2rem;">
+            <div style="background:rgba(8, 44, 58, 0.95); border:1px solid rgba(213, 183, 121, 0.5); border-radius:24px; padding:2rem; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:12px; border-bottom:1px solid rgba(84, 209, 198, 0.2); padding-bottom:1rem;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span style="font-size:2rem;">👑</span>
+                        <div>
+                            <h2 style="margin:0; font-family:var(--font-heading); color:#D5B779; font-size:1.6rem;">Owner Management Suite</h2>
+                            <p style="margin:4px 0 0 0; color:var(--muted-silver); font-size:0.92rem;">Direct platform governance, live verified analytics, and server controls.</p>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button id="btnCreateBackup" onclick="triggerServerBackup()" class="btn" style="background:linear-gradient(135deg, #d5b779 0%, #b89347 100%); color:#031d16; font-weight:800; padding:10px 18px; border-radius:12px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                            💾 Create Instant Backup
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Live Database Metrics -->
+                <h3 style="color:var(--warm-ivory); font-size:1.15rem; margin:0 0 1rem 0; display:flex; align-items:center; gap:8px;">
+                    <span>📊</span> Real Database Metrics
+                </h3>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:14px; margin-bottom:2rem;">
+                    <div style="background:rgba(3,18,17,0.8); border:1px solid rgba(84,209,198,0.25); border-radius:14px; padding:1.2rem; text-align:center;">
+                        <div id="statOperators" style="font-size:1.8rem; font-weight:800; color:var(--warm-ivory);">...</div>
+                        <div style="font-size:0.8rem; text-transform:uppercase; color:var(--turquoise-accent); font-weight:700; margin-top:4px;">Bus Operators</div>
+                    </div>
+                    <div style="background:rgba(3,18,17,0.8); border:1px solid rgba(84,209,198,0.25); border-radius:14px; padding:1.2rem; text-align:center;">
+                        <div id="statBuses" style="font-size:1.8rem; font-weight:800; color:var(--warm-ivory);">...</div>
+                        <div style="font-size:0.8rem; text-transform:uppercase; color:var(--turquoise-accent); font-weight:700; margin-top:4px;">Fleet Vehicles</div>
+                    </div>
+                    <div style="background:rgba(3,18,17,0.8); border:1px solid rgba(84,209,198,0.25); border-radius:14px; padding:1.2rem; text-align:center;">
+                        <div id="statPlaces" style="font-size:1.8rem; font-weight:800; color:var(--warm-ivory);">...</div>
+                        <div style="font-size:0.8rem; text-transform:uppercase; color:var(--turquoise-accent); font-weight:700; margin-top:4px;">Tourist Places</div>
+                    </div>
+                    <div style="background:rgba(3,18,17,0.8); border:1px solid rgba(84,209,198,0.25); border-radius:14px; padding:1.2rem; text-align:center;">
+                        <div id="statPhotos" style="font-size:1.8rem; font-weight:800; color:var(--warm-ivory);">...</div>
+                        <div style="font-size:0.8rem; text-transform:uppercase; color:var(--turquoise-accent); font-weight:700; margin-top:4px;">Genuine Photos</div>
+                    </div>
+                    <div style="background:rgba(3,18,17,0.8); border:1px solid rgba(84,209,198,0.25); border-radius:14px; padding:1.2rem; text-align:center;">
+                        <div id="statVideos" style="font-size:1.8rem; font-weight:800; color:var(--warm-ivory);">...</div>
+                        <div style="font-size:0.8rem; text-transform:uppercase; color:var(--turquoise-accent); font-weight:700; margin-top:4px;">Native Videos</div>
+                    </div>
+                    <div style="background:rgba(3,18,17,0.8); border:1px solid rgba(84,209,198,0.25); border-radius:14px; padding:1.2rem; text-align:center;">
+                        <div id="statTrips" style="font-size:1.8rem; font-weight:800; color:var(--warm-ivory);">...</div>
+                        <div style="font-size:0.8rem; text-transform:uppercase; color:var(--turquoise-accent); font-weight:700; margin-top:4px;">Trips Created</div>
+                    </div>
+                </div>
+
+                <!-- Site Content Editor -->
+                <h3 style="color:var(--warm-ivory); font-size:1.15rem; margin:0 0 1rem 0; display:flex; align-items:center; gap:8px;">
+                    <span>🌐</span> Manage Website Public Content
+                </h3>
+                <form id="ownerSiteContentForm" onsubmit="saveSiteContent(event)" style="background:rgba(3,18,17,0.65); border:1px solid rgba(84,209,198,0.2); border-radius:16px; padding:1.5rem; display:flex; flex-direction:column; gap:14px;">
+                    <div>
+                        <label style="display:block; font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); font-weight:700; margin-bottom:4px;">Announcement Banner (Top of Website)</label>
+                        <input type="text" id="siteAnnouncement" style="width:100%; padding:0.7rem; background:rgba(3,18,17,0.9); border:1px solid rgba(84,209,198,0.3); border-radius:10px; color:var(--warm-ivory); font-size:0.9rem;" placeholder="e.g. 🌟 Welcome to Journey DNA — Experience authentic Tamil Nadu & Kerala travel!">
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                        <div>
+                            <label style="display:block; font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); font-weight:700; margin-bottom:4px;">Hero Main Headline</label>
+                            <input type="text" id="siteHeroHeadline" style="width:100%; padding:0.7rem; background:rgba(3,18,17,0.9); border:1px solid rgba(84,209,198,0.3); border-radius:10px; color:var(--warm-ivory); font-size:0.9rem;" placeholder="e.g. Your Next Journey Begins Here">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); font-weight:700; margin-bottom:4px;">Hero Sub-Headline</label>
+                            <input type="text" id="siteHeroSubheadline" style="width:100%; padding:0.7rem; background:rgba(3,18,17,0.9); border:1px solid rgba(84,209,198,0.3); border-radius:10px; color:var(--warm-ivory); font-size:0.9rem;" placeholder="e.g. Travel designed for who you are, not just where you go.">
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                        <div>
+                            <label style="display:block; font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); font-weight:700; margin-bottom:4px;">Official Support Phone</label>
+                            <input type="text" id="siteContactPhone" style="width:100%; padding:0.7rem; background:rgba(3,18,17,0.9); border:1px solid rgba(84,209,198,0.3); border-radius:10px; color:var(--warm-ivory); font-size:0.9rem;" placeholder="+91 98422 12345">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); font-weight:700; margin-bottom:4px;">Support Contact Email</label>
+                            <input type="email" id="siteContactEmail" style="width:100%; padding:0.7rem; background:rgba(3,18,17,0.9); border:1px solid rgba(84,209,198,0.3); border-radius:10px; color:var(--warm-ivory); font-size:0.9rem;" placeholder="support@journeydna.com">
+                        </div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+                        <span id="siteContentStatus" style="font-size:0.85rem; color:#68d391; font-weight:600;"></span>
+                        <button type="submit" id="btnSaveSiteContent" class="btn" style="background:linear-gradient(135deg, #176B7A 0%, #58C4C1 100%); color:#082C3A; font-weight:700; padding:10px 20px; border-radius:10px; border:none; cursor:pointer;">
+                            💾 Save Content Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <b>Journey DNA</b>
+        <p>Travel designed for who you are, not just where you go.</p>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script>
+        async function loadOwnerDashboardData() {
+            const isOwner = Boolean(window.isOwner);
+            const suite = document.getElementById("ownerManagementSuite");
+            if (!suite) return;
+
+            if (!isOwner) {
+                suite.style.display = "none";
+                return;
+            }
+
+            suite.style.display = "block";
+
+            // 1. Fetch live stats
+            try {
+                const statsRes = await apiFetch("/api/admin/stats");
+                if (statsRes.ok && statsRes.data) {
+                    const d = statsRes.data;
+                    document.getElementById("statOperators").textContent = d.total_operators || 0;
+                    document.getElementById("statBuses").textContent = d.total_buses || 0;
+                    document.getElementById("statPlaces").textContent = d.total_places || 0;
+                    document.getElementById("statPhotos").textContent = d.total_photos || 0;
+                    document.getElementById("statVideos").textContent = d.total_videos || 0;
+                    document.getElementById("statTrips").textContent = d.total_trips || 0;
+                }
+            } catch (e) {
+                console.error("Failed to load owner stats", e);
+            }
+
+            // 2. Fetch public site content
+            try {
+                const contentRes = await apiFetch("/api/admin/site-content");
+                if (contentRes.ok && contentRes.data && contentRes.data.content) {
+                    const c = contentRes.data.content;
+                    document.getElementById("siteAnnouncement").value = c.announcement_banner || "";
+                    document.getElementById("siteHeroHeadline").value = c.hero_headline || "";
+                    document.getElementById("siteHeroSubheadline").value = c.hero_subheadline || "";
+                    document.getElementById("siteContactPhone").value = c.contact_phone || "";
+                    document.getElementById("siteContactEmail").value = c.contact_email || "";
+                }
+            } catch (e) {
+                console.error("Failed to load site content", e);
+            }
+        }
+
+        async function saveSiteContent(e) {
+            e.preventDefault();
+            const btn = document.getElementById("btnSaveSiteContent");
+            const status = document.getElementById("siteContentStatus");
+            btn.disabled = true;
+            btn.textContent = "Saving...";
+
+            const payload = {
+                announcement_banner: document.getElementById("siteAnnouncement").value.trim(),
+                hero_headline: document.getElementById("siteHeroHeadline").value.trim(),
+                hero_subheadline: document.getElementById("siteHeroSubheadline").value.trim(),
+                contact_phone: document.getElementById("siteContactPhone").value.trim(),
+                contact_email: document.getElementById("siteContactEmail").value.trim()
+            };
+
+            try {
+                const res = await apiFetch("/api/admin/site-content", {
+                    method: "PUT",
+                    body: payload
+                });
+                if (res.ok && res.data && res.data.success) {
+                    status.textContent = "✓ Site content updated successfully!";
+                    setTimeout(() => { status.textContent = ""; }, 4000);
+                } else {
+                    alert((res.data && res.data.error) || "Failed to update site content.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Network error updating site content.");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "💾 Save Content Changes";
+            }
+        }
+
+        async function triggerServerBackup() {
+            const btn = document.getElementById("btnCreateBackup");
+            btn.disabled = true;
+            btn.textContent = "Creating Backup...";
+            try {
+                const res = await apiFetch("/api/admin/backup/create", { method: "POST" });
+                if (res.ok && res.data && res.data.success) {
+                    alert(`🎉 Backup created successfully!\nFile: ${res.data.backup_filename || 'database_backup.sqlite'}\nSize: ${res.data.file_size_bytes ? (res.data.file_size_bytes/1024).toFixed(1) + ' KB' : 'OK'}`);
+                } else {
+                    alert((res.data && res.data.error) || "Failed to create backup.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Network error creating backup.");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "💾 Create Instant Backup";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const user = await requireAuth();
+            const nameEl = document.getElementById("dashboardUserName");
+            const badgeEl = document.getElementById("userWelcomeBanner");
+            const displayName = user && user.name ? user.name.trim().split(" ")[0] : "Nish";
+
+            if (nameEl) nameEl.textContent = displayName;
+            if (badgeEl) badgeEl.innerHTML = `Welcome back, ${displayName}! 👋`;
+
+            await loadOwnerDashboardData();
+        });
+
+        window.addEventListener("authReady", () => {
+            loadOwnerDashboardData();
+        });
+    </script>
+</body>
+</html>

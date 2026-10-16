@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Maps | Journey DNA</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        .map-layout-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .map-control-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: rgba(8, 44, 58, 0.78);
+            padding: 16px 22px;
+            border-radius: 18px;
+            border: 1px solid rgba(88, 196, 193, 0.25);
+            box-shadow: 0 16px 36px rgba(5, 24, 32, 0.45);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .map-search-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            max-width: 450px;
+            position: relative;
+        }
+
+        .map-search-input {
+            width: 100%;
+            padding: 11px 18px;
+            background: rgba(5, 24, 32, 0.72);
+            border: 1px solid rgba(88, 196, 193, 0.25);
+            color: var(--warm-ivory);
+            border-radius: 30px;
+            outline: none;
+            font-size: 14px;
+            font-family: var(--font-body);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .map-search-input::placeholder {
+            color: var(--muted-silver);
+        }
+
+        .map-search-input:focus {
+            border-color: var(--muted-turquoise);
+            box-shadow: 0 0 0 3px rgba(88, 196, 193, 0.22);
+        }
+
+        .map-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(8, 44, 58, 0.96);
+            border: 1px solid rgba(88, 196, 193, 0.3);
+            border-radius: 14px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+            margin-top: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            backdrop-filter: blur(18px);
+        }
+
+        .map-suggestion-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(88, 196, 193, 0.12);
+            font-size: 13.5px;
+            color: var(--soft-ice-blue);
+        }
+
+        .map-suggestion-item:hover {
+            background: rgba(88, 196, 193, 0.18);
+            color: var(--muted-turquoise);
+        }
+
+        .map-view-switcher {
+            display: flex;
+            background: rgba(5, 24, 32, 0.6);
+            padding: 4px;
+            border-radius: 30px;
+            border: 1px solid rgba(88, 196, 193, 0.2);
+            gap: 4px;
+        }
+
+        .map-view-btn {
+            border: none;
+            background: transparent;
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--soft-ice-blue);
+            font-family: var(--font-sans);
+            transition: all 0.2s ease;
+        }
+
+        .map-view-btn.active {
+            background: rgba(88, 196, 193, 0.25);
+            color: var(--muted-turquoise);
+            border: 1px solid rgba(88, 196, 193, 0.4);
+            box-shadow: 0 0 12px rgba(88, 196, 193, 0.25);
+        }
+
+        .admin-badge {
+            background: rgba(213, 183, 121, 0.2);
+            border: 1px solid #D5B779;
+            color: #F0D497;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Map Container */
+        #map {
+            width: 100%;
+            height: 600px;
+            border-radius: 22px;
+            border: 1px solid rgba(88, 196, 193, 0.25);
+            box-shadow: 0 20px 50px rgba(5, 24, 32, 0.6);
+            z-index: 10;
+        }
+
+        .leaflet-popup-content-wrapper {
+            background: rgba(8, 44, 58, 0.96) !important;
+            border: 1px solid rgba(88, 196, 193, 0.3) !important;
+            color: var(--warm-ivory) !important;
+            border-radius: 16px;
+            padding: 6px;
+            box-shadow: 0 20px 48px rgba(0,0,0,0.6) !important;
+        }
+
+        .leaflet-popup-tip {
+            background: rgba(8, 44, 58, 0.96) !important;
+        }
+
+        .map-popup-card {
+            max-width: 260px;
+            color: var(--warm-ivory);
+        }
+
+        .map-popup-single-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid rgba(88, 196, 193, 0.2);
+            background: rgba(5, 24, 32, 0.6);
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .map-popup-title {
+            font-family: var(--font-heading);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--warm-ivory);
+            margin: 0 0 4px;
+        }
+
+        .map-popup-subtitle {
+            font-size: 11.5px;
+            color: var(--muted-turquoise);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .map-popup-meta {
+            font-size: 12px;
+            color: var(--soft-ice-blue);
+            line-height: 1.5;
+            margin-bottom: 5px;
+        }
+
+        .map-popup-desc {
+            font-size: 12px;
+            color: var(--muted-silver);
+            line-height: 1.5;
+            margin: 8px 0 0;
+        }
+    </style>
+</head>
+<body class="maps-page">
+
+    <!-- NAVBAR -->
+    <header class="dashboard-header">
+        <a href="dashboard.html" class="logo">✈ Journey <span>DNA</span></a>
+        <nav class="desktop-nav">
+            <!-- Dynamic Nav injected by auth.js -->
+        </nav>
+        <div class="auth-container user-profile-menu"></div>
+    </header>
+
+    <main class="page active" style="padding: 30px 4% 60px;">
+        <div style="margin-bottom: 24px;">
+            <h1 style="color: var(--warm-ivory); font-family: var(--font-heading); font-size: clamp(2rem, 3vw, 2.6rem); margin-bottom: 6px;">Interactive Destination Map 🗺️</h1>
+            <p style="color: var(--muted-silver); font-size: 1.05rem;">Explore tourist destinations across Tamil Nadu and Kerala in Normal and High-Res Satellite View.</p>
+        </div>
+
+        <div class="map-layout-container">
+            <!-- Controls Bar -->
+            <div class="map-control-bar">
+                <div class="map-search-group">
+                    <input 
+                        type="text" 
+                        id="mapSearchInput" 
+                        class="map-search-input" 
+                        placeholder="Search tourist place on map..."
+                        autocomplete="off"
+                    >
+                    <div id="mapSuggestions" class="map-suggestions"></div>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <span class="admin-badge" id="mapOwnerBadge" style="display:none;">👑 Owner GPS Mode</span>
+                    <!-- View Switcher -->
+                    <div class="map-view-switcher">
+                        <button class="map-view-btn active" id="btnNormalView">🗺️ Normal Map</button>
+                        <button class="map-view-btn" id="btnSatelliteView">🛰️ Satellite View</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaflet Map -->
+            <div id="map"></div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <b>Journey DNA</b>
+        <p>Travel designed for who you are, not just where you go.</p>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        let map;
+        let normalLayer;
+        let satelliteLayer;
+        let markersGroup;
+        let placesData = [];
+
+        function escapeHtml(value) {
+            return String(value || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/\"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function normalizeNumber(value) {
+            const parsed = Number(value);
+            return Number.isFinite(parsed) ? parsed : null;
+        }
+
+        function normalizePlaceData(place) {
+            const latitude = normalizeNumber(place.latitude ?? place.lat);
+            const longitude = normalizeNumber(place.longitude ?? place.lng);
+            const name = String(place.name || "Tourist Place").trim();
+            const state = String(place.state || "").trim();
+            const city = String(place.city || "").trim();
+            const category = String(place.category || "Tourist Place").trim();
+            const images = (() => {
+                const rawImages = Array.isArray(place.images) ? place.images :
+                    (typeof place.images === "string" ? JSON.parse(place.images) : []);
+                if (Array.isArray(rawImages)) {
+                    return rawImages.filter(img => typeof img === "string" && img.trim().length > 0);
+                }
+                if (typeof place.image_url === "string" && place.image_url.trim()) {
+                    return [place.image_url.trim()];
+                }
+                return [];
+            })();
+
+            return {
+                ...place,
+                name,
+                state,
+                city,
+                category,
+                latitude,
+                longitude,
+                images: images.length ? images.slice(0, 5) : [],
+                description: place.description || "Popular destination in the region.",
+                bestMonths: place.best_months || place.best_time_to_visit || "Year-round",
+                touristInfo: place.travel_tips || place.things_to_do || place.weather || place.description || "Explore the destination and enjoy its local attractions.",
+                locationText: [city, state].filter(Boolean).join(", ")
+            };
+        }
+
+        function buildPlacePopup(place) {
+            const imageCandidates = Array.isArray(place.images) ? place.images.filter(Boolean) : [];
+            const primaryImage = imageCandidates[0] || "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80";
+            const isOwner = Boolean(window.isOwner);
+
+            return `
+                <div class="map-popup-card">
+                    <img src="${primaryImage}" class="map-popup-single-image" alt="${escapeHtml(place.name)}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80';">
+                    <div class="map-popup-title">${escapeHtml(place.name)}</div>
+                    <div class="map-popup-subtitle">${escapeHtml(place.category)} • ${escapeHtml(place.locationText || place.city || place.state)}</div>
+                    <div class="map-popup-meta"><strong>Location:</strong> ${escapeHtml(place.locationText || place.city || place.state)}</div>
+                    <div class="map-popup-meta"><strong>Best time:</strong> ${escapeHtml(place.bestMonths)}</div>
+                    <p class="map-popup-desc">${escapeHtml(place.description || "Popular tourist destination.")}</p>
+                    <div class="map-popup-meta"><strong>Tourist information:</strong> ${escapeHtml(place.touristInfo)}</div>
+                    ${isOwner && place.id ? `
+                        <div style="margin-top:10px; padding-top:8px; border-top:1px dashed rgba(88,196,193,0.3); display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:11px; color:var(--muted-silver);">GPS: ${Number(place.latitude).toFixed(4)}, ${Number(place.longitude).toFixed(4)}</span>
+                            <button onclick="openGpsCoordinateEditor(${place.id}, '${escapeHtml(place.name).replace(/'/g, "\\'")}', ${place.latitude}, ${place.longitude})" style="background:rgba(213,183,121,0.25); border:1px solid #D5B779; color:#F0D497; font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; cursor:pointer;">
+                                📍 Edit GPS
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        async function openGpsCoordinateEditor(placeId, placeName, currentLat, currentLng) {
+            const input = prompt(`Update GPS Coordinates for "${placeName}":\nEnter Latitude, Longitude (e.g. 11.4102, 76.6950)`, `${currentLat}, ${currentLng}`);
+            if (!input) return;
+
+            const parts = input.split(',').map(s => s.trim());
+            if (parts.length < 2) {
+                alert("Please enter both latitude and longitude separated by a comma.");
+                return;
+            }
+
+            const lat = parseFloat(parts[0]);
+            const lng = parseFloat(parts[1]);
+            if (isNaN(lat) || isNaN(lng)) {
+                alert("Invalid coordinate values.");
+                return;
+            }
+
+            try {
+                const res = await apiFetch(`/api/admin/places/${placeId}`, {
+                    method: 'PUT',
+                    body: {
+                        latitude: lat,
+                        longitude: lng
+                    }
+                });
+                if (res.ok && res.data && res.data.success) {
+                    alert(`✓ GPS coordinates for ${placeName} updated to [${lat}, ${lng}]!`);
+                    await loadPlacesAndMarkers();
+                } else {
+                    alert((res.data && res.data.error) || "Failed to update coordinates.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Network error updating coordinates.");
+            }
+        }
+
+        function updateMapOwnerUI() {
+            const isOwner = Boolean(window.isOwner);
+            const badge = document.getElementById("mapOwnerBadge");
+            if (badge) {
+                badge.style.display = isOwner ? "inline-flex" : "none";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            await requireAuth();
+            updateMapOwnerUI();
+
+            initMap();
+            setupSearchAndControls();
+            await loadPlacesAndMarkers();
+        });
+
+        window.addEventListener("authReady", () => {
+            updateMapOwnerUI();
+            if (placesData && placesData.length) {
+                loadPlacesAndMarkers();
+            }
+        });
+
+        function initMap() {
+            map = L.map('map', { zoomControl: true, worldCopyJump: true }).setView([10.8505, 76.8500], 7);
+
+            normalLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            });
+
+            satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 19,
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            });
+
+            normalLayer.addTo(map);
+            markersGroup = L.layerGroup().addTo(map);
+        }
+
+        async function loadPlacesAndMarkers() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/places/search?q=`, { credentials: "include" });
+                const data = await res.json();
+                const sourcePlaces = (data && data.places) ? data.places : (Array.isArray(data) ? data : []);
+
+                const deduped = new Map();
+                sourcePlaces.forEach((place) => {
+                    if (!place || !place.name) return;
+                    const stateName = String(place.state || "").trim();
+                    const isRelevantState = /tamil nadu|kerala/i.test(stateName);
+                    if (!isRelevantState) return;
+
+                    const normalized = normalizePlaceData(place);
+                    const key = `${normalized.name}|${normalized.city}|${normalized.state}`;
+                    if (!deduped.has(key) && normalized.latitude && normalized.longitude) {
+                        deduped.set(key, normalized);
+                    }
+                });
+
+                placesData = Array.from(deduped.values());
+                markersGroup.clearLayers();
+
+                placesData.forEach((place) => {
+                    const marker = L.marker([place.latitude, place.longitude]);
+                    marker.bindPopup(buildPlacePopup(place), {
+                        maxWidth: 280,
+                        autoPan: true,
+                        closeButton: true
+                    });
+                    marker.placeName = String(place.name || "").toLowerCase();
+                    marker.placeObj = place;
+                    markersGroup.addLayer(marker);
+                });
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const requestedPlace = urlParams.get("place");
+                if (requestedPlace) {
+                    moveToPlace(requestedPlace);
+                }
+
+                const routeDataStr = urlParams.get("route");
+                if (routeDataStr) {
+                    try {
+                        const routeDestinations = JSON.parse(routeDataStr);
+                        const routeCoords = [];
+                        routeDestinations.forEach(dest => {
+                            const p = placesData.find(x => x.name.toLowerCase() === dest.place_name.toLowerCase());
+                            if (p && p.latitude && p.longitude) {
+                                routeCoords.push([p.latitude, p.longitude]);
+                            }
+                        });
+                        
+                        if (routeCoords.length > 0) {
+                            const polyline = L.polyline(routeCoords, {color: '#0f766e', weight: 4, dashArray: '10, 10'}).addTo(map);
+                            map.fitBounds(polyline.getBounds(), {padding: [50, 50]});
+                            
+                            // Make markers open sequentially or just emphasize them?
+                            // Optional enhancement
+                        }
+                    } catch(e) {}
+                }
+
+                if (!markersGroup.getLayers().length) {
+                    console.warn("No tourist place markers were loaded for the map.");
+                }
+            } catch (e) {
+                console.error("Error loading map places:", e);
+            }
+        }
+
+        function setupSearchAndControls() {
+            const btnNormal = document.getElementById("btnNormalView");
+            const btnSatellite = document.getElementById("btnSatelliteView");
+            const searchInput = document.getElementById("mapSearchInput");
+            const suggestionsBox = document.getElementById("mapSuggestions");
+
+            const setMapView = (targetLayer) => {
+                const activeLayer = map.hasLayer(normalLayer) ? normalLayer : map.hasLayer(satelliteLayer) ? satelliteLayer : null;
+
+                if (activeLayer && activeLayer !== targetLayer) {
+                    map.removeLayer(activeLayer);
+                }
+                if (!map.hasLayer(targetLayer)) {
+                    targetLayer.addTo(map);
+                }
+
+                btnNormal.classList.toggle("active", targetLayer === normalLayer);
+                btnSatellite.classList.toggle("active", targetLayer === satelliteLayer);
+                map.invalidateSize();
+            };
+
+            btnNormal.addEventListener("click", () => {
+                setMapView(normalLayer);
+            });
+
+            btnSatellite.addEventListener("click", () => {
+                setMapView(satelliteLayer);
+            });
+
+            searchInput.addEventListener("input", (e) => {
+                const query = e.target.value.trim().toLowerCase();
+                if (!query) {
+                    suggestionsBox.style.display = "none";
+                    return;
+                }
+
+                const matches = placesData.filter((p) => {
+                    const haystack = `${p.name || ""} ${p.city || ""} ${p.state || ""} ${p.category || ""}`.toLowerCase();
+                    return haystack.includes(query);
+                });
+
+                if (!matches.length) {
+                    suggestionsBox.innerHTML = `<div style="padding: 10px; color: #94a3b8; font-size: 13px;">No places found</div>`;
+                    suggestionsBox.style.display = "block";
+                    return;
+                }
+
+                suggestionsBox.innerHTML = matches.slice(0, 8).map((p) => `
+                    <div class="map-suggestion-item" data-name="${escapeHtml(p.name)}">
+                        📍 <strong>${escapeHtml(p.name)}</strong> <span style="color:#64748b; font-size:12px;">(${escapeHtml(p.category)}, ${escapeHtml(p.state)})</span>
+                    </div>
+                `).join("");
+
+                suggestionsBox.style.display = "block";
+
+                suggestionsBox.querySelectorAll(".map-suggestion-item").forEach((item) => {
+                    item.addEventListener("click", () => {
+                        const name = item.dataset.name;
+                        searchInput.value = name;
+                        suggestionsBox.style.display = "none";
+                        moveToPlace(name);
+                    });
+                });
+            });
+
+            document.addEventListener("click", (e) => {
+                if (!e.target.closest(".map-search-group")) {
+                    suggestionsBox.style.display = "none";
+                }
+            });
+        }
+
+        function moveToPlace(name) {
+            const place = placesData.find((p) => String(p.name || "").toLowerCase() === String(name || "").toLowerCase());
+            if (!place || !place.latitude || !place.longitude) return;
+
+            map.flyTo([place.latitude, place.longitude], 13, { duration: 1.5 });
+
+            markersGroup.eachLayer((layer) => {
+                if (String(layer.placeName || "").toLowerCase() === String(place.name || "").toLowerCase()) {
+                    setTimeout(() => {
+                        layer.openPopup();
+                    }, 700);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

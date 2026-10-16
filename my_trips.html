@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Trips | Journey DNA</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .trips-container {
+            max-width: 840px;
+            margin: 2.5rem auto;
+            padding: 2.5rem;
+            background: rgba(8, 44, 58, 0.85);
+            border: 1px solid rgba(88, 196, 193, 0.25);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(5, 24, 32, 0.60);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            color: var(--warm-ivory);
+        }
+        .trips-container h2 {
+            font-family: var(--font-heading);
+            color: var(--warm-ivory);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .trip-card {
+            border: 1px solid rgba(88, 196, 193, 0.22);
+            border-radius: 18px;
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+            background: rgba(5, 24, 32, 0.65);
+            color: var(--warm-ivory);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.3);
+        }
+        .trip-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(88, 196, 193, 0.18);
+            padding-bottom: 0.75rem;
+        }
+        .trip-header h3 {
+            font-family: var(--font-heading);
+            color: var(--warm-ivory);
+            margin: 0;
+        }
+        .trip-status {
+            background: rgba(88, 196, 193, 0.2);
+            color: var(--muted-turquoise);
+            border: 1px solid rgba(88, 196, 193, 0.35);
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .trip-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            color: var(--soft-ice-blue);
+        }
+        .destinations-flow {
+            background: rgba(8, 44, 58, 0.65);
+            border: 1px solid rgba(88, 196, 193, 0.18);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            color: var(--soft-ice-blue);
+        }
+        .vehicle-info {
+            background: rgba(8, 44, 58, 0.65);
+            border: 1px solid rgba(88, 196, 193, 0.18);
+            padding: 1rem;
+            border-radius: 12px;
+            color: var(--soft-ice-blue);
+        }
+        .btn-map {
+            display: inline-block;
+            background: linear-gradient(135deg, #176B7A 0%, #58C4C1 100%);
+            color: #082C3A;
+            font-family: var(--font-sans);
+            font-weight: bold;
+            padding: 0.65rem 1.25rem;
+            border-radius: 10px;
+            text-decoration: none;
+            margin-top: 1rem;
+            box-shadow: 0 4px 14px rgba(23, 107, 122, 0.35);
+            transition: all 0.2s;
+        }
+        .btn-map:hover {
+            filter: brightness(1.08);
+            box-shadow: 0 6px 18px rgba(88, 196, 193, 0.45);
+        }
+    </style>
+</head>
+<body class="my-trips-page">
+    <header class="dashboard-header">
+        <a href="dashboard.html" class="logo">✈ Journey <span>DNA</span></a>
+        <nav class="desktop-nav" aria-label="Main navigation">
+            <!-- Dynamic Nav injected by auth.js -->
+        </nav>
+        <div class="auth-container user-profile-menu"></div>
+    </header>
+
+    <main class="page active">
+        <div class="trips-container">
+            <h2>My Trips</h2>
+            <div id="tripsList">Loading trips...</div>
+        </div>
+    </main>
+
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            await requireAuth();
+            loadTrips();
+        });
+
+        async function loadTrips() {
+            const container = document.getElementById('tripsList');
+            try {
+                const res = await apiFetch('/api/trips');
+                const data = res.data;
+                
+                if (data && data.success) {
+                    if (!data.trips || data.trips.length === 0) {
+                        container.innerHTML = '<p>You have no saved trips yet. <a href="plan_trip.html" style="color:var(--muted-turquoise); font-weight:700;">Plan one now!</a></p>';
+                        return;
+                    }
+                    
+                    container.innerHTML = data.trips.map(trip => {
+                        const destinations = trip.destinations.map(d => d.place_name).join(' &rarr; ');
+                        const vehicle = trip.vehicle_info;
+                        const vehicleHtml = vehicle ? `
+                            <div class="vehicle-info">
+                                <strong>Selected Vehicle:</strong> ${vehicle.operator} - ${vehicle.name}<br>
+                                <small>Contact: ${vehicle.contact} | <a href="${vehicle.website}" target="_blank">Official Website</a></small>
+                            </div>
+                        ` : '';
+                        
+                        return `
+                            <div class="trip-card">
+                                <div class="trip-header">
+                                    <h3>Trip to ${trip.destinations.length > 0 ? trip.destinations[0].place_name : 'Unknown'}</h3>
+                                    <span class="trip-status">${trip.trip_status}</span>
+                                </div>
+                                <div class="trip-details">
+                                    <div><strong>Date:</strong> ${trip.travel_date}</div>
+                                    <div><strong>From:</strong> ${trip.from_location}</div>
+                                    <div><strong>Type:</strong> ${trip.trip_type}</div>
+                                    <div><strong>Members:</strong> ${trip.member_count}</div>
+                                </div>
+                                <div class="destinations-flow">
+                                    <strong>Route:</strong> ${trip.from_location} &rarr; ${destinations}
+                                </div>
+                                ${vehicleHtml}
+                                <a href="maps.html?route=${encodeURIComponent(JSON.stringify(trip.destinations))}" class="btn-map">View on Map</a>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = '<p>Error loading trips.</p>';
+                }
+            } catch (e) {
+                container.innerHTML = '<p>Failed to connect to server.</p>';
+            }
+        }
+    </script>
+</body>
+</html>

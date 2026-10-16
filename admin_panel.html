@@ -1,0 +1,3356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Administration Command Center | Journey DNA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --bg-deep: #031412;
+            --bg-surface: #06231e;
+            --emerald-card: rgba(6, 42, 35, 0.82);
+            --gold-accent: #D5B779;
+            --gold-gradient: linear-gradient(135deg, #ECC880 0%, #D5B779 50%, #A58242 100%);
+            --teal-accent: #54D1C6;
+            --teal-gradient: linear-gradient(135deg, #54D1C6 0%, #087E8B 100%);
+            --border-glass: rgba(84, 209, 198, 0.22);
+            --danger-color: #EF4444;
+            --danger-bg: rgba(239, 68, 68, 0.15);
+            --success-color: #10B981;
+            --success-bg: rgba(16, 185, 129, 0.15);
+            --sidebar-width: 270px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body.owner-app-body {
+            margin: 0;
+            padding: 0;
+            background: #02110F;
+            color: #F8F9FA;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Top Header Bar */
+        .owner-topbar {
+            height: 68px;
+            background: rgba(3, 20, 18, 0.95);
+            border-bottom: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.75rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .brand-cluster {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #fff;
+        }
+        .brand-crown {
+            font-size: 1.45rem;
+            color: var(--gold-accent);
+        }
+        .brand-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.35rem;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+        .role-pill-badge {
+            background: rgba(213, 183, 121, 0.14);
+            border: 1px solid rgba(213, 183, 121, 0.4);
+            color: var(--gold-accent);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 3px 9px;
+            border-radius: 20px;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .btn-view-site {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 0.84rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-view-site:hover {
+            border-color: var(--teal-accent);
+            color: var(--teal-accent);
+            background: rgba(84, 209, 198, 0.12);
+        }
+        .owner-identity {
+            font-size: 0.84rem;
+            color: rgba(248, 249, 250, 0.7);
+        }
+        .owner-identity strong {
+            color: var(--gold-accent);
+        }
+
+        /* Layout Grid */
+        .owner-layout {
+            display: flex;
+            flex: 1;
+            min-height: calc(100vh - 68px);
+        }
+
+        /* Navigation Sidebar */
+        .owner-sidebar {
+            width: var(--sidebar-width);
+            background: rgba(2, 18, 15, 0.95);
+            border-right: 1px solid var(--border-glass);
+            padding: 1.25rem 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow-y: auto;
+            position: sticky;
+            top: 68px;
+            height: calc(100vh - 68px);
+        }
+
+        .sidebar-heading {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(248, 249, 250, 0.45);
+            padding: 12px 14px 6px 14px;
+            font-weight: 700;
+        }
+
+        .nav-item-btn {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: transparent;
+            border: 1px solid transparent;
+            color: rgba(248, 249, 250, 0.82);
+            font-size: 0.88rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.18s;
+            width: 100%;
+        }
+        .nav-item-btn:hover {
+            background: rgba(84, 209, 198, 0.1);
+            color: #fff;
+            border-color: rgba(84, 209, 198, 0.2);
+        }
+        .nav-item-btn.active {
+            background: linear-gradient(90deg, rgba(84, 209, 198, 0.18) 0%, rgba(8, 126, 139, 0.25) 100%);
+            border-color: var(--teal-accent);
+            color: var(--teal-accent);
+            font-weight: 700;
+        }
+        .nav-icon {
+            font-size: 1.15rem;
+            width: 22px;
+            text-align: center;
+        }
+        .nav-badge {
+            margin-left: auto;
+            background: rgba(84, 209, 198, 0.2);
+            color: var(--teal-accent);
+            font-size: 0.72rem;
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        /* Content Area */
+        .owner-main-content {
+            flex: 1;
+            padding: 2rem 2.25rem 4rem 2.25rem;
+            background: radial-gradient(circle at 60% 10%, #062b24 0%, #02110F 70%);
+            overflow-y: auto;
+            max-width: calc(100% - var(--sidebar-width));
+        }
+
+        /* Hero banner within active section */
+        .section-hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-glass);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .section-hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+            margin: 0 0 0.35rem 0;
+            color: #fff;
+        }
+        .section-hero p {
+            margin: 0;
+            color: rgba(248, 249, 250, 0.65);
+            font-size: 0.95rem;
+            max-width: 720px;
+        }
+
+        /* Section Panels */
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.2s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Live Database Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--emerald-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 1.4rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(12px);
+            transition: transform 0.2s, border-color 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--teal-accent);
+        }
+        .stat-card.gold-border:hover {
+            border-color: var(--gold-accent);
+        }
+        .stat-icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            font-size: 0.78rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(248, 249, 250, 0.6);
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+        }
+        .stat-val {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.1;
+        }
+        .stat-desc {
+            font-size: 0.78rem;
+            color: var(--teal-accent);
+            margin-top: 0.4rem;
+        }
+
+        /* Cards & Containers */
+        .admin-card {
+            background: var(--emerald-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 18px;
+            padding: 1.75rem;
+            margin-bottom: 1.75rem;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(14px);
+        }
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(84, 209, 198, 0.15);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Buttons */
+        .btn-action {
+            background: var(--teal-gradient);
+            color: #031412;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-action:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(84, 209, 198, 0.35);
+        }
+        .btn-gold {
+            background: var(--gold-gradient);
+            color: #031412;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.2s;
+        }
+        .btn-gold:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(213, 183, 121, 0.35);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.16);
+        }
+        .btn-danger {
+            background: var(--danger-bg);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #FCA5A5;
+            padding: 6px 12px;
+            border-radius: 7px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+        .btn-danger:hover {
+            background: var(--danger-color);
+            color: #fff;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border-radius: 7px;
+        }
+
+        /* Filter Bars */
+        .filter-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+        .input-search, .select-filter {
+            background: rgba(2, 18, 14, 0.85);
+            border: 1px solid var(--border-glass);
+            border-radius: 10px;
+            color: #fff;
+            padding: 9px 14px;
+            font-size: 0.88rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-search:focus, .select-filter:focus {
+            border-color: var(--teal-accent);
+        }
+        .input-search {
+            flex: 1;
+            min-width: 240px;
+        }
+
+        /* Data Tables */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid rgba(84, 209, 198, 0.15);
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            text-align: left;
+        }
+        .data-table th {
+            background: rgba(2, 16, 13, 0.95);
+            color: rgba(248, 249, 250, 0.65);
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.8px;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-glass);
+            font-weight: 700;
+        }
+        .data-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(84, 209, 198, 0.08);
+            color: #F8F9FA;
+            vertical-align: middle;
+        }
+        .data-table tbody tr:hover {
+            background: rgba(84, 209, 198, 0.05);
+        }
+        .badge-status {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .badge-published {
+            background: rgba(16, 185, 129, 0.18);
+            color: #6EE7B7;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+        .badge-draft {
+            background: rgba(245, 158, 11, 0.18);
+            color: #FCD34D;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        /* Media Grids */
+        .media-gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+            margin-top: 1.25rem;
+        }
+        .media-card-item {
+            background: rgba(2, 20, 16, 0.85);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .media-card-item:hover {
+            transform: translateY(-2px);
+            border-color: var(--teal-accent);
+        }
+        .media-card-item.is-cover {
+            border: 2px solid var(--gold-accent);
+            box-shadow: 0 0 15px rgba(213, 183, 121, 0.3);
+        }
+        .media-viewport {
+            width: 100%;
+            height: 140px;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+        }
+        .media-viewport img, .media-viewport video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .media-details {
+            padding: 10px 12px;
+        }
+        .media-title {
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .media-tag {
+            font-size: 0.72rem;
+            color: var(--teal-accent);
+            margin-bottom: 8px;
+        }
+        .media-btn-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px;
+            border-top: 1px solid rgba(84, 209, 198, 0.12);
+            padding-top: 8px;
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 12, 10, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1.5rem;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal-content-box {
+            background: #062E25;
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 620px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            position: relative;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 16px;
+            right: 18px;
+            background: transparent;
+            border: none;
+            color: rgba(248, 249, 250, 0.6);
+            font-size: 1.4rem;
+            cursor: pointer;
+        }
+        .modal-close-btn:hover {
+            color: #fff;
+        }
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        .form-item {
+            margin-bottom: 1.25rem;
+        }
+        .form-item label {
+            display: block;
+            font-size: 14.5px;
+            letter-spacing: 0.3px;
+            color: rgba(248, 249, 250, 0.88);
+            margin-bottom: 0.45rem;
+            font-weight: 600;
+        }
+        .form-item small, .form-helper {
+            font-size: 12.5px;
+            color: rgba(248, 249, 250, 0.65);
+            display: block;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+        .form-item input, .form-item select, .form-item textarea {
+            width: 100%;
+            background: rgba(2, 18, 14, 0.85);
+            border: 1px solid var(--border-glass);
+            border-radius: 10px;
+            color: #fff;
+            padding: 10px 12px;
+            font-size: 0.92rem;
+            font-family: inherit;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-item input:focus, .form-item select:focus, .form-item textarea:focus {
+            border-color: var(--teal-accent);
+            box-shadow: 0 0 10px rgba(84, 209, 198, 0.2);
+        }
+        .form-item textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Toast Feedback */
+        .toast-notify {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #063A30;
+            border: 1px solid var(--teal-accent);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+        }
+        .toast-notify.show {
+            display: block;
+            animation: slideUp 0.25s ease-out;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* YouTube strict removal alert banner */
+        .youtube-removal-notice {
+            background: rgba(84, 209, 198, 0.1);
+            border: 1px solid rgba(84, 209, 198, 0.35);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(248, 249, 250, 0.9);
+        }
+
+        @media (max-width: 900px) {
+            .owner-layout {
+                flex-direction: column;
+            }
+            .owner-sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                top: 0;
+                max-height: 220px;
+            }
+            .owner-main-content {
+                max-width: 100%;
+                padding: 1.5rem 1rem;
+            }
+            .form-row-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="owner-app-body">
+
+    <!-- Top Navigation Bar -->
+    <header class="owner-topbar">
+        <a href="admin_panel.html" class="brand-cluster">
+            <span class="brand-crown">👑</span>
+            <span class="brand-name">Journey DNA</span>
+            <span class="role-pill-badge">Master Owner</span>
+        </a>
+
+        <div class="topbar-actions">
+            <a href="dashboard.html" class="btn-view-site">
+                <span>🌐</span> Public Site
+            </a>
+            <span class="owner-identity">
+                Authenticated: <strong>Master Owner</strong>
+            </span>
+            <button class="btn-secondary btn-sm" onclick="handleLogout()">
+                Logout
+            </button>
+        </div>
+    </header>
+
+    <div class="owner-layout">
+        
+        <!-- Navigation Sidebar (13 Sections) -->
+        <aside class="owner-sidebar">
+            <div class="sidebar-heading">Main Command</div>
+            <button class="nav-item-btn active" onclick="switchSection('overview')">
+                <span class="nav-icon">📊</span>
+                <span>1. Overview & Stats</span>
+            </button>
+
+            <div class="sidebar-heading">Fleet Operations</div>
+            <button class="nav-item-btn" onclick="switchSection('operators')">
+                <span class="nav-icon">🏢</span>
+                <span>2. Bus Operators</span>
+                <span class="nav-badge" id="badgeOps">0</span>
+            </button>
+            <button class="nav-item-btn" onclick="switchSection('buses')">
+                <span class="nav-icon">🚌</span>
+                <span>3. Individual Buses</span>
+                <span class="nav-badge" id="badgeBuses">0</span>
+            </button>
+            <button class="nav-item-btn" onclick="switchSection('bus-photos')">
+                <span class="nav-icon">📸</span>
+                <span>4. Bus Photos</span>
+            </button>
+            <button class="nav-item-btn" onclick="switchSection('bus-videos')">
+                <span class="nav-icon">🎥</span>
+                <span>5. Bus Videos</span>
+            </button>
+
+            <div class="sidebar-heading">Destinations & Trips</div>
+            <button class="nav-item-btn" onclick="switchSection('places')">
+                <span class="nav-icon">📍</span>
+                <span>6. Tourist Places</span>
+                <span class="nav-badge" id="badgePlaces">0</span>
+            </button>
+            <button class="nav-item-btn" onclick="switchSection('dest-media')">
+                <span class="nav-icon">🖼️</span>
+                <span>7. Destination Media</span>
+            </button>
+            <button class="nav-item-btn" onclick="switchSection('maps')">
+                <span class="nav-icon">🗺️</span>
+                <span>8. Maps & Coordinates</span>
+            </button>
+            <button class="nav-item-btn" onclick="switchSection('packages')">
+                <span class="nav-icon">🎒</span>
+                <span>9. Packages & Trips</span>
+            </button>
+
+            <div class="sidebar-heading">Site Control & Media</div>
+            <button class="nav-item-btn" onclick="switchSection('site-content')">
+                <span class="nav-icon">📝</span>
+                <span>10. Website Content</span>
+            </button>
+            <button class="nav-item-btn" onclick="switchSection('media-library')">
+                <span class="nav-icon">🗂️</span>
+                <span>11. Media Library</span>
+            </button>
+            <button class="nav-item-btn" onclick="switchSection('backups')">
+                <span class="nav-icon">💾</span>
+                <span>Storage & Backups</span>
+            </button>
+
+            <div class="sidebar-heading">Security & Session</div>
+            <button class="nav-item-btn" onclick="switchSection('security')">
+                <span class="nav-icon">🔒</span>
+                <span>12. Change Password</span>
+            </button>
+            <button class="nav-item-btn" onclick="handleLogout()" style="color:#FCA5A5;">
+                <span class="nav-icon">🚪</span>
+                <span>13. Logout</span>
+            </button>
+        </aside>
+
+        <!-- Main Content Viewport -->
+        <main class="owner-main-content">
+            
+            <!-- SECTION 1: OVERVIEW & REAL DATABASE STATS -->
+            <section id="sec-overview" class="content-section active">
+                <div class="section-hero">
+                    <div>
+                        <h1>Master Operations Dashboard</h1>
+                        <p>Real-time database statistics directly from SQLite for operators, verified fleets, destination guides, and customer bookings.</p>
+                    </div>
+                    <div>
+                        <button class="btn-action" onclick="createBackup()">
+                            💾 Create Storage Backup
+                        </button>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🏢</div>
+                        <div class="stat-label">Bus Operators</div>
+                        <div class="stat-val" id="stat-ops">--</div>
+                        <div class="stat-desc">Active travel operators</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🚌</div>
+                        <div class="stat-label">Fleet Buses</div>
+                        <div class="stat-val" id="stat-buses">--</div>
+                        <div class="stat-desc">Registered coaches & vans</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📸</div>
+                        <div class="stat-label">Bus Photos</div>
+                        <div class="stat-val" id="stat-photos">--</div>
+                        <div class="stat-desc">Verified vehicle galleries</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎥</div>
+                        <div class="stat-label">Native Videos</div>
+                        <div class="stat-val" id="stat-videos">--</div>
+                        <div class="stat-desc">100% Genuine HTML5 videos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📍</div>
+                        <div class="stat-label">Tourist Places</div>
+                        <div class="stat-val" id="stat-places">--</div>
+                        <div class="stat-desc">South India destinations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎒</div>
+                        <div class="stat-label">Travel Packages</div>
+                        <div class="stat-val" id="stat-packages">--</div>
+                        <div class="stat-desc">Curated tour offerings</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🗺️</div>
+                        <div class="stat-label">Customer Trips</div>
+                        <div class="stat-val" id="stat-trips">--</div>
+                        <div class="stat-desc">Planned user itineraries</div>
+                    </div>
+                    <div class="stat-card gold-border">
+                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-label">Attention Needed</div>
+                        <div class="stat-val" id="stat-attention">--</div>
+                        <div class="stat-desc">Buses missing photos/videos</div>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="card-header-row">
+                        <h2 class="card-title"><span>⚠️</span> Vehicles Needing Media Attention</h2>
+                        <button class="btn-secondary btn-sm" onclick="loadStats()">Refresh Stats</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Bus Name</th>
+                                    <th>Operator</th>
+                                    <th>Capacity</th>
+                                    <th>Status Issue</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attentionTbody">
+                                <tr><td colspan="5" style="text-align:center; color:rgba(248,249,250,0.5);">Scanning media records...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: BUS OPERATORS -->
+            <section id="sec-operators" class="content-section">
+                <div class="section-hero">
+                    <div>
+                        <h1>Bus Operators Management</h1>
+                        <p>Register, edit, publish, or unpublish bus operators. Changes are immediately reflected in customer search results.</p>
+                    </div>
+                    <div>
+                        <button class="btn-action" onclick="openModal('modal-add-operator')">
+                            ➕ Add Operator
+                        </button>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="filter-row">
+                        <input type="text" id="searchOps" class="input-search" placeholder="Search operators by name, city, phone..." oninput="filterOperatorsTable()">
+                        <select id="filterOpsPublish" class="select-filter" onchange="filterOperatorsTable()">
+                            <option value="all">All Publish States</option>
+                            <option value="published">Published Only</option>
+                            <option value="draft">Unpublished (Draft)</option>
+                        </select>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Operator Name</th>
+                                    <th>Category</th>
+                                    <th>City / District</th>
+                                    <th>Contact Phone</th>
+                                    <th>Rating</th>
+                                    <th>State</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="operatorsTbody">
+                                <tr><td colspan="7" style="text-align:center;">Loading operators...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: INDIVIDUAL BUSES -->
+            <section id="sec-buses" class="content-section">
+                <div class="section-hero">
+                    <div>
+                        <h1>Individual Fleet Buses</h1>
+                        <p>Manage individual vehicles, seat layout, AC specifications, and dedicated media associations.</p>
+                    </div>
+                    <div>
+                        <button class="btn-action" onclick="openModal('modal-add-bus')">
+                            ➕ Add Individual Bus
+                        </button>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="filter-row">
+                        <input type="text" id="searchBuses" class="input-search" placeholder="Search buses by name, model, operator..." oninput="filterBusesTable()">
+                        <select id="filterBusesOp" class="select-filter" onchange="filterBusesTable()">
+                            <option value="all">All Operators</option>
+                        </select>
+                        <select id="filterBusesPublish" class="select-filter" onchange="filterBusesTable()">
+                            <option value="all">All States</option>
+                            <option value="published">Published</option>
+                            <option value="draft">Draft</option>
+                        </select>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:70px;">Cover</th>
+                                    <th>Bus Name / Model</th>
+                                    <th>Operator</th>
+                                    <th>Capacity</th>
+                                    <th>AC / Seating</th>
+                                    <th>State</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="busesTbody">
+                                <tr><td colspan="7" style="text-align:center;">Loading fleet buses...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: BUS PHOTOS -->
+            <section id="sec-bus-photos" class="content-section">
+                <div class="section-hero">
+                    <div>
+                        <h1>Bus Photo Galleries</h1>
+                        <p>Upload high-resolution photos from your computer or link permanent images. Set cover photos and manage categories.</p>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="form-row-2">
+                        <div class="form-item">
+                            <label>Select Bus Vehicle</label>
+                            <select id="photoBusSelect" onchange="loadBusPhotos()">
+                                <option value="">-- Choose Bus --</option>
+                            </select>
+                        </div>
+                        <div class="form-item" style="display:flex; align-items:flex-end; gap:8px;">
+                            <button class="btn-action" onclick="openModal('modal-upload-photo')">📤 Upload from PC</button>
+                            <button class="btn-secondary" onclick="openModal('modal-link-photo')">🔗 Add by Link</button>
+                        </div>
+                    </div>
+
+                    <div id="busPhotosGallery" class="media-gallery-grid">
+                        <div style="grid-column:1/-1; text-align:center; color:rgba(248,249,250,0.5); padding:2rem;">
+                            Please select a bus above to manage its dedicated photo collection.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 5: BUS VIDEOS (ZERO YOUTUBE) -->
+            <section id="sec-bus-videos" class="content-section">
+                <div class="section-hero">
+                    <div>
+                        <h1>Genuine Bus Walkaround Videos</h1>
+                        <p>Upload and stream native MP4/WEBM videos. YouTube links and iframe players have been completely eliminated.</p>
+                    </div>
+                </div>
+
+                <div class="youtube-removal-notice">
+                    <span style="font-size:1.4rem;">🛡️</span>
+                    <div>
+                        <strong>Zero YouTube Guarantee:</strong> All YouTube embeds, "Watch on YouTube" links, and third-party trackers are permanently removed. Videos are stored and played locally via native HTML5 controls.
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="form-row-2">
+                        <div class="form-item">
+                            <label>Select Bus Vehicle</label>
+                            <select id="videoBusSelect" onchange="loadBusVideos()">
+                                <option value="">-- Choose Bus --</option>
+                            </select>
+                        </div>
+                        <div class="form-item" style="display:flex; align-items:flex-end; gap:8px;">
+                            <button class="btn-action" onclick="openModal('modal-upload-video')">📤 Upload MP4 from PC</button>
+                            <button class="btn-secondary" onclick="openModal('modal-link-video')">🔗 Add MP4 by Direct Link</button>
+                        </div>
+                    </div>
+
+                    <div id="busVideosGallery" class="media-gallery-grid">
+                        <div style="grid-column:1/-1; text-align:center; color:rgba(248,249,250,0.5); padding:2rem;">
+                            Please select a bus above to manage its genuine videos.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 6: TOURIST PLACES -->
+            <section id="sec-places" class="content-section">
+                <div class="section-hero">
+                    <div>
+                        <h1>Tourist Places Administration</h1>
+                        <p>Manage verified travel spots across South India. Configure seasonal timing, GPS coordinates, and visibility.</p>
+                    </div>
+                    <div>
+                        <button class="btn-action" onclick="openModal('modal-add-place')">
+                            ➕ Add Tourist Place
+                        </button>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="filter-row">
+                        <input type="text" id="searchPlaces" class="input-search" placeholder="Search places by name, city, state, category..." oninput="filterPlacesTable()">
+                        <select id="filterPlacesState" class="select-filter" onchange="filterPlacesTable()">
+                            <option value="all">All States</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Kerala">Kerala</option>
+                            <option value="Karnataka">Karnataka</option>
+                        </select>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Place Name</th>
+                                    <th>Location</th>
+                                    <th>Category</th>
+                                    <th>Best Season</th>
+                                    <th>Coordinates</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="placesTbody">
+                                <tr><td colspan="7" style="text-align:center;">Loading tourist places...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 7: DESTINATION MEDIA -->
+            <section id="sec-dest-media" class="content-section">
+                <div class="section-hero">
+                    <div>
+                        <h1>Destination Photos & Videos</h1>
+                        <p>Upload and manage high-quality photography and cinematic videos for tourist attractions.</p>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="form-row-2">
+                        <div class="form-item">
+                            <label>Select Tourist Place</label>
+                            <select id="destMediaPlaceSelect" onchange="loadDestMedia()">
+                                <option value="">-- Choose Tourist Place --</option>
+                            </select>
+                        </div>
+                        <div class="form-item" style="display:flex; align-items:flex-end; gap:8px;">
+                            <button class="btn-action" onclick="openModal('modal-upload-dest-media')">📤 Upload from PC</button>
+                            <button class="btn-secondary" onclick="openModal('modal-link-dest-media')">🔗 Add by Link</button>
+                        </div>
+                    </div>
+
+                    <div id="destMediaGallery" class="media-gallery-grid">
+                        <div style="grid-column:1/-1; text-align:center; color:rgba(248,249,250,0.5); padding:2rem;">
+                            Please select a destination above to view and manage media.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 8: MAPS & DESTINATION INFORMATION -->
+            <section id="sec-maps" class="content-section">
+                <div class="section-hero">
+                    <div>
+                        <h1>Maps & GPS Coordinates</h1>
+                        <p>Verify and fine-tune latitude and longitude coordinates for interactive map markers across Journey DNA.</p>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="filter-row">
+                        <input type="text" id="searchMaps" class="input-search" placeholder="Search destinations to check map pin..." oninput="filterMapsTable()">
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Destination Name</th>
+                                    <th>City / State</th>
+                                    <th>Latitude</th>
+                                    <th>Longitude</th>
+                                    <th>Map Pin Preview</th>
+                                    <th>Quick Edit</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mapsTbody">
+                                <tr><td colspan="6" style="text-align:center;">Loading map coordinate records...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 9: PACKAGES & TRIP INFORMATION -->
+            <section id="sec-packages" class="content-section">
+                <div class="section-hero">
+                    <div>
+                        <h1>Travel Packages & Customer Trips</h1>
+                        <p>Curate luxury travel packages and review real-time trip enquiries created by logged-in customers.</p>
+                    </div>
+                    <div>
+                        <button class="btn-action" onclick="openModal('modal-add-package')">
+                            ➕ Add Travel Package
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sub-Tabs for Packages vs Bookings -->
+                <div style="display:flex; gap:10px; margin-bottom:1.5rem;">
+                    <button id="btnSubPkg" class="btn-action btn-sm" onclick="togglePackageSubTab('packages')">Curated Packages</button>
+                    <button id="btnSubTrips" class="btn-secondary btn-sm" onclick="togglePackageSubTab('trips')">Customer Trip Bookings</button>
+                </div>
+
+                <div id="subtab-packages-view">
+                    <div class="admin-card">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Package Title</th>
+                                        <th>Destination</th>
+                                        <th>Duration</th>
+                                        <th>Price (₹)</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="packagesTbody">
+                                    <tr><td colspan="6" style="text-align:center;">Loading packages...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="subtab-trips-view" style="display:none;">
+                    <div class="admin-card">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Trip ID</th>
+                                        <th>Customer</th>
+                                        <th>Travel Date</th>
+                                        <th>Origin</th>
+                                        <th>Destinations</th>
+                                        <th>Members</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tripsTbody">
+                                    <tr><td colspan="7" style="text-align:center;">Loading customer trip bookings...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 10: CUSTOMER-FACING WEBSITE CONTENT -->
+            <section id="sec-site-content" class="content-section">
+                <div class="section-hero">
+                    <div>
+                        <h1>Website Public Content</h1>
+                        <p>Manage site-wide announcement banners, hero headlines, and customer support contact information.</p>
+                    </div>
+                    <div>
+                        <button class="btn-action" onclick="saveSiteContent()">
+                            💾 Save Public Content
+                        </button>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="form-item">
+                        <label>Announcement Banner (Appears at top of customer pages)</label>
+                        <input type="text" id="siteBanner" placeholder="e.g. Special Holiday Packages Available for Ooty & Munnar!">
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-item">
+                            <label>Hero Headline</label>
+                            <input type="text" id="siteHeroTitle" placeholder="e.g. Discover South India's Most Cinematic Journeys">
+                        </div>
+                        <div class="form-item">
+                            <label>Customer Support Email</label>
+                            <input type="email" id="siteSupportEmail" placeholder="support@journeydna.com">
+                        </div>
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-item">
+                            <label>Customer Support Phone</label>
+                            <input type="text" id="siteSupportPhone" placeholder="+91 98765 43210">
+                        </div>
+                        <div class="form-item">
+                            <label>Office Address</label>
+                            <input type="text" id="siteSupportAddress" placeholder="Chennai & Coimbatore, Tamil Nadu, India">
+                        </div>
+                    </div>
+
+                    <div class="form-item">
+                        <label>Hero Subtitle / Description</label>
+                        <textarea id="siteHeroSubtitle" placeholder="Hand-crafted travel experiences and verified tourist coach rentals."></textarea>
+                    </div>
+                </div>
+
+                <div class="admin-card" style="margin-top:2rem;">
+                    <div class="card-header-row">
+                        <div>
+                            <h2 class="card-title"><span>🖼️</span> Bus Directory Placeholder Settings ("No images available")</h2>
+                            <p style="color:rgba(248,249,250,0.65); font-size:0.86rem; margin:4px 0 0 0;">
+                                Customize the customer-facing artwork and fallback display when a bus or operator does not yet have verified photos uploaded.
+                            </p>
+                        </div>
+                        <button class="btn-action" onclick="savePlaceholderSettings()">
+                            💾 Save Placeholder Settings
+                        </button>
+                    </div>
+
+                    <div class="form-row-2" style="margin-top:1.5rem;">
+                        <div class="form-item">
+                            <label>Placeholder Title *</label>
+                            <input type="text" id="placeholderTitleInput" placeholder="No images available" oninput="updatePlaceholderPreview()">
+                        </div>
+                        <div class="form-item">
+                            <label>Placeholder Subtitle</label>
+                            <input type="text" id="placeholderSubtitleInput" placeholder="Authentic fleet photos coming soon" oninput="updatePlaceholderPreview()">
+                        </div>
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-item">
+                            <label>Background Theme Style</label>
+                            <select id="placeholderBgSelect" onchange="updatePlaceholderPreview()">
+                                <option value="emerald">Dark Emerald Gradient (Journey DNA Theme)</option>
+                                <option value="slate">Deep Slate Blue</option>
+                                <option value="turquoise">Turquoise Minimal Glow</option>
+                                <option value="gold">Warm Gold & Charcoal</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <label>Custom Artwork / Badge Image URL (Optional)</label>
+                            <input type="text" id="placeholderCustomImgInput" placeholder="e.g. /static/images/placeholder_bus.png" oninput="updatePlaceholderPreview()">
+                        </div>
+                    </div>
+
+                    <!-- Live Interactive Preview -->
+                    <div style="margin-top:1.25rem;">
+                        <label style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.8px; color:var(--teal-accent); font-weight:700; margin-bottom:0.5rem; display:block;">
+                            Live Customer-Facing Preview:
+                        </label>
+                        <div id="adminPlaceholderPreviewBox" style="max-width:440px; margin:0 auto;">
+                            <!-- Injected live -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 11: UNIFIED MEDIA LIBRARY -->
+            <section id="sec-media-library" class="content-section">
+                <div class="section-hero">
+                    <div>
+                        <h1>Unified Media Library</h1>
+                        <p>Global repository of all bus photos, vehicle walkaround videos, and destination imagery stored permanently on disk.</p>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="filter-row">
+                        <input type="text" id="searchLibrary" class="input-search" placeholder="Search media by caption, entity name, or filename..." oninput="filterMediaLibrary()">
+                        <select id="filterLibraryType" class="select-filter" onchange="filterMediaLibrary()">
+                            <option value="all">All Media Formats</option>
+                            <option value="photo">Photos Only</option>
+                            <option value="video">Videos Only</option>
+                        </select>
+                    </div>
+
+                    <div id="unifiedLibraryGrid" class="media-gallery-grid">
+                        <div style="grid-column:1/-1; text-align:center; padding:2rem; color:rgba(248,249,250,0.5);">
+                            Loading media library items...
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: PERMANENT STORAGE & BACKUP -->
+            <section id="sec-backups" class="content-section">
+                <div class="section-hero">
+                    <div>
+                        <h1>Permanent Server Storage & Backups</h1>
+                        <p>Generate timestamped zip archives containing the SQLite database and media metadata for safe offline storage.</p>
+                    </div>
+                    <div>
+                        <button class="btn-action" onclick="createBackup()">
+                            📦 Generate Full Backup Zip
+                        </button>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="card-header-row">
+                        <h2 class="card-title"><span>💾</span> Available Backup Archives</h2>
+                        <button class="btn-secondary btn-sm" onclick="loadBackupsList()">Refresh List</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Backup Filename</th>
+                                    <th>Size</th>
+                                    <th>Created Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="backupsTbody">
+                                <tr><td colspan="4" style="text-align:center;">Loading backup history...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 12: CHANGE PASSWORD -->
+            <section id="sec-security" class="content-section">
+                <div class="section-hero">
+                    <div>
+                        <h1>Owner Password & Security</h1>
+                        <p>Update your master password securely. This updates your credentials in SQLite and revokes old tokens.</p>
+                    </div>
+                </div>
+
+                <div class="admin-card" style="max-width:540px;">
+                    <form onsubmit="handlePasswordChange(event)">
+                        <div class="form-item">
+                            <label>Current Master Password</label>
+                            <input type="password" id="curPassword" required placeholder="Enter current password">
+                        </div>
+                        <div class="form-item">
+                            <label>New Master Password (min 6 characters)</label>
+                            <input type="password" id="newOwnerPassword" required minlength="6" placeholder="Enter new password">
+                        </div>
+                        <div class="form-item">
+                            <label>Confirm New Master Password</label>
+                            <input type="password" id="confirmOwnerPassword" required minlength="6" placeholder="Confirm new password">
+                        </div>
+                        <button type="submit" id="btnChangePwd" class="btn-gold" style="width:100%; margin-top:10px;">
+                            Update Master Password
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastNotification" class="toast-notify"></div>
+
+    <!-- Hidden file input for one-click replacement of photos and videos on disk -->
+    <input type="file" id="adminReplaceFileInput" style="display:none;" onchange="handleAdminFileReplacement(event)">
+
+    <!-- ======================================================== -->
+    <!-- MODALS -->
+    <!-- ======================================================== -->
+
+    <!-- Modal: Add Operator -->
+    <div id="modal-add-operator" class="modal-overlay">
+        <div class="modal-content-box">
+            <button class="modal-close-btn" onclick="closeModal('modal-add-operator')">&times;</button>
+            <h2 style="margin-top:0; color:#fff; font-size:1.3rem;">➕ Add Bus Operator</h2>
+            <form onsubmit="handleAddOperator(event)">
+                <div class="form-row-2">
+                    <div class="form-item">
+                        <label>Operator Name *</label>
+                        <input type="text" id="opName" required placeholder="e.g. Parveen Travels">
+                    </div>
+                    <div class="form-item">
+                        <label>Category</label>
+                        <input type="text" id="opCategory" placeholder="e.g. Luxury Coaches, Tourist Van">
+                    </div>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-item">
+                        <label>City *</label>
+                        <input type="text" id="opCity" required placeholder="e.g. Chennai">
+                    </div>
+                    <div class="form-item">
+                        <label>District / State</label>
+                        <input type="text" id="opDistrict" placeholder="e.g. Chennai, Tamil Nadu">
+                    </div>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-item">
+                        <label>Contact Phone</label>
+                        <input type="text" id="opPhone" placeholder="e.g. +91 98400 12345">
+                    </div>
+                    <div class="form-item">
+                        <label>Website</label>
+                        <input type="url" id="opWebsite" placeholder="https://...">
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label>Full Address</label>
+                    <input type="text" id="opAddress" placeholder="e.g. 12, Koyambedu Omnibus Terminus, Chennai">
+                </div>
+                <div class="form-item">
+                    <label>Description</label>
+                    <textarea id="opDesc" placeholder="Summary of fleet capabilities and service routes..."></textarea>
+                </div>
+                <button type="submit" class="btn-action" style="width:100%;">Save Operator to Database</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Bus -->
+    <div id="modal-add-bus" class="modal-overlay">
+        <div class="modal-content-box" style="max-width:680px;">
+            <button class="modal-close-btn" onclick="closeModal('modal-add-bus')">&times;</button>
+            <h2 style="margin-top:0; color:#fff; font-size:1.3rem;">➕ Add Fleet Bus</h2>
+            <form onsubmit="handleAddBus(event)" style="display:flex; flex-direction:column; gap:16px;">
+                <!-- Section 1: Vehicle Identity & Operator -->
+                <div style="background:rgba(84, 209, 198, 0.05); border:1px solid rgba(84, 209, 198, 0.2); border-radius:12px; padding:14px 16px;">
+                    <div style="font-size:0.78rem; font-weight:700; color:var(--teal-accent); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                        <span>📌</span> Vehicle Identity & Operator
+                    </div>
+                    <div class="form-item">
+                        <label>Select Operator *</label>
+                        <select id="busOpSelect" required>
+                            <option value="">-- Choose Operator --</option>
+                        </select>
+                    </div>
+                    <div class="form-row-2">
+                        <div class="form-item">
+                            <label>Bus / Fleet Name *</label>
+                            <input type="text" id="busName" required placeholder="e.g. Royal Cruiser">
+                        </div>
+                        <div class="form-item">
+                            <label>Vehicle Model</label>
+                            <input type="text" id="busModel" placeholder="e.g. Volvo B11R, BharatBenz">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Technical Specifications & Capacity -->
+                <div style="background:rgba(84, 209, 198, 0.05); border:1px solid rgba(84, 209, 198, 0.2); border-radius:12px; padding:14px 16px;">
+                    <div style="font-size:0.78rem; font-weight:700; color:var(--teal-accent); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                        <span>⚙️</span> Technical Specifications & Capacity
+                    </div>
+                    <div class="form-row-2">
+                        <div class="form-item">
+                            <label>Passenger Capacity *</label>
+                            <input type="number" id="busCapacity" required min="1" max="100" placeholder="e.g. 45">
+                        </div>
+                        <div class="form-item">
+                            <label>Bus Type</label>
+                            <input type="text" id="busType" placeholder="e.g. Multi-Axle Luxury AC">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Comfort & Seating Features -->
+                <div style="background:rgba(84, 209, 198, 0.05); border:1px solid rgba(84, 209, 198, 0.2); border-radius:12px; padding:14px 16px;">
+                    <div style="font-size:0.78rem; font-weight:700; color:var(--teal-accent); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                        <span>🛋️</span> Comfort & Seating Features
+                    </div>
+                    <div class="form-row-2">
+                        <div class="form-item">
+                            <label>AC Type</label>
+                            <select id="busAcType">
+                                <option value="AC">Air Conditioned (AC)</option>
+                                <option value="Non-AC">Non-AC</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <label>Seating Type</label>
+                            <select id="busSeatingType">
+                                <option value="Pushback Semi-Sleeper">Pushback Semi-Sleeper</option>
+                                <option value="Sleeper">Full Sleeper</option>
+                                <option value="Seater">Standard Seater</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-item" style="margin-bottom:0;">
+                        <label>Features (comma-separated)</label>
+                        <input type="text" id="busFeatures" placeholder="Air Suspension, Chilled AC, Charging Ports, Luggage Bay">
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('modal-add-bus')">Cancel</button>
+                    <button type="submit" class="btn-action">💾 Save Bus Vehicle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Bus -->
+    <div id="modal-edit-bus" class="modal-overlay">
+        <div class="modal-content-box" style="max-width:680px;">
+            <button class="modal-close-btn" onclick="closeModal('modal-edit-bus')">&times;</button>
+            <h2 style="margin-top:0; color:#fff; font-size:1.3rem;">✏️ Edit Fleet Bus Specifications</h2>
+            <form onsubmit="handleEditBusSubmit(event)" style="display:flex; flex-direction:column; gap:16px;">
+                <input type="hidden" id="editBusId">
+                <!-- Section 1: Vehicle Identity & Operator -->
+                <div style="background:rgba(84, 209, 198, 0.05); border:1px solid rgba(84, 209, 198, 0.2); border-radius:12px; padding:14px 16px;">
+                    <div style="font-size:0.78rem; font-weight:700; color:var(--teal-accent); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                        <span>📌</span> Vehicle Identity & Operator
+                    </div>
+                    <div class="form-item">
+                        <label>Select Operator *</label>
+                        <select id="editBusOpSelect" required>
+                            <option value="">-- Choose Operator --</option>
+                        </select>
+                    </div>
+                    <div class="form-row-2">
+                        <div class="form-item">
+                            <label>Bus / Fleet Name *</label>
+                            <input type="text" id="editBusName" required placeholder="e.g. Royal Cruiser">
+                        </div>
+                        <div class="form-item">
+                            <label>Vehicle Model</label>
+                            <input type="text" id="editBusModel" placeholder="e.g. Volvo B11R, BharatBenz">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Technical Specifications & Capacity -->
+                <div style="background:rgba(84, 209, 198, 0.05); border:1px solid rgba(84, 209, 198, 0.2); border-radius:12px; padding:14px 16px;">
+                    <div style="font-size:0.78rem; font-weight:700; color:var(--teal-accent); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                        <span>⚙️</span> Technical Specifications & Capacity
+                    </div>
+                    <div class="form-row-2">
+                        <div class="form-item">
+                            <label>Passenger Capacity *</label>
+                            <input type="number" id="editBusCapacity" required min="1" max="100" placeholder="e.g. 45">
+                        </div>
+                        <div class="form-item">
+                            <label>Bus Type</label>
+                            <input type="text" id="editBusType" placeholder="e.g. Multi-Axle Luxury AC">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Comfort & Seating Features -->
+                <div style="background:rgba(84, 209, 198, 0.05); border:1px solid rgba(84, 209, 198, 0.2); border-radius:12px; padding:14px 16px;">
+                    <div style="font-size:0.78rem; font-weight:700; color:var(--teal-accent); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                        <span>🛋️</span> Comfort & Seating Features
+                    </div>
+                    <div class="form-row-2">
+                        <div class="form-item">
+                            <label>AC Type</label>
+                            <select id="editBusAcType">
+                                <option value="AC">Air Conditioned (AC)</option>
+                                <option value="Non-AC">Non-AC</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <label>Seating Type</label>
+                            <select id="editBusSeatingType">
+                                <option value="Pushback Semi-Sleeper">Pushback Semi-Sleeper</option>
+                                <option value="Sleeper">Full Sleeper</option>
+                                <option value="Seater">Standard Seater</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-item" style="margin-bottom:0;">
+                        <label>Features (comma-separated)</label>
+                        <input type="text" id="editBusFeatures" placeholder="Air Suspension, Chilled AC, Charging Ports, Luggage Bay">
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('modal-edit-bus')">Cancel</button>
+                    <button type="submit" class="btn-action">💾 Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Upload Bus Photo -->
+    <div id="modal-upload-photo" class="modal-overlay">
+        <div class="modal-content-box">
+            <button class="modal-close-btn" onclick="closeModal('modal-upload-photo')">&times;</button>
+            <h2 style="margin-top:0; color:#fff; font-size:1.3rem;">📤 Upload Bus Photo(s) from PC</h2>
+            <form onsubmit="handleUploadBusPhoto(event)">
+                <div class="form-item">
+                    <label>Select Photo File(s) (JPG, PNG, WEBP) *</label>
+                    <input type="file" id="busPhotoFileInput" accept="image/jpeg,image/png,image/webp" multiple required>
+                    <small style="color:rgba(248,249,250,0.65); display:block; margin-top:4px;">Supports single or multi-photo uploads (up to 15MB each).</small>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-item">
+                        <label>Category</label>
+                        <select id="busPhotoCategory">
+                            <option value="Exterior">Exterior</option>
+                            <option value="Interior">Interior</option>
+                            <option value="Seating">Seating</option>
+                            <option value="Cabin">Driver / Cabin</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <label>Caption</label>
+                        <input type="text" id="busPhotoCaption" placeholder="e.g. Front View & Suspension">
+                    </div>
+                </div>
+                <div class="form-item" style="display:flex; align-items:center; gap:8px;">
+                    <input type="checkbox" id="busPhotoIsCoverCheck" style="width:auto;">
+                    <label for="busPhotoIsCoverCheck" style="margin:0; text-transform:none; cursor:pointer;">Set as Primary Cover Photo</label>
+                </div>
+                <button type="submit" class="btn-action" style="width:100%;">Upload Photo(s) to Server</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Link Bus Photo -->
+    <div id="modal-link-photo" class="modal-overlay">
+        <div class="modal-content-box">
+            <button class="modal-close-btn" onclick="closeModal('modal-link-photo')">&times;</button>
+            <h2 style="margin-top:0; color:#fff; font-size:1.3rem;">🔗 Add Bus Photo by Direct Link</h2>
+            <form onsubmit="handleLinkBusPhoto(event)">
+                <div class="form-item">
+                    <label>Direct Photo URL *</label>
+                    <input type="url" id="busPhotoLinkUrl" required placeholder="https://example.com/bus.jpg">
+                </div>
+                <div class="form-row-2">
+                    <div class="form-item">
+                        <label>Category</label>
+                        <select id="busPhotoLinkCategory">
+                            <option value="Exterior">Exterior</option>
+                            <option value="Interior">Interior</option>
+                            <option value="Seating">Seating</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <label>Caption</label>
+                        <input type="text" id="busPhotoLinkCaption" placeholder="e.g. Luxury Interior Lounge">
+                    </div>
+                </div>
+                <div class="form-item" style="display:flex; align-items:center; gap:8px;">
+                    <input type="checkbox" id="busPhotoDownloadCheck" checked style="width:auto;">
+                    <label for="busPhotoDownloadCheck" style="margin:0; text-transform:none;">Download and store permanently on server</label>
+                </div>
+                <button type="submit" class="btn-action" style="width:100%;">Save Photo Link</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Upload Bus Video -->
+    <div id="modal-upload-video" class="modal-overlay">
+        <div class="modal-content-box">
+            <button class="modal-close-btn" onclick="closeModal('modal-upload-video')">&times;</button>
+            <h2 style="margin-top:0; color:#fff; font-size:1.3rem;">📤 Upload MP4 Bus Video from PC</h2>
+            <form onsubmit="handleUploadBusVideo(event)">
+                <div class="form-item">
+                    <label>Select Video File (MP4, WEBM) *</label>
+                    <input type="file" id="busVideoFileInput" accept="video/mp4,video/webm" required>
+                </div>
+                <div class="form-item">
+                    <label>Caption / Title</label>
+                    <input type="text" id="busVideoCaption" placeholder="e.g. Interior Walkthrough & Ambient Lighting">
+                </div>
+                <button type="submit" class="btn-action" style="width:100%;">Upload Video to Server</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Link Bus Video -->
+    <div id="modal-link-video" class="modal-overlay">
+        <div class="modal-content-box">
+            <button class="modal-close-btn" onclick="closeModal('modal-link-video')">&times;</button>
+            <h2 style="margin-top:0; color:#fff; font-size:1.3rem;">🔗 Add Direct MP4 Video Link</h2>
+            <form onsubmit="handleLinkBusVideo(event)">
+                <div class="form-item">
+                    <label>Direct Video URL (MP4 / WEBM only) *</label>
+                    <input type="url" id="busVideoLinkUrl" required placeholder="https://example.com/bus_tour.mp4">
+                    <small style="color:var(--teal-accent); display:block; margin-top:4px;">Strictly no YouTube links allowed.</small>
+                </div>
+                <div class="form-item">
+                    <label>Caption / Title</label>
+                    <input type="text" id="busVideoLinkCaption" placeholder="e.g. Complete Coach Walkaround">
+                </div>
+                <div class="form-item" style="display:flex; align-items:center; gap:8px;">
+                    <input type="checkbox" id="busVideoDownloadCheck" style="width:auto;">
+                    <label for="busVideoDownloadCheck" style="margin:0; text-transform:none;">Download video permanently to server disk</label>
+                </div>
+                <button type="submit" class="btn-action" style="width:100%;">Save Video Link</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Tourist Place -->
+    <div id="modal-add-place" class="modal-overlay">
+        <div class="modal-content-box">
+            <button class="modal-close-btn" onclick="closeModal('modal-add-place')">&times;</button>
+            <h2 style="margin-top:0; color:#fff; font-size:1.3rem;">➕ Add Tourist Place</h2>
+            <form onsubmit="handleAddPlace(event)">
+                <div class="form-row-2">
+                    <div class="form-item">
+                        <label>Place Name *</label>
+                        <input type="text" id="placeName" required placeholder="e.g. Meenakshi Amman Temple">
+                    </div>
+                    <div class="form-item">
+                        <label>Category</label>
+                        <input type="text" id="placeCategory" placeholder="e.g. Heritage, Hill Station, Temple">
+                    </div>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-item">
+                        <label>City *</label>
+                        <input type="text" id="placeCity" required placeholder="e.g. Madurai">
+                    </div>
+                    <div class="form-item">
+                        <label>State *</label>
+                        <select id="placeState">
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Kerala">Kerala</option>
+                            <option value="Karnataka">Karnataka</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-item">
+                        <label>Latitude</label>
+                        <input type="number" step="any" id="placeLat" placeholder="e.g. 9.9195">
+                    </div>
+                    <div class="form-item">
+                        <label>Longitude</label>
+                        <input type="number" step="any" id="placeLng" placeholder="e.g. 78.1193">
+                    </div>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-item">
+                        <label>Best Season</label>
+                        <input type="text" id="placeSeason" placeholder="e.g. October to March">
+                    </div>
+                    <div class="form-item">
+                        <label>Official Website</label>
+                        <input type="url" id="placeOfficialWeb" placeholder="https://...">
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label>Description</label>
+                    <textarea id="placeDesc" placeholder="Brief overview of history and attractions..."></textarea>
+                </div>
+                <button type="submit" class="btn-action" style="width:100%;">Save Tourist Place</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Package -->
+    <div id="modal-add-package" class="modal-overlay">
+        <div class="modal-content-box">
+            <button class="modal-close-btn" onclick="closeModal('modal-add-package')">&times;</button>
+            <h2 style="margin-top:0; color:#fff; font-size:1.3rem;">➕ Add Travel Package</h2>
+            <form onsubmit="handleAddPackage(event)">
+                <div class="form-row-2">
+                    <div class="form-item">
+                        <label>Package Title *</label>
+                        <input type="text" id="pkgTitle" required placeholder="e.g. Royal Nilgiris & Tea Estates">
+                    </div>
+                    <div class="form-item">
+                        <label>Primary Destination *</label>
+                        <input type="text" id="pkgDest" required placeholder="e.g. Ooty & Coonoor">
+                    </div>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-item">
+                        <label>Duration *</label>
+                        <input type="text" id="pkgDuration" required placeholder="e.g. 3 Days / 2 Nights">
+                    </div>
+                    <div class="form-item">
+                        <label>Price per Person (₹) *</label>
+                        <input type="number" id="pkgPrice" required placeholder="e.g. 7499">
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label>Inclusions (comma-separated)</label>
+                    <input type="text" id="pkgInclusions" placeholder="Luxury Bus Transfer, 3-Star Resort, Breakfast, Guided Tour">
+                </div>
+                <div class="form-item">
+                    <label>Highlights</label>
+                    <input type="text" id="pkgHighlights" placeholder="Tea Garden Walk, Toy Train Ride, Sunset Point">
+                </div>
+                <button type="submit" class="btn-action" style="width:100%;">Save Travel Package</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Upload Destination Media -->
+    <div id="modal-upload-dest-media" class="modal-overlay">
+        <div class="modal-content-box">
+            <button class="modal-close-btn" onclick="closeModal('modal-upload-dest-media')">&times;</button>
+            <h2 style="margin-top:0; color:#fff; font-size:1.3rem;">📤 Upload Destination Photo/Video</h2>
+            <form onsubmit="handleUploadDestMedia(event)">
+                <div class="form-item">
+                    <label>Select File (JPG, PNG, MP4) *</label>
+                    <input type="file" id="destMediaFileInput" required>
+                </div>
+                <div class="form-item">
+                    <label>Caption</label>
+                    <input type="text" id="destMediaCaption" placeholder="e.g. Panoramic Valley View">
+                </div>
+                <button type="submit" class="btn-action" style="width:100%;">Upload Destination Media</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Link Destination Media -->
+    <div id="modal-link-dest-media" class="modal-overlay">
+        <div class="modal-content-box">
+            <button class="modal-close-btn" onclick="closeModal('modal-link-dest-media')">&times;</button>
+            <h2 style="margin-top:0; color:#fff; font-size:1.3rem;">🔗 Add Destination Media Link</h2>
+            <form onsubmit="handleLinkDestMedia(event)">
+                <div class="form-item">
+                    <label>Direct Media URL *</label>
+                    <input type="url" id="destMediaLinkUrl" required placeholder="https://example.com/photo.jpg">
+                </div>
+                <div class="form-row-2">
+                    <div class="form-item">
+                        <label>Media Type</label>
+                        <select id="destMediaLinkType">
+                            <option value="photo">Photo</option>
+                            <option value="video">Direct MP4 Video</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <label>Caption</label>
+                        <input type="text" id="destMediaLinkCaption" placeholder="e.g. Waterfall cascades">
+                    </div>
+                </div>
+                <div class="form-item" style="display:flex; align-items:center; gap:8px;">
+                    <input type="checkbox" id="destMediaDownloadCheck" checked style="width:auto;">
+                    <label for="destMediaDownloadCheck" style="margin:0; text-transform:none;">Download to server permanent storage</label>
+                </div>
+                <button type="submit" class="btn-action" style="width:100%;">Save Destination Link</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        /* ========================================================
+           JOURNEY DNA MASTER OWNER CONTROL CLIENT SCRIPT
+           ======================================================== */
+
+        let cachedStats = null;
+        let cachedOperators = [];
+        let cachedBuses = [];
+        let cachedPlaces = [];
+        let cachedPackages = [];
+        let cachedTrips = [];
+        let cachedLibrary = [];
+
+        // Check Owner Authentication immediately
+        document.addEventListener("DOMContentLoaded", async () => {
+            const user = await checkAuthStatus();
+            if (!user || (user.role !== "owner" && user.role !== "admin")) {
+                window.location.replace("owner_login.html");
+                return;
+            }
+
+            // Load initial live dataset
+            await loadStats();
+            await loadOperators();
+            await loadBuses();
+            await loadPlaces();
+            await loadPackages();
+            await loadTrips();
+            await loadSiteContent();
+            await loadBackupsList();
+        });
+
+        // Toast Helper
+        function showToast(msg) {
+            const t = document.getElementById("toastNotification");
+            t.textContent = msg;
+            t.classList.add("show");
+            setTimeout(() => t.classList.remove("show"), 3200);
+        }
+
+        // Section Switcher
+        function switchSection(secId) {
+            document.querySelectorAll(".content-section").forEach(sec => sec.classList.remove("active"));
+            document.querySelectorAll(".nav-item-btn").forEach(btn => btn.classList.remove("active"));
+
+            const targetSec = document.getElementById(`sec-${secId}`);
+            if (targetSec) targetSec.classList.add("active");
+
+            // Highlight button
+            const buttons = document.querySelectorAll(".owner-sidebar .nav-item-btn");
+            buttons.forEach(btn => {
+                if (btn.getAttribute("onclick") && btn.getAttribute("onclick").includes(`'${secId}'`)) {
+                    btn.classList.add("active");
+                }
+            });
+
+            // Specific lazy-loaders
+            if (secId === 'bus-photos' || secId === 'bus-videos') populateBusDropdowns();
+            if (secId === 'dest-media') populateDestPlacesDropdown();
+            if (secId === 'maps') renderMapsTable();
+            if (secId === 'media-library') loadMediaLibrary();
+        }
+
+        // Modal Helpers
+        function openModal(id) {
+            const m = document.getElementById(id);
+            if (m) m.classList.add("show");
+            if (id === 'modal-add-bus') populateOperatorDropdowns();
+        }
+        function closeModal(id) {
+            const m = document.getElementById(id);
+            if (m) m.classList.remove("show");
+        }
+
+        /* --------------------------------------------------------
+           1. OVERVIEW & DATABASE STATS
+           -------------------------------------------------------- */
+        async function loadStats() {
+            try {
+                const res = await apiFetch("/api/admin/stats");
+                if (res.ok && res.data && res.data.stats) {
+                    const s = res.data.stats;
+                    cachedStats = s;
+                    document.getElementById("stat-ops").textContent = s.operators || 0;
+                    document.getElementById("stat-buses").textContent = s.buses || 0;
+                    document.getElementById("stat-photos").textContent = s.bus_photos || 0;
+                    document.getElementById("stat-videos").textContent = s.bus_videos || 0;
+                    document.getElementById("stat-places").textContent = s.places || 0;
+                    document.getElementById("stat-packages").textContent = s.packages || 0;
+                    document.getElementById("stat-trips").textContent = s.trips || 0;
+                    document.getElementById("stat-attention").textContent = (s.attention_buses && s.attention_buses.length) || 0;
+
+                    document.getElementById("badgeOps").textContent = s.operators || 0;
+                    document.getElementById("badgeBuses").textContent = s.buses || 0;
+                    document.getElementById("badgePlaces").textContent = s.places || 0;
+
+                    renderAttentionTable(s.attention_buses || []);
+                }
+            } catch (err) {
+                console.error("Stats load failed:", err);
+            }
+        }
+
+        function renderAttentionTable(records) {
+            const tbody = document.getElementById("attentionTbody");
+            if (!records.length) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#6EE7B7; padding:1.5rem;">🎉 All registered fleet buses have verified photos and video tours loaded!</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = records.map(r => `
+                <tr>
+                    <td><strong>${escapeHtml(r.bus_name)}</strong></td>
+                    <td>${escapeHtml(r.operator_name)}</td>
+                    <td>${r.capacity} seats</td>
+                    <td><span class="badge-status badge-draft">${escapeHtml(r.issue)}</span></td>
+                    <td>
+                        <button class="btn-action btn-sm" onclick="jumpToBusMedia('${r.bus_id}')">Upload Media &rarr;</button>
+                    </td>
+                </tr>
+            `).join("");
+        }
+
+        function jumpToBusMedia(busId) {
+            switchSection("bus-photos");
+            setTimeout(() => {
+                const sel = document.getElementById("photoBusSelect");
+                if (sel) {
+                    sel.value = busId;
+                    loadBusPhotos();
+                }
+            }, 100);
+        }
+
+        /* --------------------------------------------------------
+           2. OPERATORS CRUD & TOGGLE PUBLISH
+           -------------------------------------------------------- */
+        async function loadOperators() {
+            const res = await apiFetch("/api/admin/operators");
+            if (res.ok && res.data && res.data.operators) {
+                cachedOperators = res.data.operators;
+                renderOperatorsTable(cachedOperators);
+                populateOperatorDropdowns();
+            }
+        }
+
+        function renderOperatorsTable(ops) {
+            const tbody = document.getElementById("operatorsTbody");
+            if (!ops.length) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:1.5rem;">No operators registered yet.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = ops.map(op => {
+                const isPub = op.is_published !== 0;
+                return `
+                    <tr>
+                        <td><strong>${escapeHtml(op.name)}</strong></td>
+                        <td>${escapeHtml(op.category || "General Coach")}</td>
+                        <td>${escapeHtml(op.city || "")} ${op.district ? `(${escapeHtml(op.district)})` : ""}</td>
+                        <td>${escapeHtml(op.phone || "N/A")}</td>
+                        <td>⭐ ${op.rating || "4.8"}</td>
+                        <td>
+                            <span class="badge-status ${isPub ? 'badge-published' : 'badge-draft'}">
+                                ${isPub ? 'Published' : 'Draft (Hidden)'}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                <button class="btn-action btn-sm" onclick="openAddBusForOperator('${op.id}')">➕ Add Bus</button>
+                                <button class="btn-secondary btn-sm" onclick="togglePublishOperator('${op.id}')">
+                                    ${isPub ? 'Hide' : 'Publish'}
+                                </button>
+                                <button class="btn-danger" onclick="deleteOperator('${op.id}')">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        function openAddBusForOperator(opId) {
+            populateOperatorDropdowns();
+            openModal('modal-add-bus');
+            const sel = document.getElementById("busOpSelect");
+            if (sel) sel.value = opId;
+        }
+
+        function filterOperatorsTable() {
+            const q = document.getElementById("searchOps").value.toLowerCase();
+            const state = document.getElementById("filterOpsPublish").value;
+            const filtered = cachedOperators.filter(op => {
+                const matchesQ = !q || (op.name && op.name.toLowerCase().includes(q)) || (op.city && op.city.toLowerCase().includes(q)) || (op.phone && op.phone.toLowerCase().includes(q));
+                const isPub = op.is_published !== 0;
+                const matchesState = state === 'all' || (state === 'published' && isPub) || (state === 'draft' && !isPub);
+                return matchesQ && matchesState;
+            });
+            renderOperatorsTable(filtered);
+        }
+
+        async function handleAddOperator(e) {
+            e.preventDefault();
+            const body = {
+                name: document.getElementById("opName").value.trim(),
+                category: document.getElementById("opCategory").value.trim(),
+                city: document.getElementById("opCity").value.trim(),
+                district: document.getElementById("opDistrict").value.trim(),
+                phone: document.getElementById("opPhone").value.trim(),
+                website: document.getElementById("opWebsite").value.trim(),
+                address: document.getElementById("opAddress").value.trim(),
+                description: document.getElementById("opDesc").value.trim()
+            };
+            const res = await apiFetch("/api/admin/operators", { method: "POST", body });
+            if (res.ok && res.data.success) {
+                showToast("Operator successfully saved.");
+                closeModal("modal-add-operator");
+                loadOperators();
+                loadStats();
+            } else {
+                alert((res.data && res.data.error) || "Failed to add operator");
+            }
+        }
+
+        async function togglePublishOperator(opId) {
+            const res = await apiFetch(`/api/admin/operators/${opId}/toggle-publish`, { method: "POST" });
+            if (res.ok) {
+                showToast("Publish status updated.");
+                loadOperators();
+            }
+        }
+
+        async function deleteOperator(opId) {
+            if (!confirm("Are you sure you want to delete this operator and associated fleet records?")) return;
+            const res = await apiFetch(`/api/admin/operators/${opId}`, { method: "DELETE" });
+            if (res.ok) {
+                showToast("Operator deleted.");
+                loadOperators();
+                loadBuses();
+                loadStats();
+            }
+        }
+
+        function populateOperatorDropdowns() {
+            const sel1 = document.getElementById("busOpSelect");
+            const sel2 = document.getElementById("filterBusesOp");
+            const selEdit = document.getElementById("editBusOpSelect");
+            const optionsHtml = cachedOperators.map(op => `
+                <option value="${op.id}">${escapeHtml(op.name)} (${escapeHtml(op.city || "")})</option>
+            `).join("");
+
+            if (sel1) {
+                sel1.innerHTML = `<option value="">-- Choose Operator --</option>` + optionsHtml;
+            }
+            if (sel2) {
+                sel2.innerHTML = `<option value="all">All Operators</option>` + cachedOperators.map(op => `
+                    <option value="${op.id}">${escapeHtml(op.name)}</option>
+                `).join("");
+            }
+            if (selEdit) {
+                selEdit.innerHTML = `<option value="">-- Choose Operator --</option>` + optionsHtml;
+            }
+        }
+
+        /* --------------------------------------------------------
+           3. INDIVIDUAL BUSES CRUD
+           -------------------------------------------------------- */
+        async function loadBuses() {
+            const res = await apiFetch("/api/admin/buses");
+            if (res.ok && res.data && res.data.buses) {
+                cachedBuses = res.data.buses;
+                renderBusesTable(cachedBuses);
+                populateBusDropdowns();
+            }
+        }
+
+        function renderBusesTable(buses) {
+            const tbody = document.getElementById("busesTbody");
+            if (!buses.length) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:1.5rem;">No fleet buses registered.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = buses.map(b => {
+                const isPub = b.is_published !== 0;
+                const coverImg = b.cover_photo ? formatMediaUrl(b.cover_photo) : '';
+                return `
+                    <tr>
+                        <td>
+                            ${coverImg ? `
+                                <img src="${coverImg}" alt="${escapeHtml(b.bus_name || b.name)}" style="width:52px; height:38px; object-fit:cover; border-radius:6px; border:1px solid rgba(84,209,198,0.3); display:block;" onerror="this.outerHTML='<div style=\'width:52px;height:38px;border-radius:6px;background:rgba(2,20,16,0.8);border:1px dashed rgba(84,209,198,0.3);display:flex;align-items:center;justify-content:center;\'>🚌</div>'">
+                            ` : `
+                                <div style="width:52px; height:38px; border-radius:6px; background:rgba(2,20,16,0.8); border:1px dashed rgba(84,209,198,0.3); display:flex; align-items:center; justify-content:center; font-size:1.1rem;" title="No cover photo yet">🚌</div>
+                            `}
+                        </td>
+                        <td>
+                            <strong>${escapeHtml(b.bus_name || b.name)}</strong>
+                            <div style="font-size:0.75rem; color:var(--teal-accent);">${escapeHtml(b.vehicle_model || b.model || "")}</div>
+                        </td>
+                        <td>${escapeHtml(b.operator_name || "Unknown Operator")}</td>
+                        <td><strong>${b.capacity}</strong> Seats</td>
+                        <td>${escapeHtml(b.ac_type || (b.ac ? "AC" : "Non-AC"))} | ${escapeHtml(b.seating_type || "Semi-Sleeper")}</td>
+                        <td>
+                            <span class="badge-status ${isPub ? 'badge-published' : 'badge-draft'}">
+                                ${isPub ? 'Published' : 'Draft'}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                                <button type="button" class="btn-action btn-sm" onclick="jumpToBusMedia('${b.id}')" title="Manage Bus Media Gallery">📸 Media</button>
+                                <button type="button" class="btn-secondary btn-sm" onclick="openEditBusModal('${b.id}')" title="Edit Vehicle Specifications">✏️ Edit</button>
+                                <button type="button" class="btn-secondary btn-sm" onclick="togglePublishBus('${b.id}')" title="Toggle Publish Status">
+                                    ${isPub ? '🙈 Hide' : '👁️ Publish'}
+                                </button>
+                                <button type="button" class="btn-danger btn-sm" onclick="deleteBus('${b.id}')" title="Delete Bus Vehicle">🗑️ Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        function openEditBusModal(busId) {
+            const b = cachedBuses.find(x => String(x.id) === String(busId));
+            if (!b) return;
+            populateOperatorDropdowns();
+            document.getElementById("editBusId").value = b.id;
+            document.getElementById("editBusOpSelect").value = b.operator_id;
+            document.getElementById("editBusName").value = b.bus_name || b.name || "";
+            document.getElementById("editBusModel").value = b.vehicle_model || b.model || "";
+            document.getElementById("editBusCapacity").value = b.capacity || 40;
+            document.getElementById("editBusType").value = b.bus_type || "";
+
+            const isAc = b.ac === 1 || b.ac_type === 'AC' || (b.features && b.features.toLowerCase().includes('ac'));
+            document.getElementById("editBusAcType").value = isAc ? "AC" : "Non-AC";
+
+            if (b.seating_type) {
+                document.getElementById("editBusSeatingType").value = b.seating_type;
+            } else if (b.sleeper === 1) {
+                document.getElementById("editBusSeatingType").value = "Full Sleeper";
+            } else {
+                document.getElementById("editBusSeatingType").value = "Pushback Semi-Sleeper";
+            }
+
+            document.getElementById("editBusFeatures").value = b.features || "";
+            openModal('modal-edit-bus');
+        }
+
+        async function handleEditBusSubmit(e) {
+            e.preventDefault();
+            const busId = document.getElementById("editBusId").value;
+            const isAc = document.getElementById("editBusAcType").value === "AC";
+            const seating = document.getElementById("editBusSeatingType").value;
+
+            const body = {
+                operator_id: document.getElementById("editBusOpSelect").value,
+                bus_name: document.getElementById("editBusName").value.trim(),
+                name: document.getElementById("editBusName").value.trim(),
+                model: document.getElementById("editBusModel").value.trim(),
+                capacity: parseInt(document.getElementById("editBusCapacity").value, 10),
+                bus_type: document.getElementById("editBusType").value.trim(),
+                ac_type: document.getElementById("editBusAcType").value,
+                ac: isAc ? 1 : 0,
+                seating_type: seating,
+                sleeper: seating.includes("Sleeper") ? 1 : 0,
+                semi_sleeper: seating.includes("Semi") ? 1 : 0,
+                seater: seating === "Standard Seater" ? 1 : 0,
+                features: document.getElementById("editBusFeatures").value.trim()
+            };
+
+            const res = await apiFetch(`/api/admin/buses/${busId}`, { method: "PUT", body });
+            if (res.ok && res.data.success) {
+                showToast("Bus specifications updated successfully.");
+                closeModal("modal-edit-bus");
+                await loadBuses();
+                await loadStats();
+            } else {
+                alert((res.data && res.data.error) || "Failed to update bus specifications.");
+            }
+        }
+
+        function filterBusesTable() {
+            const q = document.getElementById("searchBuses").value.toLowerCase();
+            const op = document.getElementById("filterBusesOp").value;
+            const state = document.getElementById("filterBusesPublish").value;
+            const filtered = cachedBuses.filter(b => {
+                const name = (b.bus_name || b.name || "").toLowerCase();
+                const model = (b.vehicle_model || "").toLowerCase();
+                const matchesQ = !q || name.includes(q) || model.includes(q);
+                const matchesOp = op === 'all' || String(b.operator_id) === String(op);
+                const isPub = b.is_published !== 0;
+                const matchesState = state === 'all' || (state === 'published' && isPub) || (state === 'draft' && !isPub);
+                return matchesQ && matchesOp && matchesState;
+            });
+            renderBusesTable(filtered);
+        }
+
+        async function handleAddBus(e) {
+            e.preventDefault();
+            const body = {
+                operator_id: document.getElementById("busOpSelect").value,
+                bus_name: document.getElementById("busName").value.trim(),
+                name: document.getElementById("busName").value.trim(),
+                vehicle_model: document.getElementById("busModel").value.trim(),
+                capacity: parseInt(document.getElementById("busCapacity").value, 10),
+                bus_type: document.getElementById("busType").value.trim(),
+                ac_type: document.getElementById("busAcType").value,
+                seating_type: document.getElementById("busSeatingType").value,
+                features: document.getElementById("busFeatures").value.trim()
+            };
+            const res = await apiFetch("/api/admin/buses", { method: "POST", body });
+            if (res.ok && res.data.success) {
+                showToast("Individual bus vehicle added.");
+                closeModal("modal-add-bus");
+                loadBuses();
+                loadStats();
+            } else {
+                alert((res.data && res.data.error) || "Failed to add bus");
+            }
+        }
+
+        async function togglePublishBus(busId) {
+            const res = await apiFetch(`/api/admin/buses/${busId}/toggle-publish`, { method: "POST" });
+            if (res.ok) {
+                showToast("Bus visibility updated.");
+                loadBuses();
+            }
+        }
+
+        async function deleteBus(busId) {
+            if (!confirm("Are you sure you want to delete this bus vehicle and its media?")) return;
+            const res = await apiFetch(`/api/admin/buses/${busId}`, { method: "DELETE" });
+            if (res.ok) {
+                showToast("Bus removed from fleet.");
+                loadBuses();
+                loadStats();
+            }
+        }
+
+        function populateBusDropdowns() {
+            const selPhoto = document.getElementById("photoBusSelect");
+            const selVideo = document.getElementById("videoBusSelect");
+            const opts = `<option value="">-- Choose Bus --</option>` + cachedBuses.map(b => `
+                <option value="${b.id}">${escapeHtml(b.bus_name || b.name)} (${escapeHtml(b.operator_name || "")} - ${b.capacity}s)</option>
+            `).join("");
+            if (selPhoto) selPhoto.innerHTML = opts;
+            if (selVideo) selVideo.innerHTML = opts;
+        }
+
+        /* --------------------------------------------------------
+           4. BUS PHOTOS & MEDIA MANAGEMENT
+           -------------------------------------------------------- */
+        let currentBusPhotos = [];
+        let pendingReplaceTarget = null; // { busId, mediaId, mediaType }
+
+        async function loadBusPhotos() {
+            const busId = document.getElementById("photoBusSelect").value;
+            const gallery = document.getElementById("busPhotosGallery");
+            if (!busId) {
+                gallery.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem; color:rgba(248,249,250,0.5);">Please select a bus above.</div>`;
+                return;
+            }
+            gallery.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem;">Loading photo gallery...</div>`;
+
+            const res = await apiFetch(`/api/buses/${busId}/media`);
+            if (res.ok && res.data) {
+                currentBusPhotos = res.data.photos || [];
+                if (!currentBusPhotos.length) {
+                    gallery.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem; color:rgba(248,249,250,0.5);">No photos uploaded yet for this bus. Click "Upload from PC" to add photos!</div>`;
+                    return;
+                }
+                gallery.innerHTML = currentBusPhotos.map((p, idx) => {
+                    const isCover = p.is_cover === 1;
+                    const url = formatMediaUrl(p.url || p.file_path);
+                    return `
+                        <div class="media-card-item ${isCover ? 'is-cover' : ''}">
+                            <div class="media-viewport">
+                                <img src="${url}" alt="${escapeHtml(p.caption || 'Bus Photo')}" loading="lazy">
+                                ${isCover ? `<span style="position:absolute; top:6px; left:6px; background:#D5B779; color:#031412; font-size:0.68rem; font-weight:800; padding:2px 6px; border-radius:4px;">COVER</span>` : ''}
+                            </div>
+                            <div class="media-details">
+                                <div class="media-title" title="${escapeHtml(p.caption || 'Bus Photo')}">${escapeHtml(p.caption || 'Bus Photo')}</div>
+                                <div class="media-tag">${escapeHtml(p.category || 'Exterior')} &bull; #${idx + 1}</div>
+                                <div class="media-btn-row" style="flex-wrap:wrap; gap:4px;">
+                                    ${!isCover ? `<button class="btn-secondary btn-sm" onclick="setBusCoverPhoto('${busId}', '${p.id}')">⭐ Cover</button>` : ''}
+                                    <button class="btn-secondary btn-sm" onclick="editAdminPhotoCaption('${busId}', '${p.id}', '${escapeHtml(p.caption || '')}')">✏️ Caption</button>
+                                    <button class="btn-secondary btn-sm" onclick="triggerAdminReplacePhoto('${busId}', '${p.id}')">🔄 Replace</button>
+                                    ${idx > 0 ? `<button class="btn-secondary btn-sm" onclick="moveAdminPhotoOrder('${busId}', '${p.id}', 'up')" title="Move earlier">⬆</button>` : ''}
+                                    ${idx < currentBusPhotos.length - 1 ? `<button class="btn-secondary btn-sm" onclick="moveAdminPhotoOrder('${busId}', '${p.id}', 'down')" title="Move later">⬇</button>` : ''}
+                                    <button class="btn-danger btn-sm" onclick="deleteBusMedia('${busId}', '${p.id}')">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+            }
+        }
+
+        async function editAdminPhotoCaption(busId, mediaId, currentCaption) {
+            const newCap = prompt("Enter updated photo caption:", currentCaption || "");
+            if (newCap === null) return;
+            const res = await apiFetch(`/api/buses/${busId}/media/${mediaId}`, {
+                method: "PUT",
+                body: { caption: newCap.trim() }
+            });
+            if (res.ok && res.data.success) {
+                showToast("Photo caption updated.");
+                loadBusPhotos();
+            } else {
+                alert((res.data && res.data.error) || "Failed to update caption.");
+            }
+        }
+
+        function triggerAdminReplacePhoto(busId, mediaId) {
+            pendingReplaceTarget = { busId, mediaId, mediaType: 'photo' };
+            const input = document.getElementById("adminReplaceFileInput");
+            if (input) {
+                input.accept = "image/jpeg,image/png,image/webp";
+                input.value = "";
+                input.click();
+            }
+        }
+
+        async function moveAdminPhotoOrder(busId, mediaId, direction) {
+            const idx = currentBusPhotos.findIndex(p => String(p.id) === String(mediaId));
+            if (idx === -1) return;
+            if (direction === 'up' && idx > 0) {
+                const tmp = currentBusPhotos[idx];
+                currentBusPhotos[idx] = currentBusPhotos[idx - 1];
+                currentBusPhotos[idx - 1] = tmp;
+            } else if (direction === 'down' && idx < currentBusPhotos.length - 1) {
+                const tmp = currentBusPhotos[idx];
+                currentBusPhotos[idx] = currentBusPhotos[idx + 1];
+                currentBusPhotos[idx + 1] = tmp;
+            } else {
+                return;
+            }
+
+            const orderIds = currentBusPhotos.map(p => p.id);
+            const res = await apiFetch(`/api/buses/${busId}/media/reorder`, {
+                method: "POST",
+                body: { order: orderIds }
+            });
+            if (res.ok && res.data.success) {
+                showToast("Photo display order updated.");
+                loadBusPhotos();
+            } else {
+                alert("Failed to update display order.");
+            }
+        }
+
+        async function handleAdminFileReplacement(e) {
+            if (!pendingReplaceTarget || !e.target.files.length) return;
+            const file = e.target.files[0];
+            const { busId, mediaId, mediaType } = pendingReplaceTarget;
+
+            const fd = new FormData();
+            fd.append("file", file);
+
+            showToast(`Replacing ${mediaType} file on server...`);
+            try {
+                const uploadUrl = formatMediaUrl(`/api/buses/${busId}/media/${mediaId}/replace`);
+                const res = await fetch(uploadUrl, {
+                    method: "POST",
+                    body: fd,
+                    credentials: "include"
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(`${mediaType === 'photo' ? 'Photo' : 'Video'} successfully replaced on disk!`);
+                    if (mediaType === 'photo') loadBusPhotos();
+                    else loadBusVideos();
+                    loadStats();
+                } else {
+                    alert(data.error || "Replacement failed.");
+                }
+            } catch (err) {
+                alert("Replacement failed: " + err.message);
+            } finally {
+                pendingReplaceTarget = null;
+                e.target.value = "";
+            }
+        }
+
+        async function handleUploadBusPhoto(e) {
+            e.preventDefault();
+            const busId = document.getElementById("photoBusSelect").value;
+            if (!busId) { alert("Please select a bus first."); return; }
+
+            const fileInput = document.getElementById("busPhotoFileInput");
+            if (!fileInput.files.length) return;
+
+            const fd = new FormData();
+            for (let i = 0; i < fileInput.files.length; i++) {
+                fd.append("files", fileInput.files[i]);
+            }
+            fd.append("category", document.getElementById("busPhotoCategory").value);
+            fd.append("caption", document.getElementById("busPhotoCaption").value.trim());
+            if (document.getElementById("busPhotoIsCoverCheck").checked) {
+                fd.append("is_cover", "1");
+            }
+
+            showToast(`Uploading ${fileInput.files.length} photo(s)...`);
+            const uploadUrl = formatMediaUrl(`/api/buses/${busId}/media/upload`);
+
+            const res = await fetch(uploadUrl, {
+                method: "POST",
+                body: fd,
+                credentials: "include"
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(`Successfully uploaded ${fileInput.files.length} photo(s).`);
+                closeModal("modal-upload-photo");
+                fileInput.value = "";
+                document.getElementById("busPhotoCaption").value = "";
+                document.getElementById("busPhotoIsCoverCheck").checked = false;
+                loadBusPhotos();
+                loadStats();
+            } else {
+                alert(data.error || "Upload failed");
+            }
+        }
+
+        async function handleLinkBusPhoto(e) {
+            e.preventDefault();
+            const busId = document.getElementById("photoBusSelect").value;
+            if (!busId) { alert("Please select a bus first."); return; }
+
+            const body = {
+                media_url: document.getElementById("busPhotoLinkUrl").value.trim(),
+                media_type: "photo",
+                category: document.getElementById("busPhotoLinkCategory").value,
+                caption: document.getElementById("busPhotoLinkCaption").value.trim(),
+                download_to_server: document.getElementById("busPhotoDownloadCheck").checked
+            };
+            const res = await apiFetch(`/api/buses/${busId}/media/link`, { method: "POST", body });
+            if (res.ok && res.data.success) {
+                showToast("Photo link registered.");
+                closeModal("modal-link-photo");
+                loadBusPhotos();
+                loadStats();
+            } else {
+                alert((res.data && res.data.error) || "Failed to link photo");
+            }
+        }
+
+        async function setBusCoverPhoto(busId, mediaId) {
+            const res = await apiFetch(`/api/buses/${busId}/media/${mediaId}/cover`, { method: "POST" });
+            if (res.ok) {
+                showToast("Cover photo updated.");
+                loadBusPhotos();
+                loadBuses();
+            }
+        }
+
+        async function deleteBusMedia(busId, mediaId) {
+            if (!confirm("Are you sure you want to delete this media item?")) return;
+            const res = await apiFetch(`/api/buses/${busId}/media/${mediaId}`, { method: "DELETE" });
+            if (res.ok) {
+                showToast("Media item deleted.");
+                loadBusPhotos();
+                loadBusVideos();
+                loadBuses();
+                loadStats();
+            }
+        }
+
+        /* --------------------------------------------------------
+           5. BUS VIDEOS (ZERO YOUTUBE, NATIVE HTML5)
+           -------------------------------------------------------- */
+        async function loadBusVideos() {
+            const busId = document.getElementById("videoBusSelect").value;
+            const gallery = document.getElementById("busVideosGallery");
+            if (!busId) {
+                gallery.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem; color:rgba(248,249,250,0.5);">Please select a bus above.</div>`;
+                return;
+            }
+            gallery.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem;">Loading videos...</div>`;
+
+            const res = await apiFetch(`/api/buses/${busId}/media`);
+            if (res.ok && res.data) {
+                const videos = res.data.videos || [];
+                if (!videos.length) {
+                    gallery.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem; color:rgba(248,249,250,0.5);">No videos uploaded for this bus yet. Click "Upload MP4 from PC" to upload native video tours!</div>`;
+                    return;
+                }
+                gallery.innerHTML = videos.map(v => {
+                    const url = formatMediaUrl(v.url || v.file_path);
+                    return `
+                        <div class="media-card-item">
+                            <div class="media-viewport" style="height:160px; background:#000;">
+                                <video src="${url}" controls playsinline preload="metadata" style="width:100%; height:100%; object-fit:cover;"></video>
+                            </div>
+                            <div class="media-details">
+                                <div class="media-title" title="${escapeHtml(v.caption || 'Coach Walkaround Tour')}">${escapeHtml(v.caption || 'Coach Walkaround Tour')}</div>
+                                <div class="media-tag">Native HTML5 Video</div>
+                                <div class="media-btn-row" style="flex-wrap:wrap; gap:4px;">
+                                    <button class="btn-secondary btn-sm" onclick="editAdminVideoCaption('${busId}', '${v.id}', '${escapeHtml(v.caption || '')}')">✏️ Caption</button>
+                                    <button class="btn-secondary btn-sm" onclick="triggerAdminReplaceVideo('${busId}', '${v.id}')">🔄 Replace</button>
+                                    <button class="btn-danger btn-sm" onclick="deleteBusMedia('${busId}', '${v.id}')">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+            }
+        }
+
+        function triggerAdminReplaceVideo(busId, mediaId) {
+            pendingReplaceTarget = { busId, mediaId, mediaType: 'video' };
+            const input = document.getElementById("adminReplaceFileInput");
+            if (input) {
+                input.accept = "video/mp4,video/webm";
+                input.value = "";
+                input.click();
+            }
+        }
+
+        async function editAdminVideoCaption(busId, mediaId, currentCaption) {
+            const newCap = prompt("Enter updated video caption / title:", currentCaption || "");
+            if (newCap === null) return;
+            const res = await apiFetch(`/api/buses/${busId}/media/${mediaId}`, {
+                method: "PUT",
+                body: { caption: newCap.trim() }
+            });
+            if (res.ok && res.data.success) {
+                showToast("Video caption updated.");
+                loadBusVideos();
+            } else {
+                alert((res.data && res.data.error) || "Failed to update video caption.");
+            }
+        }
+
+        async function handleUploadBusVideo(e) {
+            e.preventDefault();
+            const busId = document.getElementById("videoBusSelect").value;
+            if (!busId) { alert("Please select a bus first."); return; }
+
+            const fileInput = document.getElementById("busVideoFileInput");
+            if (!fileInput.files.length) return;
+
+            const fd = new FormData();
+            fd.append("files", fileInput.files[0]);
+            fd.append("category", "Walkaround Video");
+            fd.append("caption", document.getElementById("busVideoCaption").value.trim());
+
+            showToast("Uploading video... This may take a few moments.");
+            const uploadUrl = formatMediaUrl(`/api/buses/${busId}/media/upload`);
+            const res = await fetch(uploadUrl, {
+                method: "POST",
+                body: fd,
+                credentials: "include"
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast("Video uploaded successfully.");
+                closeModal("modal-upload-video");
+                fileInput.value = "";
+                loadBusVideos();
+                loadStats();
+            } else {
+                alert(data.error || "Upload failed");
+            }
+        }
+
+        async function handleLinkBusVideo(e) {
+            e.preventDefault();
+            const busId = document.getElementById("videoBusSelect").value;
+            if (!busId) { alert("Please select a bus first."); return; }
+
+            const url = document.getElementById("busVideoLinkUrl").value.trim();
+            if (url.includes("youtube.com") || url.includes("youtu.be")) {
+                alert("YouTube links are strictly disallowed. Please provide a direct .mp4 or .webm link.");
+                return;
+            }
+
+            const body = {
+                media_url: url,
+                media_type: "video",
+                category: "Walkaround Video",
+                caption: document.getElementById("busVideoLinkCaption").value.trim(),
+                download_to_server: document.getElementById("busVideoDownloadCheck").checked
+            };
+            const res = await apiFetch(`/api/buses/${busId}/media/link`, { method: "POST", body });
+            if (res.ok && res.data.success) {
+                showToast("Video link saved.");
+                closeModal("modal-link-video");
+                loadBusVideos();
+                loadStats();
+            } else {
+                alert((res.data && res.data.error) || "Failed to link video");
+            }
+        }
+
+        /* --------------------------------------------------------
+           6. TOURIST PLACES CRUD
+           -------------------------------------------------------- */
+        async function loadPlaces() {
+            const res = await apiFetch("/api/admin/places");
+            if (res.ok && res.data && res.data.places) {
+                cachedPlaces = res.data.places;
+                renderPlacesTable(cachedPlaces);
+                populateDestPlacesDropdown();
+            }
+        }
+
+        function renderPlacesTable(places) {
+            const tbody = document.getElementById("placesTbody");
+            if (!places.length) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:1.5rem;">No tourist places recorded.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = places.map(p => {
+                const isPub = p.is_published !== 0;
+                return `
+                    <tr>
+                        <td><strong>${escapeHtml(p.name)}</strong></td>
+                        <td>${escapeHtml(p.city || "")}, ${escapeHtml(p.state || "")}</td>
+                        <td>${escapeHtml(p.category || "General")}</td>
+                        <td>${escapeHtml(p.best_season || "Year-round")}</td>
+                        <td>${p.latitude || '--'}, ${p.longitude || '--'}</td>
+                        <td>
+                            <span class="badge-status ${isPub ? 'badge-published' : 'badge-draft'}">
+                                ${isPub ? 'Published' : 'Draft'}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display:flex; gap:6px;">
+                                <button class="btn-action btn-sm" onclick="jumpToDestMedia('${p.id}')">Media</button>
+                                <button class="btn-secondary btn-sm" onclick="togglePublishPlace('${p.id}')">
+                                    ${isPub ? 'Hide' : 'Publish'}
+                                </button>
+                                <button class="btn-danger" onclick="deletePlace('${p.id}')">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        function filterPlacesTable() {
+            const q = document.getElementById("searchPlaces").value.toLowerCase();
+            const state = document.getElementById("filterPlacesState").value;
+            const filtered = cachedPlaces.filter(p => {
+                const name = (p.name || "").toLowerCase();
+                const city = (p.city || "").toLowerCase();
+                const matchesQ = !q || name.includes(q) || city.includes(q);
+                const matchesState = state === 'all' || (p.state && p.state.includes(state));
+                return matchesQ && matchesState;
+            });
+            renderPlacesTable(filtered);
+        }
+
+        async function handleAddPlace(e) {
+            e.preventDefault();
+            const body = {
+                name: document.getElementById("placeName").value.trim(),
+                category: document.getElementById("placeCategory").value.trim(),
+                city: document.getElementById("placeCity").value.trim(),
+                state: document.getElementById("placeState").value,
+                latitude: parseFloat(document.getElementById("placeLat").value) || null,
+                longitude: parseFloat(document.getElementById("placeLng").value) || null,
+                best_season: document.getElementById("placeSeason").value.trim(),
+                official_website: document.getElementById("placeOfficialWeb").value.trim(),
+                description: document.getElementById("placeDesc").value.trim()
+            };
+            const res = await apiFetch("/api/admin/places", { method: "POST", body });
+            if (res.ok && res.data.success) {
+                showToast("Tourist Place saved.");
+                closeModal("modal-add-place");
+                loadPlaces();
+                loadStats();
+            } else {
+                alert((res.data && res.data.error) || "Failed to save place");
+            }
+        }
+
+        async function togglePublishPlace(placeId) {
+            const res = await apiFetch(`/api/admin/places/${placeId}/toggle-publish`, { method: "POST" });
+            if (res.ok) {
+                showToast("Place visibility updated.");
+                loadPlaces();
+            }
+        }
+
+        async function deletePlace(placeId) {
+            if (!confirm("Are you sure you want to delete this tourist place?")) return;
+            const res = await apiFetch(`/api/admin/places/${placeId}`, { method: "DELETE" });
+            if (res.ok) {
+                showToast("Place deleted.");
+                loadPlaces();
+                loadStats();
+            }
+        }
+
+        function populateDestPlacesDropdown() {
+            const sel = document.getElementById("destMediaPlaceSelect");
+            if (!sel) return;
+            sel.innerHTML = `<option value="">-- Choose Tourist Place --</option>` + cachedPlaces.map(p => `
+                <option value="${p.id}">${escapeHtml(p.name)} (${escapeHtml(p.city || "")})</option>
+            `).join("");
+        }
+
+        function jumpToDestMedia(placeId) {
+            switchSection("dest-media");
+            setTimeout(() => {
+                const sel = document.getElementById("destMediaPlaceSelect");
+                if (sel) {
+                    sel.value = placeId;
+                    loadDestMedia();
+                }
+            }, 100);
+        }
+
+        /* --------------------------------------------------------
+           7. DESTINATION MEDIA (PHOTOS & DIRECT VIDEOS)
+           -------------------------------------------------------- */
+        async function loadDestMedia() {
+            const placeId = document.getElementById("destMediaPlaceSelect").value;
+            const gallery = document.getElementById("destMediaGallery");
+            if (!placeId) {
+                gallery.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem; color:rgba(248,249,250,0.5);">Please select a tourist destination above.</div>`;
+                return;
+            }
+            gallery.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem;">Loading destination media...</div>`;
+
+            const res = await apiFetch(`/api/admin/places/${placeId}/media`);
+            if (res.ok && res.data) {
+                const photos = res.data.photos || [];
+                const videos = res.data.videos || [];
+                const all = [...photos, ...videos];
+                if (!all.length) {
+                    gallery.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem; color:rgba(248,249,250,0.5);">No photos or videos loaded yet for this destination. Click "Upload from PC" to add images!</div>`;
+                    return;
+                }
+                gallery.innerHTML = all.map(m => {
+                    const isCover = m.is_cover === 1;
+                    const isVideo = m.media_type === 'video';
+                    return `
+                        <div class="media-card-item ${isCover ? 'is-cover' : ''}">
+                            <div class="media-viewport">
+                                ${isVideo ? `
+                                    <video src="${m.url}" controls playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+                                ` : `
+                                    <img src="${m.url}" alt="${escapeHtml(m.caption || 'Destination Image')}" loading="lazy">
+                                `}
+                                ${isCover ? `<span style="position:absolute; top:6px; left:6px; background:#D5B779; color:#031412; font-size:0.68rem; font-weight:800; padding:2px 6px; border-radius:4px;">COVER</span>` : ''}
+                            </div>
+                            <div class="media-details">
+                                <div class="media-title">${escapeHtml(m.caption || (isVideo ? 'Scenic Video' : 'Photo'))}</div>
+                                <div class="media-tag">${isVideo ? 'Cinematic Video' : 'High-Res Photo'}</div>
+                                <div class="media-btn-row">
+                                    ${!isCover && !isVideo ? `<button class="btn-secondary btn-sm" onclick="setDestCover('${placeId}', '${m.id}')">Make Cover</button>` : ''}
+                                    <button class="btn-danger" onclick="deleteDestMedia('${placeId}', '${m.id}')">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+            }
+        }
+
+        async function handleUploadDestMedia(e) {
+            e.preventDefault();
+            const placeId = document.getElementById("destMediaPlaceSelect").value;
+            if (!placeId) { alert("Please select a tourist destination first."); return; }
+
+            const fileInput = document.getElementById("destMediaFileInput");
+            if (!fileInput.files.length) return;
+
+            const fd = new FormData();
+            fd.append("files", fileInput.files[0]);
+            fd.append("caption", document.getElementById("destMediaCaption").value);
+
+            const res = await fetch(`/api/admin/places/${placeId}/media/upload`, {
+                method: "POST",
+                body: fd,
+                credentials: "include"
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast("Destination media uploaded.");
+                closeModal("modal-upload-dest-media");
+                fileInput.value = "";
+                loadDestMedia();
+                loadStats();
+            } else {
+                alert(data.error || "Upload failed");
+            }
+        }
+
+        async function handleLinkDestMedia(e) {
+            e.preventDefault();
+            const placeId = document.getElementById("destMediaPlaceSelect").value;
+            if (!placeId) { alert("Please select a tourist destination first."); return; }
+
+            const body = {
+                media_url: document.getElementById("destMediaLinkUrl").value.trim(),
+                media_type: document.getElementById("destMediaLinkType").value,
+                caption: document.getElementById("destMediaLinkCaption").value.trim(),
+                download_to_server: document.getElementById("destMediaDownloadCheck").checked
+            };
+            const res = await apiFetch(`/api/admin/places/${placeId}/media/link`, { method: "POST", body });
+            if (res.ok && res.data.success) {
+                showToast("Destination media link saved.");
+                closeModal("modal-link-dest-media");
+                loadDestMedia();
+                loadStats();
+            } else {
+                alert((res.data && res.data.error) || "Failed to link destination media");
+            }
+        }
+
+        async function setDestCover(placeId, mediaId) {
+            const res = await apiFetch(`/api/admin/places/${placeId}/media/${mediaId}/cover`, { method: "POST" });
+            if (res.ok) {
+                showToast("Destination cover image updated.");
+                loadDestMedia();
+            }
+        }
+
+        async function deleteDestMedia(placeId, mediaId) {
+            if (!confirm("Delete this destination media item?")) return;
+            const res = await apiFetch(`/api/admin/places/${placeId}/media/${mediaId}`, { method: "DELETE" });
+            if (res.ok) {
+                showToast("Media deleted.");
+                loadDestMedia();
+                loadStats();
+            }
+        }
+
+        /* --------------------------------------------------------
+           8. MAPS & GPS COORDINATES
+           -------------------------------------------------------- */
+        function renderMapsTable(places = cachedPlaces) {
+            const tbody = document.getElementById("mapsTbody");
+            if (!places.length) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No destination records loaded.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = places.map(p => {
+                const hasCoords = p.latitude && p.longitude;
+                const mapLink = hasCoords ? `https://www.google.com/maps?q=${p.latitude},${p.longitude}` : '#';
+                return `
+                    <tr>
+                        <td><strong>${escapeHtml(p.name)}</strong></td>
+                        <td>${escapeHtml(p.city || "")}, ${escapeHtml(p.state || "")}</td>
+                        <td>
+                            <input type="number" step="any" value="${p.latitude || ''}" id="lat-${p.id}" style="width:110px; padding:4px 8px; border-radius:6px; background:#02120e; color:#fff; border:1px solid rgba(84,209,198,0.3);">
+                        </td>
+                        <td>
+                            <input type="number" step="any" value="${p.longitude || ''}" id="lng-${p.id}" style="width:110px; padding:4px 8px; border-radius:6px; background:#02120e; color:#fff; border:1px solid rgba(84,209,198,0.3);">
+                        </td>
+                        <td>
+                            ${hasCoords ? `<a href="${mapLink}" target="_blank" style="color:var(--teal-accent); text-decoration:underline;">📍 View on Maps</a>` : '<span style="color:#FCA5A5;">No Pin Set</span>'}
+                        </td>
+                        <td>
+                            <button class="btn-action btn-sm" onclick="saveQuickCoords('${p.id}')">Save Coords</button>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        function filterMapsTable() {
+            const q = document.getElementById("searchMaps").value.toLowerCase();
+            const filtered = cachedPlaces.filter(p => !q || (p.name && p.name.toLowerCase().includes(q)) || (p.city && p.city.toLowerCase().includes(q)));
+            renderMapsTable(filtered);
+        }
+
+        async function saveQuickCoords(placeId) {
+            const lat = parseFloat(document.getElementById(`lat-${placeId}`).value);
+            const lng = parseFloat(document.getElementById(`lng-${placeId}`).value);
+            if (isNaN(lat) || isNaN(lng)) { alert("Please enter valid numeric latitude and longitude values."); return; }
+
+            const res = await apiFetch(`/api/admin/places/${placeId}`, {
+                method: "PUT",
+                body: { latitude: lat, longitude: lng }
+            });
+            if (res.ok) {
+                showToast("GPS coordinates updated permanently.");
+                loadPlaces();
+            } else {
+                alert("Failed to update coordinates.");
+            }
+        }
+
+        /* --------------------------------------------------------
+           9. PACKAGES & CUSTOMER TRIPS
+           -------------------------------------------------------- */
+        async function loadPackages() {
+            const res = await apiFetch("/api/admin/packages");
+            if (res.ok && res.data && res.data.packages) {
+                cachedPackages = res.data.packages;
+                renderPackagesTable(cachedPackages);
+            }
+        }
+
+        function renderPackagesTable(pkgs) {
+            const tbody = document.getElementById("packagesTbody");
+            if (!pkgs.length) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:1.5rem;">No packages added yet.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = pkgs.map(p => `
+                <tr>
+                    <td><strong>${escapeHtml(p.title)}</strong></td>
+                    <td>${escapeHtml(p.destination)}</td>
+                    <td>${escapeHtml(p.duration)}</td>
+                    <td>₹${p.price.toLocaleString('en-IN')}</td>
+                    <td><span class="badge-status badge-published">${p.is_active ? 'Active' : 'Archived'}</span></td>
+                    <td>
+                        <button class="btn-danger" onclick="deletePackage('${p.id}')">Delete</button>
+                    </td>
+                </tr>
+            `).join("");
+        }
+
+        async function handleAddPackage(e) {
+            e.preventDefault();
+            const body = {
+                title: document.getElementById("pkgTitle").value.trim(),
+                destination: document.getElementById("pkgDest").value.trim(),
+                duration: document.getElementById("pkgDuration").value.trim(),
+                price: parseFloat(document.getElementById("pkgPrice").value),
+                inclusions: document.getElementById("pkgInclusions").value.trim(),
+                highlights: document.getElementById("pkgHighlights").value.trim(),
+                is_active: 1
+            };
+            const res = await apiFetch("/api/admin/packages", { method: "POST", body });
+            if (res.ok && res.data.success) {
+                showToast("Travel package added.");
+                closeModal("modal-add-package");
+                loadPackages();
+                loadStats();
+            } else {
+                alert((res.data && res.data.error) || "Failed to add package");
+            }
+        }
+
+        async function deletePackage(pkgId) {
+            if (!confirm("Are you sure you want to delete this package?")) return;
+            const res = await apiFetch(`/api/admin/packages/${pkgId}`, { method: "DELETE" });
+            if (res.ok) {
+                showToast("Package deleted.");
+                loadPackages();
+                loadStats();
+            }
+        }
+
+        async function loadTrips() {
+            const res = await apiFetch("/api/admin/trips");
+            if (res.ok && res.data && res.data.trips) {
+                cachedTrips = res.data.trips;
+                renderTripsTable(cachedTrips);
+            }
+        }
+
+        function renderTripsTable(trips) {
+            const tbody = document.getElementById("tripsTbody");
+            if (!trips.length) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:1.5rem;">No customer trip itineraries recorded yet.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = trips.map(t => `
+                <tr>
+                    <td>#TRIP-${t.id}</td>
+                    <td>
+                        <strong>${escapeHtml(t.customer_name || 'Customer')}</strong>
+                        <div style="font-size:0.75rem; color:var(--teal-accent);">${escapeHtml(t.customer_email || '')}</div>
+                    </td>
+                    <td>${escapeHtml(t.travel_date || '')}</td>
+                    <td>${escapeHtml(t.from_location || '')}</td>
+                    <td>${escapeHtml(t.destinations || 'Multiple Places')}</td>
+                    <td>${t.member_count} Members</td>
+                    <td><span class="badge-status badge-published">${escapeHtml(t.status || 'Planned')}</span></td>
+                </tr>
+            `).join("");
+        }
+
+        function togglePackageSubTab(mode) {
+            const viewPkg = document.getElementById("subtab-packages-view");
+            const viewTrips = document.getElementById("subtab-trips-view");
+            const btnPkg = document.getElementById("btnSubPkg");
+            const btnTrips = document.getElementById("btnSubTrips");
+
+            if (mode === 'packages') {
+                viewPkg.style.display = 'block';
+                viewTrips.style.display = 'none';
+                btnPkg.className = "btn-action btn-sm";
+                btnTrips.className = "btn-secondary btn-sm";
+            } else {
+                viewPkg.style.display = 'none';
+                viewTrips.style.display = 'block';
+                btnPkg.className = "btn-secondary btn-sm";
+                btnTrips.className = "btn-action btn-sm";
+            }
+        }
+
+        /* --------------------------------------------------------
+           10. WEBSITE PUBLIC CONTENT & BUS DIRECTORY PLACEHOLDER
+           -------------------------------------------------------- */
+        let adminPlaceholderSettings = {
+            title: "No images available",
+            subtitle: "Authentic fleet photos coming soon",
+            bg_style: "emerald",
+            custom_image: ""
+        };
+
+        async function loadSiteContent() {
+            const res = await apiFetch("/api/admin/site-content");
+            if (res.ok && res.data && res.data.settings) {
+                const s = res.data.settings;
+                document.getElementById("siteBanner").value = s.announcement_banner || "";
+                document.getElementById("siteHeroTitle").value = s.hero_title || "";
+                document.getElementById("siteHeroSubtitle").value = s.hero_subtitle || "";
+                document.getElementById("siteSupportEmail").value = s.contact_email || "";
+                document.getElementById("siteSupportPhone").value = s.contact_phone || "";
+                document.getElementById("siteSupportAddress").value = s.contact_address || "";
+            }
+            await loadPlaceholderSettings();
+        }
+
+        async function saveSiteContent() {
+            const body = {
+                announcement_banner: document.getElementById("siteBanner").value.trim(),
+                hero_title: document.getElementById("siteHeroTitle").value.trim(),
+                hero_subtitle: document.getElementById("siteHeroSubtitle").value.trim(),
+                contact_email: document.getElementById("siteSupportEmail").value.trim(),
+                contact_phone: document.getElementById("siteSupportPhone").value.trim(),
+                contact_address: document.getElementById("siteSupportAddress").value.trim()
+            };
+            const res = await apiFetch("/api/admin/site-content", { method: "POST", body });
+            if (res.ok && res.data.success) {
+                showToast("Website public content updated live.");
+            } else {
+                alert("Failed to save website content.");
+            }
+        }
+
+        async function loadPlaceholderSettings() {
+            try {
+                const res = await apiFetch("/api/settings/placeholder");
+                if (res.ok && res.data && res.data.placeholder) {
+                    adminPlaceholderSettings = res.data.placeholder;
+                    document.getElementById("placeholderTitleInput").value = adminPlaceholderSettings.title || "";
+                    document.getElementById("placeholderSubtitleInput").value = adminPlaceholderSettings.subtitle || "";
+                    document.getElementById("placeholderBgSelect").value = adminPlaceholderSettings.bg_style || "emerald";
+                    document.getElementById("placeholderCustomImgInput").value = adminPlaceholderSettings.custom_image || "";
+                    updatePlaceholderPreview();
+                }
+            } catch (err) {
+                console.warn("Could not load placeholder settings:", err);
+            }
+        }
+
+        function updatePlaceholderPreview() {
+            const title = document.getElementById("placeholderTitleInput").value.trim() || "No images available";
+            const subtitle = document.getElementById("placeholderSubtitleInput").value.trim() || "Authentic fleet photos coming soon";
+            const bgStyle = document.getElementById("placeholderBgSelect").value;
+            const customImg = document.getElementById("placeholderCustomImgInput").value.trim();
+
+            let bgGradient = "linear-gradient(135deg, #031D16 0%, #083A32 50%, #02110F 100%)";
+            let accentColor = "#54D1C6";
+            let borderStyle = "1px solid rgba(84, 209, 198, 0.25)";
+
+            if (bgStyle === "slate") {
+                bgGradient = "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)";
+                accentColor = "#94A3B8";
+                borderStyle = "1px solid rgba(148, 163, 184, 0.2)";
+            } else if (bgStyle === "turquoise") {
+                bgGradient = "linear-gradient(135deg, #042B28 0%, #0A4A44 100%)";
+                accentColor = "#2DD4BF";
+                borderStyle = "1px solid rgba(45, 212, 191, 0.35)";
+            } else if (bgStyle === "gold") {
+                bgGradient = "linear-gradient(135deg, #1C1917 0%, #292524 100%)";
+                accentColor = "#D5B779";
+                borderStyle = "1px solid rgba(213, 183, 121, 0.35)";
+            }
+
+            const box = document.getElementById("adminPlaceholderPreviewBox");
+            if (!box) return;
+
+            if (customImg) {
+                const formattedImg = formatMediaUrl(customImg);
+                box.innerHTML = `
+                    <div style="width:100%; height:200px; background:url('${formattedImg}') center/cover no-repeat; border-radius:12px; position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1.25rem; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+                        <div style="position:absolute; inset:0; background:rgba(2, 17, 15, 0.78); backdrop-filter:blur(3px);"></div>
+                        <div style="position:relative; z-index:2;">
+                            <div style="font-size:2rem; margin-bottom:0.35rem; color:${accentColor};">🚌</div>
+                            <div style="font-weight:700; color:#F8F9FA; font-size:1rem; letter-spacing:0.5px;">${escapeHtml(title)}</div>
+                            <div style="font-size:0.78rem; color:rgba(248, 249, 250, 0.7); margin-top:3px;">${escapeHtml(subtitle)}</div>
+                            <span style="display:inline-block; margin-top:8px; font-size:0.7rem; font-weight:700; color:${accentColor}; background:rgba(84, 209, 198, 0.12); padding:2px 8px; border-radius:10px; border:1px solid rgba(84, 209, 198, 0.25);">
+                                Live Preview
+                            </span>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            box.innerHTML = `
+                <div style="width:100%; height:200px; background:${bgGradient}; border:${borderStyle}; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1.25rem; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+                    <div style="font-size:2.2rem; margin-bottom:0.4rem; color:${accentColor};">🚌</div>
+                    <div style="font-weight:700; color:#F8F9FA; font-size:1.02rem; letter-spacing:0.5px;">${escapeHtml(title)}</div>
+                    <div style="font-size:0.78rem; color:rgba(248, 249, 250, 0.7); margin-top:4px; max-width:260px;">${escapeHtml(subtitle)}</div>
+                    <span style="display:inline-block; margin-top:8px; font-size:0.7rem; font-weight:700; color:${accentColor}; background:rgba(84, 209, 198, 0.12); padding:2px 8px; border-radius:10px; border:1px solid rgba(84, 209, 198, 0.25);">
+                        Live Preview &bull; Verified Fleet Guarantee
+                    </span>
+                </div>
+            `;
+        }
+
+        async function savePlaceholderSettings() {
+            const body = {
+                title: document.getElementById("placeholderTitleInput").value.trim(),
+                subtitle: document.getElementById("placeholderSubtitleInput").value.trim(),
+                bg_style: document.getElementById("placeholderBgSelect").value,
+                custom_image: document.getElementById("placeholderCustomImgInput").value.trim()
+            };
+            const res = await apiFetch("/api/admin/settings/placeholder", { method: "POST", body });
+            if (res.ok && res.data.success) {
+                showToast("Bus Directory placeholder settings saved live!");
+                adminPlaceholderSettings = res.data.placeholder || body;
+                updatePlaceholderPreview();
+            } else {
+                alert((res.data && res.data.error) || "Failed to save placeholder settings.");
+            }
+        }
+
+        /* --------------------------------------------------------
+           11. UNIFIED MEDIA LIBRARY
+           -------------------------------------------------------- */
+        async function loadMediaLibrary() {
+            const gallery = document.getElementById("unifiedLibraryGrid");
+            gallery.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem;">Scanning disk storage and database records...</div>`;
+            const res = await apiFetch("/api/admin/media-library");
+            if (res.ok && res.data && res.data.items) {
+                cachedLibrary = res.data.items;
+                renderMediaLibrary(cachedLibrary);
+            }
+        }
+
+        function renderMediaLibrary(items) {
+            const gallery = document.getElementById("unifiedLibraryGrid");
+            if (!items.length) {
+                gallery.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem; color:rgba(248,249,250,0.5);">No media files found in library.</div>`;
+                return;
+            }
+            gallery.innerHTML = items.map(m => {
+                const isVideo = m.media_type === 'video';
+                return `
+                    <div class="media-card-item">
+                        <div class="media-viewport">
+                            ${isVideo ? `
+                                <video src="${m.url}" controls playsinline preload="metadata" style="width:100%; height:100%; object-fit:cover;"></video>
+                            ` : `
+                                <img src="${m.url}" alt="${escapeHtml(m.caption || 'Library item')}" loading="lazy">
+                            `}
+                        </div>
+                        <div class="media-details">
+                            <div class="media-title">${escapeHtml(m.caption || m.entity_name || 'Media Item')}</div>
+                            <div class="media-tag">${escapeHtml(m.entity_type)} &bull; ${escapeHtml(m.entity_name)}</div>
+                            <div style="font-size:0.72rem; color:rgba(248,249,250,0.5); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                ${escapeHtml(m.storage_path)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function filterMediaLibrary() {
+            const q = document.getElementById("searchLibrary").value.toLowerCase();
+            const type = document.getElementById("filterLibraryType").value;
+            const filtered = cachedLibrary.filter(m => {
+                const caption = (m.caption || "").toLowerCase();
+                const entity = (m.entity_name || "").toLowerCase();
+                const matchesQ = !q || caption.includes(q) || entity.includes(q);
+                const matchesType = type === 'all' || m.media_type === type;
+                return matchesQ && matchesType;
+            });
+            renderMediaLibrary(filtered);
+        }
+
+        /* --------------------------------------------------------
+           STORAGE & BACKUPS
+           -------------------------------------------------------- */
+        async function loadBackupsList() {
+            const res = await apiFetch("/api/admin/backup/list");
+            const tbody = document.getElementById("backupsTbody");
+            if (res.ok && res.data && res.data.backups) {
+                const backups = res.data.backups;
+                if (!backups.length) {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:1.5rem;">No backup archives generated yet. Click "Generate Full Backup Zip" above!</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = backups.map(b => `
+                    <tr>
+                        <td><strong>${escapeHtml(b.filename)}</strong></td>
+                        <td>${(b.size_bytes / (1024 * 1024)).toFixed(2)} MB</td>
+                        <td>${escapeHtml(b.created_at)}</td>
+                        <td>
+                            <a href="${b.download_url}" class="btn-action btn-sm" download>⬇️ Download</a>
+                        </td>
+                    </tr>
+                `).join("");
+            }
+        }
+
+        async function createBackup() {
+            showToast("Generating full database and metadata backup zip...");
+            const res = await apiFetch("/api/admin/backup/create", { method: "POST" });
+            if (res.ok && res.data.success) {
+                showToast("Backup created successfully!");
+                loadBackupsList();
+                if (res.data.download_url) {
+                    window.location.href = res.data.download_url;
+                }
+            } else {
+                alert("Backup creation failed.");
+            }
+        }
+
+        /* --------------------------------------------------------
+           12. CHANGE MASTER PASSWORD
+           -------------------------------------------------------- */
+        async function handlePasswordChange(e) {
+            e.preventDefault();
+            const cur = document.getElementById("curPassword").value;
+            const newP = document.getElementById("newOwnerPassword").value;
+            const conf = document.getElementById("confirmOwnerPassword").value;
+
+            if (newP !== conf) {
+                alert("New passwords do not match.");
+                return;
+            }
+
+            const btn = document.getElementById("btnChangePwd");
+            btn.disabled = true;
+            btn.textContent = "Updating Password...";
+
+            const res = await apiFetch("/api/owner/change-password", {
+                method: "POST",
+                body: { current_password: cur, new_password: newP, confirm_password: conf }
+            });
+
+            btn.disabled = false;
+            btn.textContent = "Update Master Password";
+
+            if (res.ok && res.data.success) {
+                alert("Master Password successfully updated! Please remember your new password.");
+                document.getElementById("curPassword").value = "";
+                document.getElementById("newOwnerPassword").value = "";
+                document.getElementById("confirmOwnerPassword").value = "";
+            } else {
+                alert((res.data && res.data.message) || "Password change failed. Check your current password.");
+            }
+        }
+
+        /* --------------------------------------------------------
+           13. LOGOUT
+           -------------------------------------------------------- */
+        async function handleLogout() {
+            if (!confirm("Are you sure you want to log out of the Owner Command Center?")) return;
+            await apiFetch("/api/logout", { method: "POST" });
+            window.location.replace("owner_login.html");
+        }
+
+        function escapeHtml(str) {
+            if (!str) return "";
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,2967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan Trip | Journey DNA</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .plan-trip-container {
+            max-width: 960px;
+            margin: 2rem auto;
+            padding: 2.5rem;
+            background: rgba(8, 44, 58, 0.85);
+            border-radius: 24px;
+            border: 1px solid rgba(88, 196, 193, 0.25);
+            box-shadow: 0 20px 50px rgba(5, 24, 32, 0.60);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            color: var(--warm-ivory);
+        }
+        .plan-trip-container h1, .plan-trip-container h2 {
+            font-family: var(--font-heading);
+            color: var(--warm-ivory);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            color: var(--muted-silver);
+            font-size: 0.92rem;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.85rem 1.1rem;
+            border: 1px solid rgba(88, 196, 193, 0.25);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(5, 24, 32, 0.72);
+            color: var(--warm-ivory);
+            font-family: var(--font-body);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--muted-turquoise);
+            box-shadow: 0 0 0 3px rgba(88, 196, 193, 0.22);
+        }
+        .destinations-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+        .destinations-list li {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(5, 24, 32, 0.6);
+            border: 1px solid rgba(88, 196, 193, 0.2);
+            padding: 0.85rem 1.1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 10px;
+            align-items: center;
+            color: var(--warm-ivory);
+        }
+        .destinations-list button {
+            background: rgba(239, 68, 68, 0.25);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            padding: 0.4rem 0.85rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .destinations-list button:hover {
+            background: rgba(239, 68, 68, 0.4);
+            color: #ffffff;
+        }
+        .search-results {
+            max-height: 220px;
+            overflow-y: auto;
+            border: 1px solid rgba(88, 196, 193, 0.3);
+            border-radius: 12px;
+            margin-top: 0.5rem;
+            display: none;
+            background: rgba(8, 44, 58, 0.96);
+            backdrop-filter: blur(16px);
+        }
+        .search-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(88, 196, 193, 0.12);
+            color: var(--soft-ice-blue);
+        }
+        .search-item:hover {
+            background: rgba(88, 196, 193, 0.18);
+            color: var(--muted-turquoise);
+        }
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #176B7A 0%, #58C4C1 100%);
+            color: #082C3A;
+            padding: 1rem;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            font-family: var(--font-sans);
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: all 0.25s ease;
+            box-shadow: 0 8px 22px rgba(23, 107, 122, 0.4);
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(88, 196, 193, 0.45);
+            filter: brightness(1.08);
+        }
+        .step {
+            display: none;
+        }
+        .step.active {
+            display: block;
+            animation: fadeInStep 0.3s ease;
+        }
+        @keyframes fadeInStep {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 4-Step Wizard Indicator */
+        .trip-step-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding: 0.85rem 1.25rem;
+            background: rgba(5, 24, 32, 0.72);
+            border: 1px solid rgba(88, 196, 193, 0.25);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .step-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--muted-silver, #A9C0BC);
+            font-size: 0.92rem;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 10px;
+        }
+        .step-badge:hover {
+            color: var(--warm-ivory, #fff);
+        }
+        .step-badge .step-num {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(88, 196, 193, 0.15);
+            border: 1px solid rgba(88, 196, 193, 0.3);
+            color: var(--warm-ivory, #F5F1E8);
+            font-size: 0.85rem;
+            font-weight: 700;
+            transition: all 0.25s;
+        }
+        .step-badge.active {
+            color: var(--warm-ivory, #F5F1E8);
+            background: rgba(88, 196, 193, 0.1);
+        }
+        .step-badge.active .step-num {
+            background: linear-gradient(135deg, #176B7A 0%, #58C4C1 100%);
+            color: #082C3A;
+            border-color: #58C4C1;
+            box-shadow: 0 0 12px rgba(88, 196, 193, 0.5);
+        }
+        .step-badge.completed .step-num {
+            background: #10B981;
+            color: #ffffff;
+            border-color: #10B981;
+        }
+        .step-arrow {
+            color: rgba(88, 196, 193, 0.4);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        @media (max-width: 680px) {
+            .trip-step-indicator {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.5rem;
+            }
+            .step-arrow {
+                display: none;
+            }
+        }
+
+        /* Validation Alert */
+        .step-validation-alert {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #fecaca;
+            padding: 0.85rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.25rem;
+            font-size: 0.92rem;
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Quick Location Chips */
+        .quick-location-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 0.5rem;
+            align-items: center;
+        }
+        .quick-location-chips .chip-label {
+            font-size: 0.78rem;
+            color: var(--muted-silver);
+            margin-right: 4px;
+        }
+        .quick-chip {
+            background: rgba(88, 196, 193, 0.12);
+            border: 1px solid rgba(88, 196, 193, 0.25);
+            color: var(--soft-ice-blue, #C8E6E2);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quick-chip:hover {
+            background: rgba(88, 196, 193, 0.28);
+            color: var(--warm-ivory, #fff);
+            border-color: var(--muted-turquoise);
+        }
+
+        /* Trip Context Bar */
+        .trip-context-pill {
+            background: rgba(5, 24, 32, 0.65);
+            border: 1px solid rgba(88, 196, 193, 0.2);
+            border-radius: 12px;
+            padding: 0.75rem 1.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--soft-ice-blue);
+            font-size: 0.92rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* Popular Destination Suggestions */
+        .popular-suggestions-bar {
+            margin-top: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .popular-suggestions-bar .label {
+            font-size: 0.85rem;
+            color: var(--muted-silver);
+            margin-bottom: 0.4rem;
+            display: block;
+        }
+        .popular-suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .suggestion-chip-btn {
+            background: rgba(23, 107, 122, 0.25);
+            border: 1px solid rgba(88, 196, 193, 0.35);
+            color: var(--warm-ivory);
+            padding: 4px 12px;
+            border-radius: 14px;
+            font-size: 0.84rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .suggestion-chip-btn:hover {
+            background: rgba(88, 196, 193, 0.3);
+            border-color: var(--muted-turquoise);
+            transform: translateY(-1px);
+        }
+
+        /* Circuit Route Box */
+        .circuit-route-box {
+            background: rgba(5, 24, 32, 0.8);
+            border: 1px dashed rgba(88, 196, 193, 0.35);
+            border-radius: 12px;
+            padding: 0.85rem 1.2rem;
+            margin: 1rem 0;
+            color: var(--warm-ivory);
+            font-size: 0.95rem;
+        }
+
+        /* 4 Core Capacity Selection Cards */
+        .capacity-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 1rem;
+            margin: 1.25rem 0 1.5rem 0;
+        }
+        .capacity-card {
+            background: rgba(5, 24, 32, 0.65);
+            border: 1px solid rgba(88, 196, 193, 0.25);
+            border-radius: 16px;
+            padding: 1.2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+        .capacity-card:hover {
+            border-color: var(--muted-turquoise);
+            background: rgba(8, 44, 58, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        .capacity-card.active {
+            border-color: var(--muted-turquoise);
+            background: rgba(23, 107, 122, 0.35);
+            box-shadow: 0 0 16px rgba(88, 196, 193, 0.4);
+        }
+        .capacity-card.active::after {
+            content: "✓ Selected";
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #10B981;
+            color: #ffffff;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 8px;
+        }
+        .capacity-card .cap-icon {
+            font-size: 2.2rem;
+            margin-bottom: 0.4rem;
+        }
+        .capacity-card .cap-title {
+            font-family: var(--font-heading);
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--warm-ivory);
+            margin-bottom: 0.25rem;
+        }
+        .capacity-card .cap-desc {
+            font-size: 0.8rem;
+            color: var(--muted-silver);
+            line-height: 1.35;
+        }
+        .capacity-card .cap-badge {
+            display: inline-block;
+            margin-top: 0.5rem;
+            font-size: 0.72rem;
+            padding: 2px 8px;
+            background: rgba(88, 196, 193, 0.15);
+            color: var(--muted-turquoise);
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        /* =========================================================
+           CHOOSE YOUR JOURNEY & LUXURY BUS CARDS (Section 3)
+           ========================================================= */
+        .choose-journey-header {
+            margin-bottom: 1.75rem;
+            text-align: left;
+        }
+        .choose-journey-title {
+            font-family: var(--font-heading, 'Playfair Display', serif);
+            font-size: 2.2rem;
+            color: var(--warm-ivory, #F5F1E8);
+            margin: 0 0 0.5rem 0;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .choose-journey-subtitle {
+            color: var(--muted-silver, #A9C0BC);
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* Luxury Filter Bar */
+        .luxury-filter-bar {
+            background: rgba(7, 37, 37, 0.75);
+            border: 1px solid rgba(88, 196, 193, 0.25);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(5, 24, 32, 0.35);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .luxury-filter-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .luxury-filter-input, .luxury-filter-select {
+            background: rgba(5, 24, 32, 0.85);
+            border: 1px solid rgba(88, 196, 193, 0.28);
+            color: var(--warm-ivory, #F5F1E8);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            font-family: var(--font-body);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .luxury-filter-input:focus, .luxury-filter-select:focus {
+            outline: none;
+            border-color: var(--turquoise-accent, #54D1C6);
+            box-shadow: 0 0 0 3px rgba(84, 209, 198, 0.2);
+        }
+        .luxury-filter-btn {
+            background: linear-gradient(135deg, #105747 0%, #087E8B 100%);
+            color: var(--warm-ivory, #F5F1E8);
+            border: 1px solid rgba(84, 209, 198, 0.4);
+            padding: 0.75rem 1.75rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .luxury-filter-btn:hover {
+            filter: brightness(1.15);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(8, 126, 139, 0.4);
+        }
+
+        /* Individual Bus Card */
+        .luxury-bus-card {
+            background: rgba(7, 37, 37, 0.85);
+            border: 1px solid rgba(84, 209, 198, 0.25);
+            border-radius: 20px;
+            box-shadow: 0 16px 40px rgba(5, 24, 32, 0.55);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+        }
+        .luxury-bus-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(84, 209, 198, 0.6);
+            box-shadow: 0 24px 50px rgba(5, 24, 32, 0.75);
+        }
+        @media (min-width: 820px) {
+            .luxury-bus-card {
+                flex-direction: row;
+                align-items: stretch;
+            }
+        }
+
+        .bus-card-media-col {
+            position: relative;
+            flex: 0 0 310px;
+            min-height: 220px;
+            background: #061919;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .bus-card-cover-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        .luxury-bus-card:hover .bus-card-cover-img {
+            transform: scale(1.05);
+        }
+
+        .bus-no-photo-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            color: var(--muted-silver, #A9C0BC);
+            gap: 8px;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(7, 37, 37, 0.9) 0%, rgba(16, 87, 71, 0.6) 100%);
+        }
+        .bus-no-photo-badge .badge-icon {
+            font-size: 2.8rem;
+            opacity: 0.85;
+        }
+        .bus-no-photo-badge .badge-title {
+            font-family: var(--font-heading, 'Playfair Display', serif);
+            font-size: 1.15rem;
+            color: var(--warm-ivory, #F5F1E8);
+            font-weight: 600;
+        }
+        .bus-no-photo-badge .badge-sub {
+            font-size: 0.78rem;
+            color: rgba(169, 192, 188, 0.8);
+        }
+
+        .bus-media-count-tag {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background: rgba(7, 37, 37, 0.88);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(84, 209, 198, 0.35);
+            color: var(--warm-ivory, #F5F1E8);
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .bus-recommended-tag {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: linear-gradient(135deg, #D5B779 0%, #B8964E 100%);
+            color: #073D32;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .bus-card-details-col {
+            flex: 1;
+            padding: 1.6rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .bus-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .bus-card-title {
+            font-family: var(--font-heading, 'Playfair Display', serif);
+            font-size: 1.35rem;
+            color: var(--warm-ivory, #F5F1E8);
+            margin: 0 0 0.35rem 0;
+            line-height: 1.3;
+        }
+        .bus-card-operator {
+            font-size: 0.92rem;
+            color: var(--muted-silver, #A9C0BC);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .bus-card-operator strong {
+            color: var(--turquoise-accent, #54D1C6);
+        }
+        .bus-rating-badge {
+            background: rgba(213, 183, 121, 0.15);
+            border: 1px solid rgba(213, 183, 121, 0.4);
+            color: #F0D497;
+            padding: 0.25rem 0.6rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .bus-spec-pill-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 0.6rem 0;
+        }
+        .bus-spec-pill {
+            background: rgba(5, 24, 32, 0.7);
+            border: 1px solid rgba(84, 209, 198, 0.2);
+            color: var(--warm-ivory, #F5F1E8);
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .bus-spec-pill.ac-pill {
+            background: rgba(84, 209, 198, 0.15);
+            border-color: rgba(84, 209, 198, 0.45);
+            color: var(--turquoise-accent, #54D1C6);
+        }
+        .bus-spec-pill.fit-pill {
+            background: rgba(213, 183, 121, 0.15);
+            border-color: rgba(213, 183, 121, 0.45);
+            color: #F0D497;
+        }
+
+        .bus-card-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding-top: 0.75rem;
+            border-top: 1px solid rgba(84, 209, 198, 0.15);
+        }
+        .btn-bus-action {
+            padding: 0.55rem 1.1rem;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.25s ease;
+        }
+        .btn-bus-action.btn-details {
+            background: rgba(8, 126, 139, 0.3);
+            border-color: rgba(84, 209, 198, 0.4);
+            color: var(--warm-ivory, #F5F1E8);
+        }
+        .btn-bus-action.btn-details:hover {
+            background: rgba(8, 126, 139, 0.55);
+            border-color: var(--turquoise-accent, #54D1C6);
+            color: #ffffff;
+        }
+        .btn-bus-action.btn-media {
+            background: rgba(16, 87, 71, 0.35);
+            border-color: rgba(84, 209, 198, 0.3);
+            color: var(--muted-silver, #A9C0BC);
+        }
+        .btn-bus-action.btn-media:hover {
+            background: rgba(16, 87, 71, 0.6);
+            color: var(--warm-ivory, #F5F1E8);
+        }
+        .btn-bus-action.btn-video-act {
+            background: rgba(229, 62, 62, 0.2);
+            border-color: rgba(229, 62, 62, 0.45);
+            color: #feb2b2;
+        }
+        .btn-bus-action.btn-video-act:hover {
+            background: rgba(229, 62, 62, 0.35);
+            color: #fff;
+        }
+        .btn-bus-action.btn-book {
+            background: linear-gradient(135deg, #105747 0%, #087E8B 50%, #54D1C6 100%);
+            color: #073D32;
+            font-weight: 700;
+            margin-left: auto;
+            border: none;
+            box-shadow: 0 4px 14px rgba(8, 126, 139, 0.4);
+        }
+        .btn-bus-action.btn-book:hover {
+            filter: brightness(1.15);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(84, 209, 198, 0.5);
+        }
+
+        /* =========================================================
+           LUXURY MODAL STYLING (Section 4)
+           ========================================================= */
+        .luxury-modal-container {
+            background: #072522;
+            border: 1px solid rgba(84, 209, 198, 0.35);
+            border-radius: 24px;
+            width: 95%;
+            max-width: 960px;
+            max-height: 90vh;
+            overflow-y: auto;
+            color: var(--warm-ivory, #F5F1E8);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.75);
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .luxury-modal-header {
+            background: linear-gradient(135deg, #051A18 0%, #0B332F 100%);
+            padding: 1.6rem 2.2rem;
+            border-bottom: 1px solid rgba(84, 209, 198, 0.22);
+            position: relative;
+        }
+        .luxury-modal-title {
+            font-family: var(--font-heading, 'Playfair Display', serif);
+            font-size: 1.75rem;
+            color: var(--warm-ivory, #F5F1E8);
+            margin: 0 0 0.35rem 0;
+            line-height: 1.25;
+        }
+        .luxury-modal-subtitle {
+            color: var(--muted-silver, #A9C0BC);
+            font-size: 0.92rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .luxury-modal-close {
+            position: absolute;
+            top: 1.4rem;
+            right: 1.6rem;
+            background: transparent;
+            border: none;
+            color: var(--muted-silver, #A9C0BC);
+            font-size: 2.2rem;
+            line-height: 1;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .luxury-modal-close:hover {
+            color: var(--warm-ivory, #F5F1E8);
+        }
+
+        /* Modal Tabs */
+        .luxury-tabs-bar {
+            display: flex;
+            gap: 8px;
+            background: rgba(5, 20, 20, 0.85);
+            padding: 0.75rem 2rem;
+            border-bottom: 1px solid rgba(84, 209, 198, 0.15);
+            overflow-x: auto;
+        }
+        .luxury-tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--muted-silver, #A9C0BC);
+            font-family: var(--font-sans, 'Manrope', sans-serif);
+            font-size: 0.92rem;
+            font-weight: 600;
+            padding: 0.6rem 1.2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        .luxury-tab-btn:hover {
+            color: var(--warm-ivory, #F5F1E8);
+            background: rgba(84, 209, 198, 0.1);
+        }
+        .luxury-tab-btn.active {
+            background: rgba(84, 209, 198, 0.18);
+            border-color: rgba(84, 209, 198, 0.45);
+            color: var(--turquoise-accent, #54D1C6);
+        }
+        .tab-count-badge {
+            background: rgba(84, 209, 198, 0.25);
+            color: var(--turquoise-accent, #54D1C6);
+            font-size: 0.75rem;
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .luxury-tab-content {
+            padding: 1.8rem 2.2rem;
+            flex: 1;
+        }
+
+        /* Photos Tab Stage */
+        .modal-photo-stage {
+            position: relative;
+            background: #031211;
+            border-radius: 16px;
+            overflow: hidden;
+            height: 420px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(84, 209, 198, 0.2);
+        }
+        .modal-photo-featured-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: opacity 0.25s ease;
+        }
+        .modal-photo-stage-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(7, 37, 37, 0.85);
+            border: 1px solid rgba(84, 209, 198, 0.3);
+            color: var(--warm-ivory, #F5F1E8);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: all 0.2s;
+        }
+        .modal-photo-stage-nav:hover {
+            background: rgba(84, 209, 198, 0.4);
+            color: #fff;
+        }
+        .modal-stage-prev { left: 14px; }
+        .modal-stage-next { right: 14px; }
+
+        .modal-photo-caption-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(3, 18, 17, 0.92) 0%, rgba(3, 18, 17, 0) 100%);
+            padding: 1.25rem 1.5rem 0.85rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            color: var(--warm-ivory, #F5F1E8);
+        }
+        .modal-photo-thumbs-strip {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 0.5rem 0;
+        }
+        .modal-photo-thumb {
+            flex: 0 0 84px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            opacity: 0.65;
+            transition: all 0.2s;
+            background: #031211;
+        }
+        .modal-photo-thumb:hover { opacity: 0.95; }
+        .modal-photo-thumb.active {
+            border-color: var(--turquoise-accent, #54D1C6);
+            opacity: 1;
+            box-shadow: 0 0 10px rgba(84, 209, 198, 0.4);
+        }
+        .modal-photo-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Native Video Player Section (NO YouTube) */
+        .native-video-card {
+            background: rgba(5, 20, 20, 0.7);
+            border: 1px solid rgba(84, 209, 198, 0.25);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+        }
+        .native-video-player {
+            width: 100%;
+            max-height: 480px;
+            border-radius: 12px;
+            background: #000;
+            outline: none;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        /* Empty Media Card */
+        .empty-media-card {
+            text-align: center;
+            padding: 3.5rem 1.5rem;
+            color: var(--muted-silver, #A9C0BC);
+            background: rgba(5, 20, 20, 0.5);
+            border: 1px dashed rgba(84, 209, 198, 0.25);
+            border-radius: 16px;
+        }
+
+        /* Specs Grid in Modal */
+        .luxury-specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        .luxury-spec-box {
+            background: rgba(5, 20, 20, 0.65);
+            border: 1px solid rgba(84, 209, 198, 0.2);
+            border-radius: 14px;
+            padding: 1rem 1.2rem;
+        }
+        .luxury-spec-label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--turquoise-accent, #54D1C6);
+            margin-bottom: 0.35rem;
+            font-weight: 700;
+        }
+        .luxury-spec-val {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--warm-ivory, #F5F1E8);
+        }
+
+        /* Media Management Controls (Section 2) */
+        .media-manager-box {
+            background: rgba(5, 20, 20, 0.65);
+            border: 1px solid rgba(84, 209, 198, 0.25);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.75rem;
+        }
+        .media-manager-title {
+            font-family: var(--font-heading, 'Playfair Display', serif);
+            font-size: 1.25rem;
+            color: var(--warm-ivory, #F5F1E8);
+            margin: 0 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .media-grid-item {
+            position: relative;
+            background: rgba(3, 18, 17, 0.85);
+            border: 1px solid rgba(84, 209, 198, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .media-grid-item.is-cover {
+            border-color: #D5B779;
+            box-shadow: 0 0 12px rgba(213, 183, 121, 0.35);
+        }
+
+        .luxury-modal-footer {
+            background: linear-gradient(135deg, #051A18 0%, #072522 100%);
+            padding: 1.25rem 2.2rem;
+            border-top: 1px solid rgba(84, 209, 198, 0.2);
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Modal Styles */
+        .custom-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.75);
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .custom-modal.open {
+            display: flex;
+        }
+        .modal-box {
+            background: #fff;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 680px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 1.5rem;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+        }
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #718096;
+            cursor: pointer;
+        }
+
+        /* Enhanced Lightbox Styles (Section 14) */
+        .lightbox-modal-box {
+            background: #111827;
+            color: #f9fafb;
+            border-radius: 14px;
+            width: 95%;
+            max-width: 920px;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        .lightbox-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.85rem 1.25rem;
+            background: #1f2937;
+            border-bottom: 1px solid #374151;
+        }
+        .lightbox-title {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #f3f4f6;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .lightbox-close {
+            background: transparent;
+            border: none;
+            color: #9ca3af;
+            font-size: 1.75rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0 4px;
+        }
+        .lightbox-close:hover { color: #fff; }
+        .lightbox-stage {
+            position: relative;
+            background: #030712;
+            height: 440px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            user-select: none;
+        }
+        .lightbox-main-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.25s ease;
+            cursor: zoom-in;
+        }
+        .lightbox-main-img.zoomed {
+            transform: scale(1.6);
+            cursor: zoom-out;
+        }
+        .lightbox-stage-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(17, 24, 39, 0.75);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.15);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, transform 0.1s;
+            z-index: 10;
+        }
+        .lightbox-stage-btn:hover {
+            background: rgba(37, 99, 235, 0.9);
+            transform: translateY(-50%) scale(1.05);
+        }
+        .lightbox-prev-btn { left: 14px; }
+        .lightbox-next-btn { right: 14px; } 
+        .lightbox-stage-controls {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+        .lightbox-icon-btn {
+            background: rgba(17, 24, 39, 0.75);
+            color: #f3f4f6;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .lightbox-icon-btn:hover {
+            background: rgba(37, 99, 235, 0.85);
+            color: #fff;
+        }
+        .lightbox-counter-badge {
+            position: absolute;
+            bottom: 12px;
+            right: 14px;
+            background: rgba(0,0,0,0.8);
+            color: #f9fafb;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            z-index: 10;
+        }
+        .lightbox-type-badge {
+            position: absolute;
+            bottom: 12px;
+            left: 14px;
+            background: rgba(37, 99, 235, 0.85);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            z-index: 10;
+        }
+        .lightbox-caption-bar {
+            padding: 0.85rem 1.25rem;
+            background: #111827;
+            border-top: 1px solid #1f2937;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.88rem;
+        }
+        .lightbox-source-info {
+            color: #9ca3af;
+            font-size: 0.82rem;
+        }
+        .lightbox-source-info strong { color: #e5e7eb; }
+        .lightbox-thumbs-strip {
+            display: flex;
+            gap: 8px;
+            padding: 0.75rem 1.25rem;
+            background: #030712;
+            overflow-x: auto;
+            border-top: 1px solid #1f2937;
+        }
+        .lightbox-thumb {
+            flex: 0 0 68px;
+            height: 48px;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            opacity: 0.55;
+            transition: opacity 0.2s, border-color 0.2s;
+        }
+        .lightbox-thumb:hover { opacity: 0.85; }
+        .lightbox-thumb.active {
+            border-color: #3b82f6;
+            opacity: 1;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+        }
+        .lightbox-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body class="plan-trip-page">
+    <header class="dashboard-header">
+        <a href="dashboard.html" class="logo">✈ Journey <span>DNA</span></a>
+        <nav class="desktop-nav" aria-label="Main navigation">
+            <!-- Dynamic Nav injected by auth.js -->
+        </nav>
+        <div class="auth-container user-profile-menu"></div>
+    </header>
+
+    <main class="page active">
+        <div class="plan-trip-container">
+            <!-- Step Indicator -->
+            <div class="trip-step-indicator" id="tripStepIndicator">
+                <div class="step-badge active" id="stepBadge1" onclick="goToStep(1)">
+                    <span class="step-num">1</span>
+                    <span class="step-name">Trip Details</span>
+                </div>
+                <div class="step-arrow">&rarr;</div>
+                <div class="step-badge" id="stepBadge2" onclick="goToStep(2)">
+                    <span class="step-num">2</span>
+                    <span class="step-name">Destinations</span>
+                </div>
+                <div class="step-arrow">&rarr;</div>
+                <div class="step-badge" id="stepBadge3" onclick="goToStep(3)">
+                    <span class="step-num">3</span>
+                    <span class="step-name">Vehicle</span>
+                </div>
+                <div class="step-arrow">&rarr;</div>
+                <div class="step-badge" id="stepBadge4" onclick="goToStep(4)">
+                    <span class="step-num">4</span>
+                    <span class="step-name">Review</span>
+                </div>
+            </div>
+
+            <!-- Validation Alert -->
+            <div id="stepValidationAlert" class="step-validation-alert"></div>
+
+            <!-- STEP 1: Trip Details -->
+            <div id="step-1" class="step active">
+                <div style="margin-bottom: 1.5rem;">
+                    <h2 style="margin: 0 0 0.4rem 0; font-size: 1.85rem;">Step 1: Your Trip Details</h2>
+                    <p style="color: var(--muted-silver); margin: 0; font-size: 0.95rem;">Enter your travel date, starting location, and journey requirements to begin planning.</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="tripDate">Travel Date <span style="color:#f87171;">*</span></label>
+                    <input type="date" id="tripDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="fromLocation">Starting / Departure Location <span style="color:#f87171;">*</span></label>
+                    <input type="text" id="fromLocation" placeholder="Enter departure city (e.g. Coimbatore, Chennai, Madurai, Salem)..." required>
+                    <div class="quick-location-chips">
+                        <span class="chip-label">Quick select:</span>
+                        <button type="button" class="quick-chip" onclick="setFromLocation('Coimbatore')">Coimbatore</button>
+                        <button type="button" class="quick-chip" onclick="setFromLocation('Chennai')">Chennai</button>
+                        <button type="button" class="quick-chip" onclick="setFromLocation('Madurai')">Madurai</button>
+                        <button type="button" class="quick-chip" onclick="setFromLocation('Salem')">Salem</button>
+                        <button type="button" class="quick-chip" onclick="setFromLocation('Erode')">Erode</button>
+                        <button type="button" class="quick-chip" onclick="setFromLocation('Trichy')">Trichy</button>
+                        <button type="button" class="quick-chip" onclick="setFromLocation('Tiruppur')">Tiruppur</button>
+                        <button type="button" class="quick-chip" onclick="setFromLocation('Kochi')">Kochi</button>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                    <div class="form-group">
+                        <label for="memberCount">Number of Travellers</label>
+                        <input type="number" id="memberCount" min="1" value="50" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tripType">Trip Type</label>
+                        <select id="tripType">
+                            <option value="College IV">College IV / Student Tour</option>
+                            <option value="Family Trip">Family Tour</option>
+                            <option value="Friends Trip">Friends Trip</option>
+                            <option value="Temple Trip">Temple / Pilgrimage Tour</option>
+                            <option value="Couple Trip">Couple Trip</option>
+                            <option value="Group Trip">Group Tour</option>
+                            <option value="Custom Trip">Custom Tour</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-submit" onclick="validateAndProceedStep(1)">Next: Add Destinations &rarr;</button>
+            </div>
+
+            <!-- STEP 2: Tourist Destination Selection -->
+            <div id="step-2" class="step">
+                <div style="margin-bottom: 1.25rem;">
+                    <h2 style="margin: 0 0 0.4rem 0; font-size: 1.85rem;">Step 2: Select Tourist Destinations</h2>
+                    <p style="color: var(--muted-silver); margin: 0; font-size: 0.95rem;">Search and add must-see places across Tamil Nadu and Kerala to craft your custom route circuit.</p>
+                </div>
+
+                <div class="trip-context-pill" id="step2ContextBar">
+                    <span>📅 Date: <strong id="ctxDate">Not set</strong></span>
+                    <span>&bull;</span>
+                    <span>📍 From: <strong id="ctxFrom">Not set</strong></span>
+                    <span>&bull;</span>
+                    <span>👥 <strong id="ctxMembers">50</strong> Members</span>
+                    <span>&bull;</span>
+                    <span>🎒 <strong id="ctxType">College IV</strong></span>
+                </div>
+
+                <div class="form-group" style="position:relative;">
+                    <label for="destSearch">Search Destinations (Tamil Nadu & Kerala)</label>
+                    <input type="text" id="destSearch" placeholder="Type a destination name (e.g. Ooty, Munnar, Kodaikanal, Alleppey, Rameshwaram)..." oninput="searchDestinations(this.value)" autocomplete="off">
+                    <div id="destSearchResults" class="search-results"></div>
+                </div>
+
+                <!-- Popular Suggestions Bar -->
+                <div class="popular-suggestions-bar">
+                    <span class="label">⭐ Suggested Tourist Places (Click to Add):</span>
+                    <div class="popular-suggestion-chips">
+                        <button type="button" class="suggestion-chip-btn" onclick="quickAddDestination('Ooty', 'Nilgiris', 'Tamil Nadu')">➕ Ooty</button>
+                        <button type="button" class="suggestion-chip-btn" onclick="quickAddDestination('Munnar', 'Idukki', 'Kerala')">➕ Munnar</button>
+                        <button type="button" class="suggestion-chip-btn" onclick="quickAddDestination('Kodaikanal', 'Dindigul', 'Tamil Nadu')">➕ Kodaikanal</button>
+                        <button type="button" class="suggestion-chip-btn" onclick="quickAddDestination('Alleppey Backwaters', 'Alappuzha', 'Kerala')">➕ Alleppey</button>
+                        <button type="button" class="suggestion-chip-btn" onclick="quickAddDestination('Rameshwaram', 'Ramanathapuram', 'Tamil Nadu')">➕ Rameshwaram</button>
+                        <button type="button" class="suggestion-chip-btn" onclick="quickAddDestination('Kanyakumari', 'Kanyakumari', 'Tamil Nadu')">➕ Kanyakumari</button>
+                        <button type="button" class="suggestion-chip-btn" onclick="quickAddDestination('Wayanad', 'Wayanad', 'Kerala')">➕ Wayanad</button>
+                        <button type="button" class="suggestion-chip-btn" onclick="quickAddDestination('Yercaud', 'Salem', 'Tamil Nadu')">➕ Yercaud</button>
+                    </div>
+                </div>
+
+                <!-- Circuit Route Box -->
+                <div class="circuit-route-box" id="circuitRouteBox">
+                    🗺️ <strong>Planned Route Circuit:</strong> <span id="routeSequencePreview" style="color:var(--muted-turquoise);">Add destinations to build your itinerary</span>
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                        <span style="font-weight:700; color:var(--warm-ivory); font-size:0.95rem;">Selected Destinations (<span id="destCountBadge">0</span>)</span>
+                        <small style="color:var(--muted-silver);">Ordered by stop sequence</small>
+                    </div>
+                    <ul id="selectedDestinations" class="destinations-list"></ul>
+                </div>
+
+                <div style="display:flex; justify-content: space-between; gap:1rem; margin-top: 1.75rem; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-secondary" onclick="goToStep(1)">&larr; Back to Trip Details</button>
+                    <button type="button" class="btn btn-primary" onclick="validateAndProceedStep(2)">Next: Select Vehicle &rarr;</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Vehicle & Capacity Selection -->
+            <div id="step-3" class="step">
+                <div class="choose-journey-header">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+                        <div>
+                            <h2 class="choose-journey-title" style="margin:0 0 0.35rem 0;">Step 3: Select Vehicle & Capacity</h2>
+                            <p id="dynamicTripSubheading" class="choose-journey-subtitle">
+                                Select required passenger seating capacity and choose from verified available fleet coaches.
+                            </p>
+                        </div>
+                        <div id="searchBadgeCount" style="background:rgba(84, 209, 198, 0.18); border:1px solid rgba(84, 209, 198, 0.4); color:var(--turquoise-accent); padding:0.4rem 1rem; border-radius:20px; font-weight:700; font-size:0.85rem;">
+                            Discovering Available Coaches...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4 CORE SEATING CAPACITY OPTIONS -->
+                <div style="margin-bottom: 0.5rem;">
+                    <label style="font-weight:700; color:var(--warm-ivory); font-size:0.95rem; display:block; margin-bottom:0.25rem;">Select Required Seating Capacity:</label>
+                    <div class="capacity-cards-grid">
+                        <div class="capacity-card" id="capCard_5" onclick="selectCapacityFilter('5')">
+                            <div class="cap-icon">🚗</div>
+                            <div class="cap-title">5-Seater</div>
+                            <div class="cap-desc">Luxury Car / SUV / Innova Crysta</div>
+                            <span class="cap-badge">1 - 5 Persons</span>
+                        </div>
+                        <div class="capacity-card" id="capCard_12" onclick="selectCapacityFilter('12')">
+                            <div class="cap-icon">🚐</div>
+                            <div class="cap-title">12-Seater</div>
+                            <div class="cap-desc">Tempo Traveller / Force Urbania</div>
+                            <span class="cap-badge">6 - 12 Persons</span>
+                        </div>
+                        <div class="capacity-card" id="capCard_25" onclick="selectCapacityFilter('25')">
+                            <div class="cap-icon">🚌</div>
+                            <div class="cap-title">25-Seater</div>
+                            <div class="cap-desc">Mini Bus / Executive Tourer</div>
+                            <span class="cap-badge">13 - 25 Persons</span>
+                        </div>
+                        <div class="capacity-card active" id="capCard_55" onclick="selectCapacityFilter('55')">
+                            <div class="cap-icon">🚍</div>
+                            <div class="cap-title">55-Seater</div>
+                            <div class="cap-desc">Luxury Tourist Coach (50-55s)</div>
+                            <span class="cap-badge">26 - 55 Persons</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LUXURY SEARCH & FILTERS BAR -->
+                <div class="luxury-filter-bar">
+                    <div class="luxury-filter-row">
+                        <input type="text" id="jdSearchBox" class="luxury-filter-input" placeholder="Search coach name, operator, AC, BharatBenz, IV..." style="flex:2; min-width:220px;" onkeydown="if(event.key==='Enter') filterOperators()">
+                        <select id="jdFilterLocation" class="luxury-filter-select" style="flex:1; min-width:150px;" onchange="filterOperators()">
+                            <option value="">All Locations</option>
+                            <option value="Coimbatore">Coimbatore</option>
+                            <option value="Chennai">Chennai</option>
+                            <option value="Madurai">Madurai</option>
+                            <option value="Trichy">Trichy</option>
+                            <option value="Salem">Salem</option>
+                            <option value="Erode">Erode</option>
+                            <option value="Tiruppur">Tiruppur</option>
+                            <option value="Thanjavur">Thanjavur</option>
+                            <option value="Tirunelveli">Tirunelveli</option>
+                            <option value="Kanyakumari">Kanyakumari</option>
+                            <option value="Dindigul">Dindigul</option>
+                            <option value="Ooty">Ooty</option>
+                            <option value="Kodaikanal">Kodaikanal</option>
+                            <option value="Pollachi">Pollachi</option>
+                            <option value="Kochi">Kochi (Kerala)</option>
+                            <option value="Thiruvananthapuram">Thiruvananthapuram</option>
+                            <option value="Kozhikode">Kozhikode (Kerala)</option>
+                            <option value="Thrissur">Thrissur (Kerala)</option>
+                        </select>
+                        <select id="jdFilterCapacity" class="luxury-filter-select" style="flex:1; min-width:140px;" onchange="filterOperators()">
+                            <option value="">All Capacities</option>
+                            <option value="50-55" selected>50-55 Seater</option>
+                            <option value="40-45">40-45 Seater</option>
+                            <option value="30-35">30-35 Seater</option>
+                            <option value="20-25">20-25 Seater</option>
+                            <option value="12-18">12-18 Seater</option>
+                            <option value="5">5 Seater</option>
+                        </select>
+                        <button class="luxury-filter-btn" type="button" onclick="filterOperators()">Filter Coaches</button>
+                    </div>
+                </div>
+
+                <div id="vehicleResults"></div>
+
+                <div style="display:flex; justify-content: space-between; gap:1rem; margin-top: 1.75rem; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-secondary" onclick="goToStep(2)">&larr; Back to Destinations</button>
+                    <button type="button" class="btn btn-primary" onclick="validateAndProceedStep(3)">Next: Review & Confirm &rarr;</button>
+                </div>
+            </div>
+
+            <!-- STEP 4: Review & Confirm -->
+            <div id="step-4" class="step">
+                <div style="margin-bottom: 1.25rem;">
+                    <h2 style="margin: 0 0 0.4rem 0; font-size: 1.85rem;">Step 4: Review & Confirm Trip</h2>
+                    <p style="color: var(--muted-silver); margin: 0; font-size: 0.95rem;">Review your itinerary, destination stops, and selected vehicle specifications before confirming.</p>
+                </div>
+
+                <div id="tripSummary" style="margin-bottom:1.5rem;"></div>
+
+                <div style="display:flex; justify-content: space-between; gap:1rem; margin-top: 1.5rem; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-secondary" onclick="goToStep(3)">&larr; Back to Vehicle Selection</button>
+                    <button type="button" id="btnConfirmTrip" class="btn-submit" style="width:auto; min-width:280px;" onclick="confirmTrip()">Confirm & Save to My Trips &rarr;</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Photo Gallery Lightbox Modal (Section 14) -->
+    <div id="galleryModal" class="custom-modal">
+        <div class="lightbox-modal-box" id="lightboxModalBox">
+            <div class="lightbox-header">
+                <div class="lightbox-title" id="modalGalleryTitle">
+                    <span>🖼️</span> Operator Photos
+                </div>
+                <button class="lightbox-close" onclick="closeModal('galleryModal')">&times;</button>
+            </div>
+            <div class="lightbox-stage" id="lightboxStage">
+                <img id="lightboxMainImg" class="lightbox-main-img" src="" alt="Verified Bus Photo" onclick="toggleModalZoom()">
+                <button class="lightbox-stage-btn lightbox-prev-btn" onclick="stepModalGallery(-1)" title="Previous (Left Arrow)">&larr;</button>
+                <button class="lightbox-stage-btn lightbox-next-btn" onclick="stepModalGallery(1)" title="Next (Right Arrow)">&rarr;</button>
+                <div class="lightbox-stage-controls">
+                    <button class="lightbox-icon-btn" onclick="toggleModalZoom()" id="btnZoomToggle" title="Zoom In / Out">🔍 Zoom</button>
+                    <button class="lightbox-icon-btn" onclick="toggleModalFullscreen()" id="btnFullscreenToggle" title="Toggle Fullscreen">⛶ Fullscreen</button>
+                </div>
+                <span class="lightbox-type-badge" id="lightboxTypeBadge">Fleet Overview</span>
+                <span class="lightbox-counter-badge" id="lightboxCounter">1 / 1</span>
+            </div>
+            <div class="lightbox-caption-bar">
+                <div id="lightboxCaption" style="font-weight:600; color:#f3f4f6;"></div>
+                <div class="lightbox-source-info" id="lightboxSourceInfo">Source: Verified Official Source</div>
+            </div>
+            <div class="lightbox-thumbs-strip" id="lightboxThumbsStrip"></div>
+        </div>
+    </div>
+
+    <!-- LUXURY BUS DETAILS & MEDIA MODAL (Sections 4 & 2) -->
+    <div id="luxuryBusModal" class="custom-modal" onclick="if(event.target===this) closeBusModal()">
+        <div class="luxury-modal-container" onclick="event.stopPropagation()">
+            <!-- Header -->
+            <div class="luxury-modal-header">
+                <button class="luxury-modal-close" onclick="closeBusModal()">&times;</button>
+                <h2 id="modalBusTitle" class="luxury-modal-title">Coach Details</h2>
+                <div id="modalBusSubtitle" class="luxury-modal-subtitle">Operator & Fleet Information</div>
+            </div>
+
+            <!-- Tabs Bar -->
+            <div class="luxury-tabs-bar">
+                <button class="luxury-tab-btn active" id="tabBtnPhotos" onclick="switchBusModalTab('photos')">
+                    <span>🖼️</span> Photos <span id="tabBadgePhotos" class="tab-count-badge">0</span>
+                </button>
+                <button class="luxury-tab-btn" id="tabBtnVideos" onclick="switchBusModalTab('videos')">
+                    <span>🎥</span> Genuine Videos <span id="tabBadgeVideos" class="tab-count-badge">0</span>
+                </button>
+                <button class="luxury-tab-btn" id="tabBtnSpecs" onclick="switchBusModalTab('specs')">
+                    <span>⚙️</span> Specifications & Amenities
+                </button>
+            </div>
+
+            <!-- Tab 1: Photos Gallery -->
+            <div id="modalTabPhotos" class="luxury-tab-content">
+                <div id="modalPhotoStage" class="modal-photo-stage">
+                    <img id="modalFeaturedPhoto" class="modal-photo-featured-img" src="" alt="Bus Photo">
+                    <button class="modal-photo-stage-nav modal-stage-prev" onclick="stepBusPhoto(-1)" title="Previous">&larr;</button>
+                    <button class="modal-photo-stage-nav modal-stage-next" onclick="stepBusPhoto(1)" title="Next">&rarr;</button>
+                    <div class="modal-photo-caption-bar">
+                        <div>
+                            <span id="modalPhotoCategory" style="background:rgba(84, 209, 198, 0.25); color:var(--turquoise-accent); padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700; text-transform:uppercase; margin-right:8px;">Exterior</span>
+                            <strong id="modalPhotoCaption" style="font-size:0.95rem;">Bus Photo</strong>
+                        </div>
+                        <span id="modalPhotoCounter" style="font-size:0.82rem; font-weight:700; background:rgba(0,0,0,0.6); padding:3px 10px; border-radius:12px;">1 / 1</span>
+                    </div>
+                </div>
+                <div id="modalPhotoThumbs" class="modal-photo-thumbs-strip"></div>
+            </div>
+
+            <!-- Tab 2: Genuine Native Videos (NO YouTube) -->
+            <div id="modalTabVideos" class="luxury-tab-content" style="display:none;">
+                <div id="modalVideosList"></div>
+            </div>
+
+            <!-- Tab 3: Specs & Amenities -->
+            <div id="modalTabSpecs" class="luxury-tab-content" style="display:none;">
+                <div id="modalSpecsContent"></div>
+            </div>
+
+            <!-- Footer -->
+            <div class="luxury-modal-footer" id="modalFooterActions"></div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Enquiry Modal -->
+    <div id="enquiryModal" class="custom-modal">
+        <div class="modal-box" style="background:rgba(7, 37, 37, 0.95); border:1px solid rgba(84, 209, 198, 0.35); color:var(--warm-ivory);">
+            <span class="modal-close" onclick="closeModal('enquiryModal')" style="color:var(--muted-silver);">&times;</span>
+            <h3 style="margin-top:0; font-family:var(--font-heading); color:var(--warm-ivory);">Contact Operator via WhatsApp</h3>
+            <p style="color:var(--muted-silver); font-size:0.88rem;">Review your enquiry details below before launching WhatsApp:</p>
+            <textarea id="enquiryTextarea" rows="12" style="width:100%; border:1px solid rgba(84, 209, 198, 0.3); border-radius:10px; padding:0.85rem; font-family:monospace; font-size:0.9rem; background:rgba(5, 24, 32, 0.85); color:var(--warm-ivory);" readonly></textarea>
+            <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem;">
+                <button class="btn btn-secondary" onclick="closeModal('enquiryModal')">Cancel</button>
+                <a id="btnSendWhatsApp" href="#" target="_blank" class="btn btn-primary" style="background:#25D366; text-decoration:none; display:inline-flex; align-items:center; gap:6px; color:#fff;">
+                    Open in WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            await requireAuth();
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById("tripDate").setAttribute('min', today);
+            
+            // Pre-fill destination if passed via URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const addPlaceId = urlParams.get('add_place');
+            const addPlaceName = urlParams.get('place_name');
+            if (addPlaceId && addPlaceName) {
+                addDestination(addPlaceId, addPlaceName);
+                nextStep(2);
+            }
+        });
+
+        let currentStep = 1;
+        let destinations = [];
+        let selectedVehicle = null;
+        let selectedCapacity = "55";
+        let discoveredOperators = [];
+        let galleryIndices = {};
+
+        function setFromLocation(city) {
+            const locInput = document.getElementById('fromLocation');
+            if (locInput) {
+                locInput.value = city;
+                locInput.focus();
+            }
+            hideValidationAlert();
+            updateRoutePreview();
+        }
+
+        function showValidationAlert(message) {
+            const alertBox = document.getElementById('stepValidationAlert');
+            if (alertBox) {
+                alertBox.innerHTML = `⚠️ <span>${message}</span>`;
+                alertBox.style.display = 'flex';
+                alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function hideValidationAlert() {
+            const alertBox = document.getElementById('stepValidationAlert');
+            if (alertBox) {
+                alertBox.style.display = 'none';
+                alertBox.innerHTML = '';
+            }
+        }
+
+        function updateStepIndicator(step) {
+            currentStep = step;
+            for (let s = 1; s <= 4; s++) {
+                const badge = document.getElementById('stepBadge' + s);
+                if (!badge) continue;
+                badge.classList.remove('active', 'completed');
+                if (s === step) {
+                    badge.classList.add('active');
+                } else if (s < step) {
+                    badge.classList.add('completed');
+                }
+            }
+        }
+
+        function goToStep(step) {
+            hideValidationAlert();
+            document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+            const targetEl = document.getElementById('step-' + step);
+            if (targetEl) {
+                targetEl.classList.add('active');
+            }
+            updateStepIndicator(step);
+
+            const date = document.getElementById('tripDate').value;
+            const fromLoc = document.getElementById('fromLocation').value;
+            const members = document.getElementById('memberCount').value || '50';
+            const tripType = document.getElementById('tripType').value || 'College IV';
+
+            if (step === 2) {
+                const ctxDate = document.getElementById('ctxDate');
+                const ctxFrom = document.getElementById('ctxFrom');
+                const ctxMembers = document.getElementById('ctxMembers');
+                const ctxType = document.getElementById('ctxType');
+                if (ctxDate) ctxDate.innerText = date || 'Not selected';
+                if (ctxFrom) ctxFrom.innerText = fromLoc || 'Not selected';
+                if (ctxMembers) ctxMembers.innerText = members;
+                if (ctxType) ctxType.innerText = tripType;
+                updateRoutePreview();
+            } else if (step === 3) {
+                searchVehicles();
+            } else if (step === 4) {
+                showReview();
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function validateAndProceedStep(fromStep) {
+            hideValidationAlert();
+
+            if (fromStep === 1) {
+                const dateInput = document.getElementById('tripDate');
+                const fromInput = document.getElementById('fromLocation');
+                const memberInput = document.getElementById('memberCount');
+
+                const dateVal = (dateInput ? dateInput.value : '').trim();
+                const fromVal = (fromInput ? fromInput.value : '').trim();
+                const memberVal = parseInt(memberInput ? memberInput.value : '1', 10);
+
+                if (!dateVal) {
+                    showValidationAlert("Please select your travel date.");
+                    if (dateInput) dateInput.focus();
+                    return;
+                }
+
+                const today = new Date().toISOString().split('T')[0];
+                if (dateVal < today) {
+                    showValidationAlert("Travel date cannot be in the past. Please select today or a future date.");
+                    if (dateInput) dateInput.focus();
+                    return;
+                }
+
+                if (!fromVal || fromVal.length < 2) {
+                    showValidationAlert("Please enter your starting departure location (e.g. Coimbatore, Chennai, Madurai).");
+                    if (fromInput) fromInput.focus();
+                    return;
+                }
+
+                if (!memberVal || memberVal < 1) {
+                    showValidationAlert("Please enter a valid number of travellers (at least 1).");
+                    if (memberInput) memberInput.focus();
+                    return;
+                }
+
+                goToStep(2);
+                return;
+            }
+
+            if (fromStep === 2) {
+                if (!destinations || destinations.length === 0) {
+                    showValidationAlert("Please select at least one tourist destination to build your trip itinerary.");
+                    const destInput = document.getElementById('destSearch');
+                    if (destInput) destInput.focus();
+                    return;
+                }
+
+                goToStep(3);
+                return;
+            }
+
+            if (fromStep === 3) {
+                if (!selectedVehicle && !selectedCapacity) {
+                    selectedCapacity = "55";
+                }
+                goToStep(4);
+                return;
+            }
+        }
+
+        // Backward compatibility
+        function nextStep(step) {
+            if (step === 2) validateAndProceedStep(1);
+            else if (step === 3) validateAndProceedStep(2);
+            else if (step >= 4) validateAndProceedStep(3);
+            else goToStep(step);
+        }
+
+        function prevStep(step) {
+            goToStep(step);
+        }
+
+        async function searchDestinations(query) {
+            const resultsDiv = document.getElementById('destSearchResults');
+            if (!query || query.trim().length < 2) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+            try {
+                const res = await apiFetch(`/api/external/places/search?q=${encodeURIComponent(query.trim())}`);
+                const data = res.data;
+                if (data && data.success && Array.isArray(data.places) && data.places.length > 0) {
+                    resultsDiv.innerHTML = data.places.map(p => {
+                        const safeName = (p.name || '').replace(/'/g, "\\'");
+                        const safeDist = (p.district || p.city || '').replace(/'/g, "\\'");
+                        const safeState = (p.state || '').replace(/'/g, "\\'");
+                        return `
+                            <div class="search-item" onclick="addDestination('${p.external_id || p.id}', '${safeName}', '${safeDist}', '${safeState}')">
+                                <strong>📍 ${p.name}</strong> &bull; <span style="font-size:0.85rem; color:var(--muted-silver);">${p.district || p.city || ''}, ${p.state || 'South India'}</span>
+                                <span style="float:right; font-size:0.75rem; background:rgba(88,196,193,0.15); color:var(--muted-turquoise); padding:2px 8px; border-radius:10px;">${p.category || 'Sightseeing'}</span>
+                            </div>
+                        `;
+                    }).join('');
+                    resultsDiv.style.display = 'block';
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="search-item" style="cursor:default; color:var(--muted-silver);">
+                            No matching destination found in database. 
+                            <button type="button" class="quick-chip" style="margin-left:8px;" onclick="addDestination(null, '${query.replace(/'/g, "\\'")}');">Add "${query}" Anyway</button>
+                        </div>
+                    `;
+                    resultsDiv.style.display = 'block';
+                }
+            } catch (e) {
+                console.error("Destination search error:", e);
+            }
+        }
+
+        function quickAddDestination(name, district = '', state = '') {
+            addDestination(null, name, district, state);
+        }
+
+        function addDestination(id, name, district = '', state = '') {
+            if (!name || !name.trim()) return;
+            const trimmedName = name.trim();
+            const exists = destinations.some(d => 
+                (id && d.external_place_id === id) || 
+                (d.place_name.toLowerCase() === trimmedName.toLowerCase())
+            );
+            if (exists) {
+                showValidationAlert(`📍 "${trimmedName}" is already in your selected destinations!`);
+                return;
+            }
+            hideValidationAlert();
+            destinations.push({
+                external_place_id: id || `EXT_PLC_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+                place_name: trimmedName,
+                district: district || '',
+                state: state || 'Tamil Nadu'
+            });
+            renderDestinations();
+            updateRoutePreview();
+
+            const destSearch = document.getElementById('destSearch');
+            if (destSearch) destSearch.value = '';
+            const resultsDiv = document.getElementById('destSearchResults');
+            if (resultsDiv) resultsDiv.style.display = 'none';
+        }
+
+        function removeDestination(id) {
+            destinations = destinations.filter(d => d.external_place_id !== id);
+            renderDestinations();
+            updateRoutePreview();
+        }
+
+        function updateRoutePreview() {
+            const previewEl = document.getElementById('routeSequencePreview');
+            const fromLoc = (document.getElementById('fromLocation') ? document.getElementById('fromLocation').value : '').trim() || 'Origin';
+            if (!previewEl) return;
+            if (destinations.length === 0) {
+                previewEl.innerHTML = `<span style="color:var(--muted-silver); font-style:italic;">Add destinations below to build your itinerary</span>`;
+            } else {
+                const chain = [fromLoc, ...destinations.map(d => d.place_name)].join(' &rarr; ');
+                previewEl.innerHTML = `<span style="color:var(--muted-turquoise); font-weight:700;">${chain}</span> (${destinations.length} stop${destinations.length === 1 ? '' : 's'})`;
+            }
+        }
+
+        function renderDestinations() {
+            const list = document.getElementById('selectedDestinations');
+            const badge = document.getElementById('destCountBadge');
+            if (badge) badge.innerText = destinations.length;
+            if (!list) return;
+
+            if (destinations.length === 0) {
+                list.innerHTML = `
+                    <li style="background:rgba(5,24,32,0.4); border:1px dashed rgba(88,196,193,0.25); justify-content:center; color:var(--muted-silver); font-style:italic;">
+                        No destinations added yet. Search above or click any suggested place!
+                    </li>
+                `;
+                return;
+            }
+
+            list.innerHTML = destinations.map((d, idx) => `
+                <li>
+                    <span>
+                        <span style="background:linear-gradient(135deg, #176B7A, #58C4C1); color:#082C3A; font-weight:800; font-size:0.75rem; padding:2px 7px; border-radius:50%; margin-right:8px;">${idx + 1}</span>
+                        <strong>${d.place_name}</strong> 
+                        ${d.district ? `<small style="color:var(--muted-silver); margin-left:6px;">(${d.district}${d.state ? ', ' + d.state : ''})</small>` : ''}
+                    </span>
+                    <button type="button" onclick="removeDestination('${d.external_place_id}')" title="Remove stop">✕ Remove</button>
+                </li>
+            `).join('');
+        }
+
+        // Helper: Ensure NO YouTube video thumbnails or URLs can ever enter bus photo galleries
+        function isYouTubeUrl(url) {
+            if (!url || typeof url !== 'string') return false;
+            return /youtube\.com|youtu\.be|ytimg\.com|maxresdefault|hqdefault|sddefault|mqdefault|default\.jpg/i.test(url);
+        }
+
+        let discoveredBuses = [];
+        let currentBusModalData = null;
+        let currentBusPhotoIdx = 0;
+        let currentActiveTab = 'photos';
+
+        // Extract individual buses from API operators data
+        function extractBusesFromOperators(operatorsData) {
+            const list = [];
+            operatorsData.forEach((op, opIdx) => {
+                const opBuses = (op.buses && op.buses.length > 0) ? op.buses : [];
+                
+                if (opBuses.length > 0) {
+                    opBuses.forEach((b, bIdx) => {
+                        // Strictly filter out any YouTube URLs from photos and videos
+                        const photos = (b.photos || b.images || []).filter(p => {
+                            const u = p.photo_url || p.url || p.file_path || p.image_url;
+                            return u && !isYouTubeUrl(u);
+                        }).map(p => ({
+                            id: p.id || `photo_${b.id}_${Math.random().toString(36).substr(2, 6)}`,
+                            url: p.photo_url || p.url || p.file_path || p.image_url,
+                            file_path: p.file_path || p.photo_url || p.url || p.image_url,
+                            caption: p.caption || p.title || `${b.bus_name || b.name} Photo`,
+                            category: p.category || p.image_type || 'Exterior',
+                            is_cover: p.is_cover || (p.is_primary ? 1 : 0) || 0
+                        }));
+
+                        const videos = (b.videos || []).filter(v => {
+                            const u = v.video_url || v.url || v.file_path;
+                            return u && !isYouTubeUrl(u);
+                        }).map(v => ({
+                            id: v.id || `vid_${b.id}_${Math.random().toString(36).substr(2, 6)}`,
+                            url: v.video_url || v.url || v.file_path,
+                            file_path: v.file_path || v.video_url || v.url,
+                            caption: v.caption || v.title || `${b.bus_name || b.name} Walkaround Video`,
+                            category: v.category || 'Exterior Walkaround',
+                            mime_type: v.mime_type || 'video/mp4'
+                        }));
+
+                        // Determine cover photo
+                        let cover = b.cover_photo;
+                        if (!cover || isYouTubeUrl(cover)) {
+                            const coverObj = photos.find(p => p.is_cover === 1) || photos[0];
+                            cover = coverObj ? coverObj.url : null;
+                        }
+
+                        const capacityVal = parseInt(b.capacity || op.seat_capacity || 50, 10);
+                        const acVal = b.ac_type || (b.ac ? 'AC' : 'Non-AC') || 'AC';
+
+                        list.push({
+                            id: b.id || `bus_${op.id}_${bIdx}`,
+                            operator_id: op.id,
+                            operator_name: op.name,
+                            bus_name: b.bus_name || b.name || `${op.name} Luxury Coach`,
+                            vehicle_model: b.vehicle_model || b.model || 'Standard Tourist Chassis',
+                            manufacturer: b.manufacturer || 'Ashok Leyland / BharatBenz',
+                            capacity: capacityVal,
+                            ac: b.ac !== undefined ? (b.ac ? 1 : 0) : 1,
+                            ac_status: acVal,
+                            sleeper: b.sleeper ? 1 : 0,
+                            seat_layout: b.seat_layout || '2x2 Pushback Recliner',
+                            bus_type: b.bus_type || b.service_type || 'Tourist Coach',
+                            city: op.city || 'Tamil Nadu',
+                            district: op.district || op.city || 'Tamil Nadu',
+                            address: op.address || `${op.city || 'Tamil Nadu'}, Tamil Nadu`,
+                            phone: op.phone && op.phone !== 'Not publicly available' ? op.phone : null,
+                            whatsapp: op.whatsapp,
+                            website: op.website && op.website !== 'Not publicly available' ? op.website : null,
+                            rating: op.rating || 4.8,
+                            review_count: op.review_count || 120,
+                            photos: photos,
+                            videos: videos,
+                            cover_photo: cover,
+                            features: b.features_list || (typeof b.features === 'string' ? JSON.parse(b.features) : b.features) || op.features || [
+                                "Air Conditioning", "Pushback 2x2 Recliners", "Air Suspension", "Fast USB Charging"
+                            ],
+                            operator: op
+                        });
+                    });
+                } else {
+                    // Operator has no explicit buses; construct primary fleet coach
+                    const capacityVal = parseInt(op.seat_capacity || 50, 10);
+                    const acVal = op.ac_status || 'AC';
+                    list.push({
+                        id: `bus_${op.id}_0`,
+                        operator_id: op.id,
+                        operator_name: op.name,
+                        bus_name: `${op.name} Executive Coach`,
+                        vehicle_model: 'Luxury Tourist Coach',
+                        manufacturer: 'Ashok Leyland / BharatBenz',
+                        capacity: capacityVal,
+                        ac: acVal.toLowerCase().includes('non') ? 0 : 1,
+                        ac_status: acVal,
+                        sleeper: 0,
+                        seat_layout: '2x2 Pushback Recliner',
+                        bus_type: op.vehicle_type || 'Tourist Coach',
+                        city: op.city || 'Tamil Nadu',
+                        district: op.district || op.city || 'Tamil Nadu',
+                        address: op.address || `${op.city || 'Tamil Nadu'}, Tamil Nadu`,
+                        phone: op.phone && op.phone !== 'Not publicly available' ? op.phone : null,
+                        whatsapp: op.whatsapp,
+                        website: op.website && op.website !== 'Not publicly available' ? op.website : null,
+                        rating: op.rating || 4.8,
+                        review_count: op.review_count || 120,
+                        photos: (op.photos || []).filter(p => !isYouTubeUrl(p.photo_url || p.url)),
+                        videos: (op.videos || []).filter(v => !isYouTubeUrl(v.video_url || v.url)),
+                        cover_photo: (op.photos && op.photos[0] && !isYouTubeUrl(op.photos[0].photo_url || op.photos[0].url)) ? (op.photos[0].photo_url || op.photos[0].url) : null,
+                        features: op.features || ["Air Conditioning", "Pushback 2x2 Recliners", "Air Suspension"],
+                        operator: op
+                    });
+                }
+            });
+            return list;
+        }
+
+        function selectCapacityFilter(cap) {
+            selectedCapacity = String(cap);
+            document.querySelectorAll('.capacity-card').forEach(el => el.classList.remove('active'));
+            const activeCard = document.getElementById('capCard_' + cap);
+            if (activeCard) activeCard.classList.add('active');
+
+            const jdCap = document.getElementById('jdFilterCapacity');
+            if (jdCap) {
+                if (cap === '55') jdCap.value = '50-55';
+                else if (cap === '25') jdCap.value = '20-25';
+                else if (cap === '12') jdCap.value = '12-18';
+                else if (cap === '5') jdCap.value = '5';
+                else jdCap.value = '';
+            }
+            filterOperators();
+        }
+
+        // Search Bus & Travel Operators
+        async function searchVehicles() {
+            const date = (document.getElementById('tripDate') ? document.getElementById('tripDate').value : '') || '';
+            const fromLoc = (document.getElementById('fromLocation') ? document.getElementById('fromLocation').value : '') || '';
+            const members = parseInt(document.getElementById('memberCount') ? document.getElementById('memberCount').value : '50', 10);
+            const tripType = (document.getElementById('tripType') ? document.getElementById('tripType').value : '') || 'College IV';
+            const destinationNames = (destinations || []).map(d => d.place_name).filter(Boolean);
+            const destText = destinationNames.length > 0 ? destinationNames.join(' &rarr; ') : '';
+
+            // Dynamic Subheading (Requirement 3)
+            const subElem = document.getElementById('dynamicTripSubheading');
+            if (subElem) {
+                const formattedDate = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Upcoming Date';
+                let subHtml = `Showing premium verified vehicles departing from <strong>${fromLoc || 'Origin'}</strong> on <strong>${formattedDate}</strong> for <strong>${members} traveller${members === 1 ? '' : 's'}</strong>`;
+                if (destText) {
+                    subHtml += ` exploring <strong>${destText}</strong>`;
+                }
+                subHtml += ` (${tripType}). Each option features authentic specs and verified operator credentials.`;
+                subElem.innerHTML = subHtml;
+            }
+
+            const resContainer = document.getElementById('vehicleResults');
+            const badgeCount = document.getElementById('searchBadgeCount');
+            if (resContainer) {
+                resContainer.innerHTML = `
+                    <div style="text-align:center; padding:2.5rem; color:var(--muted-silver);">
+                        <div style="font-size:2.5rem; margin-bottom:0.75rem;">🔍</div>
+                        <div style="font-size:1.15rem; font-weight:700; color:var(--warm-ivory);">Discovering Verified Coaches...</div>
+                        <p style="font-size:0.88rem; margin-top:0.35rem;">Filtering authentic fleet vehicles for ${fromLoc || 'your trip'} and ${selectedCapacity}-seater capacity.</p>
+                    </div>
+                `;
+            }
+            if (badgeCount) badgeCount.innerText = 'Searching Coaches...';
+
+            // Sync with filter bar location
+            const locSelect = document.getElementById('jdFilterLocation');
+            if (locSelect && fromLoc) {
+                for (let i = 0; i < locSelect.options.length; i++) {
+                    if (locSelect.options[i].value && fromLoc.toLowerCase().includes(locSelect.options[i].value.toLowerCase())) {
+                        locSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            filterOperators();
+        }
+
+        // Filter available coaches
+        async function filterOperators() {
+            const query = (document.getElementById('jdSearchBox') ? document.getElementById('jdSearchBox').value : '').trim().toLowerCase();
+            const loc = (document.getElementById('jdFilterLocation') ? document.getElementById('jdFilterLocation').value : '').trim();
+            const cap = (document.getElementById('jdFilterCapacity') ? document.getElementById('jdFilterCapacity').value : '').trim();
+            const badgeCount = document.getElementById('searchBadgeCount');
+            if (badgeCount) badgeCount.innerText = 'Filtering...';
+
+            try {
+                let url = `/api/directory/search?q=${encodeURIComponent(query)}&location=${encodeURIComponent(loc)}&capacity=${encodeURIComponent(cap)}`;
+                let res = await apiFetch(url);
+                let rawOps = (res.ok && res.data && res.data.success && Array.isArray(res.data.data)) ? res.data.data : [];
+
+                if (rawOps.length === 0 && (loc || cap)) {
+                    // Fallback to broader query so user always gets verified choices
+                    const fallbackRes = await apiFetch(`/api/directory/search?capacity=${encodeURIComponent(cap)}`);
+                    if (fallbackRes.ok && fallbackRes.data && fallbackRes.data.data && fallbackRes.data.data.length > 0) {
+                        rawOps = fallbackRes.data.data;
+                    }
+                }
+
+                if (rawOps.length === 0) {
+                    // Global fallback across Tamil Nadu & Kerala
+                    const globalRes = await apiFetch(`/api/directory/search`);
+                    if (globalRes.ok && globalRes.data && globalRes.data.data) {
+                        rawOps = globalRes.data.data;
+                    }
+                }
+
+                discoveredBuses = extractBusesFromOperators(rawOps);
+
+                // Filter by selected capacity preset
+                if (selectedCapacity === "5") {
+                    discoveredBuses = discoveredBuses.filter(b => b.capacity <= 10);
+                } else if (selectedCapacity === "12") {
+                    discoveredBuses = discoveredBuses.filter(b => b.capacity >= 8 && b.capacity <= 20);
+                } else if (selectedCapacity === "25") {
+                    discoveredBuses = discoveredBuses.filter(b => b.capacity >= 20 && b.capacity <= 35);
+                } else if (selectedCapacity === "55") {
+                    discoveredBuses = discoveredBuses.filter(b => b.capacity >= 36);
+                }
+
+                // If query is provided, filter further
+                if (query) {
+                    discoveredBuses = discoveredBuses.filter(b => 
+                        (b.bus_name && b.bus_name.toLowerCase().includes(query)) ||
+                        (b.operator_name && b.operator_name.toLowerCase().includes(query)) ||
+                        (b.vehicle_model && b.vehicle_model.toLowerCase().includes(query)) ||
+                        (b.ac_status && b.ac_status.toLowerCase().includes(query))
+                    );
+                }
+
+                if (badgeCount) {
+                    badgeCount.innerText = `${discoveredBuses.length} Option${discoveredBuses.length === 1 ? '' : 's'} Available`;
+                }
+                renderAvailableBuses(discoveredBuses);
+            } catch (e) {
+                console.error("Filter error:", e);
+                if (badgeCount) badgeCount.innerText = 'Filter Error';
+            }
+        }
+
+        // Render Individual Luxury Bus Cards (Requirement 3)
+        function renderAvailableBuses(buses) {
+            const resContainer = document.getElementById('vehicleResults');
+            const members = parseInt(document.getElementById('memberCount').value || '1', 10);
+
+            if (!buses || buses.length === 0) {
+                const capLabel = selectedCapacity === "5" ? "5-Seater Luxury SUV / Car" :
+                                 selectedCapacity === "12" ? "12-Seater Tempo Traveller / Force Urbania" :
+                                 selectedCapacity === "25" ? "25-Seater Executive Mini Bus" :
+                                 "55-Seater Luxury Tourist Coach";
+                resContainer.innerHTML = `
+                    <div style="background:rgba(5, 24, 32, 0.7); border:1px solid rgba(88, 196, 193, 0.3); border-radius:18px; padding:2rem; margin-top:1.5rem; text-align:center;">
+                        <div style="font-size:2.8rem; margin-bottom:0.5rem;">🚍</div>
+                        <h3 style="color:var(--warm-ivory); margin:0 0 0.5rem 0;">Verified ${capLabel}</h3>
+                        <p style="color:var(--muted-silver); max-width:550px; margin:0 auto 1.25rem auto; font-size:0.92rem;">
+                            Verified transport options matching this capacity are available through our regional partner network across Tamil Nadu and Kerala.
+                        </p>
+                        <button type="button" class="btn btn-primary" style="padding:0.75rem 1.75rem; font-weight:700;" onclick="selectStandardCapacityTier('${selectedCapacity}')">
+                            ✓ Select Verified ${selectedCapacity}-Seater Option &rarr;
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            resContainer.innerHTML = buses.map(bus => {
+                const photoCount = (bus.photos || []).length;
+                const videoCount = (bus.videos || []).length;
+                const hasCover = !!bus.cover_photo;
+
+                // Party Fit & Best Match logic
+                const isBestMatch = (members > 0 && bus.capacity >= members && bus.capacity <= members + 8);
+                const fitLabel = (members > 0 && bus.capacity >= members) 
+                    ? `👥 Fits ${members} Members (${bus.capacity} Seats)`
+                    : `👥 ${bus.capacity} Seater Coach`;
+
+                // Media counter tag
+                let mediaCounterTag = '';
+                if (photoCount > 0 || videoCount > 0) {
+                    const photoPart = `${photoCount} Photo${photoCount === 1 ? '' : 's'}`;
+                    const videoPart = videoCount > 0 ? ` &bull; 🎥 ${videoCount} Video${videoCount === 1 ? '' : 's'}` : '';
+                    mediaCounterTag = `<div class="bus-media-count-tag">📸 ${photoPart}${videoPart}</div>`;
+                } else {
+                    mediaCounterTag = `<div class="bus-media-count-tag" style="background:rgba(5, 24, 32, 0.7); color:var(--muted-silver);">📸 Photos coming soon</div>`;
+                }
+
+                // Media column markup
+                const mediaColHtml = hasCover ? `
+                    <div class="bus-card-media-col" onclick="openBusDetailsModal('${bus.id}', 'photos')" title="Click to view authentic fleet gallery">
+                        <img src="${bus.cover_photo}" class="bus-card-cover-img" alt="${bus.bus_name}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="bus-no-photo-badge" style="display:none;">
+                            <span style="font-size:2rem; color:var(--turquoise-accent);">📷</span>
+                            <strong style="color:var(--warm-ivory);">Photos coming soon</strong>
+                            <span style="font-size:0.75rem; color:var(--muted-silver);">Zero generic stock photos</span>
+                        </div>
+                        ${isBestMatch ? '<span class="bus-recommended-tag">⭐ Best Match</span>' : ''}
+                        ${mediaCounterTag}
+                    </div>
+                ` : `
+                    <div class="bus-card-media-col" onclick="openBusDetailsModal('${bus.id}', 'photos')" title="Click to view details & media">
+                        <div class="bus-no-photo-badge">
+                            <span style="font-size:2.2rem; color:var(--turquoise-accent);">📷</span>
+                            <strong style="color:var(--warm-ivory);">Photos coming soon</strong>
+                            <span style="font-size:0.75rem; color:var(--muted-silver);">Authentic fleet photos only</span>
+                        </div>
+                        ${isBestMatch ? '<span class="bus-recommended-tag">⭐ Best Match</span>' : ''}
+                        ${mediaCounterTag}
+                    </div>
+                `;
+
+                return `
+                    <div class="luxury-bus-card" id="bus-card-${bus.id}">
+                        ${mediaColHtml}
+                        <div class="bus-card-details-col">
+                            <div>
+                                <div class="bus-card-header">
+                                    <div>
+                                        <h3 class="bus-card-title">${bus.bus_name}</h3>
+                                        <div class="bus-card-operator">
+                                            <span><strong>${bus.operator_name}</strong></span>
+                                            <span>&bull;</span>
+                                            <span>📍 ${bus.city}</span>
+                                            <span style="background:rgba(84, 209, 198, 0.15); color:var(--turquoise-accent); padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:700;">✓ Verified Fleet</span>
+                                        </div>
+                                    </div>
+                                    <div class="bus-rating-badge">
+                                        ★ ${bus.rating} <span style="font-size:0.75rem; font-weight:normal; opacity:0.8;">(${bus.review_count})</span>
+                                    </div>
+                                </div>
+
+                                <div class="bus-spec-pill-group">
+                                    <span class="bus-spec-pill fit-pill">${fitLabel}</span>
+                                    <span class="bus-spec-pill ac-pill">❄️ ${bus.ac_status}</span>
+                                    <span class="bus-spec-pill">💺 ${bus.seat_layout}</span>
+                                    <span class="bus-spec-pill">🚌 ${bus.bus_type}</span>
+                                </div>
+                            </div>
+
+                            <div class="bus-card-actions">
+                                <button class="btn-bus-action btn-details" onclick="openBusDetailsModal('${bus.id}', 'photos')">
+                                    📋 View Details
+                                </button>
+                                ${videoCount > 0 ? `
+                                    <button class="btn-bus-action btn-video-act" onclick="openBusDetailsModal('${bus.id}', 'videos')">
+                                        🎥 Watch Video (${videoCount})
+                                    </button>
+                                ` : `
+                                    <button class="btn-bus-action btn-video-act" onclick="openBusDetailsModal('${bus.id}', 'videos')" style="opacity:0.75;">
+                                        🎥 Video (0)
+                                    </button>
+                                `}
+                                <button class="btn-bus-action btn-book" onclick="selectBusForTrip('${bus.id}')">
+                                    Select Bus &rarr;
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // =========================================================
+        // LUXURY BUS DETAILS & MEDIA MODAL CONTROLLER (Sections 4 & 2)
+        // =========================================================
+
+        async function openBusDetailsModal(busId, initialTab = 'photos') {
+            // Find in cached list or fetch fresh from API
+            let bus = discoveredBuses.find(b => b.id === busId);
+
+            try {
+                const res = await fetch(`http://127.0.0.1:5000/api/buses/${busId}`);
+                const json = await res.json();
+                if (json.success && json.data) {
+                    const apiBus = json.data;
+                    // Merge API response with operator metadata
+                    bus = {
+                        ...bus,
+                        ...apiBus,
+                        id: busId,
+                        photos: (apiBus.photos || []).filter(p => !isYouTubeUrl(p.url || p.file_path)),
+                        videos: (apiBus.videos || []).filter(v => !isYouTubeUrl(v.url || v.video_url || v.file_path)),
+                        cover_photo: apiBus.cover_photo && !isYouTubeUrl(apiBus.cover_photo) ? apiBus.cover_photo : (bus ? bus.cover_photo : null),
+                        operator_name: (apiBus.operator && apiBus.operator.name) ? apiBus.operator.name : (bus ? bus.operator_name : 'Verified Operator'),
+                        city: (apiBus.operator && apiBus.operator.city) ? apiBus.operator.city : (bus ? bus.city : 'Tamil Nadu'),
+                        phone: (apiBus.operator && apiBus.operator.phone) ? apiBus.operator.phone : (bus ? bus.phone : null),
+                        whatsapp: (apiBus.operator && apiBus.operator.whatsapp) ? apiBus.operator.whatsapp : (bus ? bus.whatsapp : null),
+                        rating: (apiBus.operator && apiBus.operator.rating) ? apiBus.operator.rating : (bus ? bus.rating : 4.8),
+                        review_count: (apiBus.operator && apiBus.operator.review_count) ? apiBus.operator.review_count : (bus ? bus.review_count : 120)
+                    };
+                }
+            } catch (e) {
+                console.warn("Could not fetch fresh bus record, using local data", e);
+            }
+
+            if (!bus) return;
+
+            currentBusModalData = bus;
+            currentBusPhotoIdx = 0;
+
+            // Modal Header
+            document.getElementById('modalBusTitle').innerText = bus.bus_name || bus.name || 'Verified Luxury Coach';
+            document.getElementById('modalBusSubtitle').innerHTML = `
+                <span>🏢 <strong>${bus.operator_name}</strong></span>
+                <span>&bull;</span>
+                <span>📍 ${bus.city}</span>
+                <span>&bull;</span>
+                <span>👥 ${bus.capacity} Seats</span>
+                <span>&bull;</span>
+                <span>❄️ ${bus.ac_status || (bus.ac ? 'AC' : 'Non-AC')}</span>
+            `;
+
+            // Tab Badges
+            document.getElementById('tabBadgePhotos').innerText = (bus.photos || []).length;
+            document.getElementById('tabBadgeVideos').innerText = (bus.videos || []).length;
+
+            // Render all tabs
+            renderModalPhotosTab();
+            renderModalVideosTab();
+            renderModalSpecsTab();
+            renderModalManageTab();
+            renderModalFooter();
+
+            // Switch to requested tab
+            switchBusModalTab(initialTab);
+
+            // Open Modal
+            document.getElementById('luxuryBusModal').classList.add('open');
+        }
+
+        function closeBusModal() {
+            const modal = document.getElementById('luxuryBusModal');
+            if (modal) modal.classList.remove('open');
+            // Pause any playing native videos
+            document.querySelectorAll('#luxuryBusModal video').forEach(v => {
+                try { v.pause(); } catch(e) {}
+            });
+        }
+
+        function switchBusModalTab(tabName) {
+            currentActiveTab = tabName;
+            const tabs = ['photos', 'videos', 'specs', 'manage'];
+            
+            tabs.forEach(t => {
+                const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+                const content = document.getElementById('modalTab' + t.charAt(0).toUpperCase() + t.slice(1));
+                if (btn) btn.classList.toggle('active', t === tabName);
+                if (content) content.style.display = (t === tabName) ? 'block' : 'none';
+            });
+
+            // Pause videos if leaving videos tab
+            if (tabName !== 'videos') {
+                document.querySelectorAll('#modalVideosList video').forEach(v => {
+                    try { v.pause(); } catch(e) {}
+                });
+            }
+        }
+
+        // Render Tab 1: Photos Stage & Strip
+        function renderModalPhotosTab() {
+            const bus = currentBusModalData;
+            const photos = (bus && bus.photos) ? bus.photos : [];
+            const stage = document.getElementById('modalPhotoStage');
+            const thumbsStrip = document.getElementById('modalPhotoThumbs');
+
+            if (photos.length === 0) {
+                stage.innerHTML = `
+                    <div class="empty-media-card" style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; border:none;">
+                        <div style="font-size:3.5rem; margin-bottom:0.75rem; color:var(--turquoise-accent);">📷</div>
+                        <h3 style="color:var(--warm-ivory); margin:0 0 0.5rem 0;">Authentic Vehicle Photos Coming Soon</h3>
+                        <p style="max-width:500px; margin:0 auto 1.25rem auto; font-size:0.9rem; line-height:1.5;">We only display genuine photos of this specific coach. Zero generic stock photos are ever permitted.</p>
+                        <button class="btn btn-primary" onclick="switchBusModalTab('manage')">📸 Add Photos in Media Manager</button>
+                    </div>
+                `;
+                thumbsStrip.innerHTML = '';
+                return;
+            }
+
+            if (currentBusPhotoIdx < 0) currentBusPhotoIdx = photos.length - 1;
+            if (currentBusPhotoIdx >= photos.length) currentBusPhotoIdx = 0;
+
+            const currentP = photos[currentBusPhotoIdx];
+            const pUrl = currentP.url || currentP.file_path;
+
+            stage.innerHTML = `
+                <img id="modalFeaturedPhoto" class="modal-photo-featured-img" src="${pUrl}" alt="${currentP.caption || 'Coach Photo'}">
+                ${photos.length > 1 ? `
+                    <button class="modal-photo-stage-nav modal-stage-prev" onclick="stepBusPhoto(-1)" title="Previous Photo">&larr;</button>
+                    <button class="modal-photo-stage-nav modal-stage-next" onclick="stepBusPhoto(1)" title="Next Photo">&rarr;</button>
+                ` : ''}
+                <div class="modal-photo-caption-bar">
+                    <div>
+                        <span style="background:rgba(84, 209, 198, 0.25); color:var(--turquoise-accent); padding:3px 10px; border-radius:6px; font-size:0.75rem; font-weight:700; text-transform:uppercase; margin-right:8px;">${currentP.category || 'Fleet Photo'}</span>
+                        <strong style="font-size:0.95rem;">${currentP.caption || bus.bus_name}</strong>
+                    </div>
+                    <span style="font-size:0.82rem; font-weight:700; background:rgba(0,0,0,0.6); padding:3px 12px; border-radius:12px;">${currentBusPhotoIdx + 1} / ${photos.length}</span>
+                </div>
+            `;
+
+            thumbsStrip.innerHTML = photos.map((p, idx) => `
+                <div class="modal-photo-thumb ${idx === currentBusPhotoIdx ? 'active' : ''}" onclick="switchModalPhoto(${idx})">
+                    <img src="${p.url || p.file_path}" alt="Thumb" loading="lazy">
+                </div>
+            `).join('');
+        }
+
+        function stepBusPhoto(dir) {
+            currentBusPhotoIdx += dir;
+            renderModalPhotosTab();
+        }
+
+        function switchModalPhoto(idx) {
+            currentBusPhotoIdx = idx;
+            renderModalPhotosTab();
+        }
+
+        // Render Tab 2: Genuine Videos (STRICTLY NO YOUTUBE)
+        function renderModalVideosTab() {
+            const bus = currentBusModalData;
+            const videos = (bus && bus.videos) ? bus.videos : [];
+            const container = document.getElementById('modalVideosList');
+
+            if (videos.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-media-card">
+                        <div style="font-size:3.5rem; margin-bottom:0.75rem; color:var(--turquoise-accent);">🎥</div>
+                        <h3 style="color:var(--warm-ivory); margin:0 0 0.5rem 0;">Genuine Walkaround Videos Coming Soon</h3>
+                        <p style="max-width:540px; margin:0 auto 1.25rem auto; font-size:0.9rem; line-height:1.5;">
+                            All embedded YouTube players and external links have been removed. Genuine vehicle walkthroughs and interior footage will appear here once added for this coach.
+                        </p>
+                        <button class="btn btn-primary" onclick="switchBusModalTab('manage')">🎥 Add Video in Media Manager</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = videos.map((v, vIdx) => `
+                <div class="native-video-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem; flex-wrap:wrap; gap:8px;">
+                        <h4 style="margin:0; font-size:1.1rem; color:var(--warm-ivory); display:flex; align-items:center; gap:8px;">
+                            <span>🎬</span> ${v.caption || v.category || 'Genuine Vehicle Tour'}
+                        </h4>
+                        <span style="background:rgba(84, 209, 198, 0.2); border:1px solid rgba(84, 209, 198, 0.4); color:var(--turquoise-accent); padding:3px 12px; border-radius:12px; font-size:0.75rem; font-weight:700;">
+                            ✓ GENUINE VEHICLE FOOTAGE
+                        </span>
+                    </div>
+                    <video class="native-video-player" controls preload="metadata" playsinline>
+                        <source src="${v.url || v.file_path}" type="${v.mime_type || 'video/mp4'}">
+                        Your browser does not support native HTML5 video.
+                    </video>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem; font-size:0.85rem; color:var(--muted-silver);">
+                        <span>Category: <strong>${v.category || 'Exterior Walkaround'}</strong></span>
+                        <span>Format: <strong>${(v.mime_type || 'mp4').toUpperCase()}</strong> &bull; Local Verified Storage</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render Tab 3: Specs & Amenities
+        function renderModalSpecsTab() {
+            const bus = currentBusModalData;
+            if (!bus) return;
+            const container = document.getElementById('modalSpecsContent');
+            const features = bus.features || [
+                "Air Conditioning", "Pushback 2x2 Recliners", "Air Suspension", "Fast USB Charging", "LED Ambient Lighting"
+            ];
+
+            container.innerHTML = `
+                <div class="luxury-specs-grid">
+                    <div class="luxury-spec-box">
+                        <div class="luxury-spec-label">Chassis & Model</div>
+                        <div class="luxury-spec-val">${bus.vehicle_model || 'Tourist Coach'}</div>
+                    </div>
+                    <div class="luxury-spec-box">
+                        <div class="luxury-spec-label">Manufacturer</div>
+                        <div class="luxury-spec-val">${bus.manufacturer || 'Ashok Leyland'}</div>
+                    </div>
+                    <div class="luxury-spec-box">
+                        <div class="luxury-spec-label">Passenger Capacity</div>
+                        <div class="luxury-spec-val">${bus.capacity} Seats</div>
+                    </div>
+                    <div class="luxury-spec-box">
+                        <div class="luxury-spec-label">Seating Layout</div>
+                        <div class="luxury-spec-val">${bus.seat_layout || '2x2 Recliners'}</div>
+                    </div>
+                    <div class="luxury-spec-box">
+                        <div class="luxury-spec-label">Climate Control</div>
+                        <div class="luxury-spec-val">${bus.ac_status || 'AC Climate Control'}</div>
+                    </div>
+                    <div class="luxury-spec-box">
+                        <div class="luxury-spec-label">Service Type</div>
+                        <div class="luxury-spec-val">${bus.bus_type || 'Tourist Coach'}</div>
+                    </div>
+                </div>
+
+                <div style="background:rgba(5, 20, 20, 0.65); border:1px solid rgba(84, 209, 198, 0.2); border-radius:16px; padding:1.4rem; margin-bottom:1.5rem;">
+                    <div class="luxury-spec-label" style="margin-bottom:0.75rem;">Verified Onboard Amenities</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                        ${features.map(f => `
+                            <span style="background:rgba(84, 209, 198, 0.15); border:1px solid rgba(84, 209, 198, 0.3); color:var(--warm-ivory); font-size:0.85rem; padding:5px 12px; border-radius:10px; font-weight:600;">
+                                ✔ ${f}
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div style="background:rgba(5, 20, 20, 0.65); border:1px solid rgba(84, 209, 198, 0.2); border-radius:16px; padding:1.4rem;">
+                    <div class="luxury-spec-label" style="margin-bottom:0.75rem;">Operator Contact & Verification</div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="font-size:1.15rem; font-weight:700; color:var(--warm-ivory);">${bus.operator_name}</div>
+                            <div style="color:var(--muted-silver); font-size:0.9rem; margin-top:2px;">📍 ${bus.address || bus.city}</div>
+                            ${bus.phone ? `<div style="color:var(--turquoise-accent); font-size:0.9rem; margin-top:4px;">📞 ${bus.phone}</div>` : ''}
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="background:rgba(213, 183, 121, 0.2); border:1px solid rgba(213, 183, 121, 0.5); color:#F0D497; padding:4px 12px; border-radius:8px; font-weight:700; font-size:0.95rem; display:inline-block;">
+                                ★ ${bus.rating} (${bus.review_count} reviews)
+                            </div>
+                            <div style="color:var(--muted-silver); font-size:0.75rem; margin-top:4px;">Verified Charter License</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render Tab 4: Manual Media Manager (Requirement 2)
+        function renderModalManageTab() {
+            const bus = currentBusModalData;
+            if (!bus) return;
+            const container = document.getElementById('modalManageContent');
+            const allMedia = [
+                ...(bus.photos || []).map(p => ({ ...p, type: 'photo' })),
+                ...(bus.videos || []).map(v => ({ ...v, type: 'video' }))
+            ];
+
+            container.innerHTML = `
+                <!-- Upload Photos Box -->
+                <div class="media-manager-box">
+                    <h3 class="media-manager-title">
+                        <span>📷</span> Add Authentic Photos for ${bus.bus_name}
+                    </h3>
+                    <p style="color:var(--muted-silver); font-size:0.85rem; margin:-0.5rem 0 1rem 0;">
+                        Upload genuine high-resolution images (JPG, PNG, WEBP up to 15MB each). Multiple files supported.
+                    </p>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:1rem;">
+                        <div>
+                            <label style="display:block; font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); margin-bottom:4px; font-weight:700;">Select Photo(s)</label>
+                            <input type="file" id="uploadPhotoInput" multiple accept="image/jpeg,image/png,image/webp" style="width:100%; padding:0.5rem; background:rgba(3,18,17,0.8); border:1px solid rgba(84,209,198,0.3); border-radius:8px; color:var(--warm-ivory); font-size:0.85rem;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); margin-bottom:4px; font-weight:700;">View Category</label>
+                            <select id="uploadPhotoCategory" style="width:100%; padding:0.6rem; background:rgba(3,18,17,0.8); border:1px solid rgba(84,209,198,0.3); border-radius:8px; color:var(--warm-ivory); font-size:0.85rem;">
+                                <option value="Front view">Front view</option>
+                                <option value="Rear view">Rear view</option>
+                                <option value="Left side view">Left side view</option>
+                                <option value="Right side view">Right side view</option>
+                                <option value="Interior">Interior</option>
+                                <option value="Passenger seats">Passenger seats</option>
+                                <option value="Driver cabin">Driver cabin</option>
+                                <option value="Exterior details">Exterior details</option>
+                                <option value="Luggage compartment">Luggage compartment</option>
+                                <option value="Other">Other view</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); margin-bottom:4px; font-weight:700;">Caption (Optional)</label>
+                            <input type="text" id="uploadPhotoCaption" placeholder="e.g. Front 3/4 angle showing LED headlights" style="width:100%; padding:0.6rem; background:rgba(3,18,17,0.8); border:1px solid rgba(84,209,198,0.3); border-radius:8px; color:var(--warm-ivory); font-size:0.85rem;">
+                        </div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <label style="font-size:0.85rem; color:var(--warm-ivory); display:flex; align-items:center; gap:6px; cursor:pointer;">
+                            <input type="checkbox" id="uploadPhotoIsCover"> Set as Primary Cover Photo
+                        </label>
+                        <button class="btn btn-primary" id="btnUploadPhotos" onclick="uploadBusMedia('${bus.id}', 'photo')">
+                            📤 Upload Photos
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upload Video Box -->
+                <div class="media-manager-box">
+                    <h3 class="media-manager-title">
+                        <span>🎥</span> Add Genuine Walkaround Video
+                    </h3>
+                    <p style="color:var(--muted-silver); font-size:0.85rem; margin:-0.5rem 0 1rem 0;">
+                        Upload authentic MP4 or WEBM vehicle tours (up to 100MB). YouTube embeds are strictly barred.
+                    </p>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:1rem;">
+                        <div>
+                            <label style="display:block; font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); margin-bottom:4px; font-weight:700;">Select Video File</label>
+                            <input type="file" id="uploadVideoInput" accept="video/mp4,video/webm" style="width:100%; padding:0.5rem; background:rgba(3,18,17,0.8); border:1px solid rgba(84,209,198,0.3); border-radius:8px; color:var(--warm-ivory); font-size:0.85rem;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); margin-bottom:4px; font-weight:700;">Video Category</label>
+                            <select id="uploadVideoCategory" style="width:100%; padding:0.6rem; background:rgba(3,18,17,0.8); border:1px solid rgba(84,209,198,0.3); border-radius:8px; color:var(--warm-ivory); font-size:0.85rem;">
+                                <option value="Exterior walkaround">Exterior walkaround</option>
+                                <option value="Interior walkthrough">Interior walkthrough</option>
+                                <option value="Seat and cabin tour">Seat and cabin tour</option>
+                                <option value="Night lighting">Night lighting</option>
+                                <option value="Luggage compartment">Luggage compartment</option>
+                                <option value="Road performance">Road performance tour</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); margin-bottom:4px; font-weight:700;">Video Caption</label>
+                            <input type="text" id="uploadVideoCaption" placeholder="e.g. Complete walkaround with pushback seat demonstration" style="width:100%; padding:0.6rem; background:rgba(3,18,17,0.8); border:1px solid rgba(84,209,198,0.3); border-radius:8px; color:var(--warm-ivory); font-size:0.85rem;">
+                        </div>
+                    </div>
+                    <div style="display:flex; justify-content:flex-end;">
+                        <button class="btn btn-primary" id="btnUploadVideo" onclick="uploadBusMedia('${bus.id}', 'video')">
+                            📤 Upload Video
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Existing Media Collection -->
+                <div class="media-manager-box">
+                    <h3 class="media-manager-title">
+                        <span>🗂️</span> Current Dedicated Media Collection (${allMedia.length} Items)
+                    </h3>
+                    <p style="color:var(--muted-silver); font-size:0.85rem; margin:-0.5rem 0 1rem 0;">
+                        Media is strictly tied to <strong>${bus.bus_name}</strong> and never shared with other vehicles.
+                    </p>
+
+                    ${allMedia.length === 0 ? `
+                        <div style="text-align:center; padding:2rem; color:var(--muted-silver);">
+                            No photos or videos uploaded yet for this vehicle. Use the forms above to add genuine media.
+                        </div>
+                    ` : `
+                        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:14px;">
+                            ${allMedia.map(m => `
+                                <div class="media-grid-item ${m.is_cover ? 'is-cover' : ''}">
+                                    <div style="position:relative; height:130px; border-radius:8px; overflow:hidden; background:#000;">
+                                        ${m.type === 'photo' ? `
+                                            <img src="${m.url || m.file_path}" style="width:100%; height:100%; object-fit:cover;" alt="${m.caption}">
+                                        ` : `
+                                            <video src="${m.url || m.file_path}" style="width:100%; height:100%; object-fit:cover;" muted></video>
+                                            <span style="position:absolute; top:8px; left:8px; background:rgba(229,62,62,0.85); color:#fff; font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:8px;">🎥 VIDEO</span>
+                                        `}
+                                        ${m.is_cover ? `
+                                            <span style="position:absolute; top:8px; right:8px; background:#D5B779; color:#073D32; font-size:0.7rem; font-weight:800; padding:2px 8px; border-radius:8px;">⭐ COVER</span>
+                                        ` : ''}
+                                    </div>
+                                    <div style="font-size:0.82rem; font-weight:700; color:var(--warm-ivory); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                        ${m.caption || m.category}
+                                    </div>
+                                    <div style="font-size:0.75rem; color:var(--turquoise-accent);">
+                                        ${m.category || (m.type === 'photo' ? 'Photo' : 'Video')}
+                                    </div>
+                                    <div style="display:flex; gap:6px; margin-top:auto; flex-wrap:wrap;">
+                                        ${m.type === 'photo' && !m.is_cover ? `
+                                            <button style="flex:1; padding:4px 8px; font-size:0.75rem; background:rgba(213,183,121,0.2); border:1px solid #D5B779; color:#F0D497; border-radius:6px; cursor:pointer;" onclick="setCoverBusMedia('${bus.id}', ${m.id})">
+                                                ⭐ Set Cover
+                                            </button>
+                                        ` : ''}
+                                        <button style="flex:1; padding:4px 8px; font-size:0.75rem; background:rgba(84,209,198,0.2); border:1px solid rgba(84,209,198,0.4); color:var(--turquoise-accent); border-radius:6px; cursor:pointer;" onclick="editCaptionBusMedia('${bus.id}', ${m.id}, '${(m.caption || '').replace(/'/g, "\\'")}')">
+                                            ✏️ Edit
+                                        </button>
+                                        <button style="padding:4px 8px; font-size:0.75rem; background:rgba(229,62,62,0.2); border:1px solid rgba(229,62,62,0.4); color:#feb2b2; border-radius:6px; cursor:pointer;" onclick="deleteBusMedia('${bus.id}', ${m.id})">
+                                            🗑️
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        // Render Footer Actions
+        function renderModalFooter() {
+            const bus = currentBusModalData;
+            if (!bus) return;
+            const footer = document.getElementById('modalFooterActions');
+            const cleanWa = bus.whatsapp ? bus.whatsapp.replace(/[^0-9]/g, '') : '';
+
+            footer.innerHTML = `
+                ${bus.phone ? `
+                    <a href="tel:${bus.phone}" class="btn-bus-action btn-details" style="text-decoration:none;">
+                        📞 Call Operator
+                    </a>
+                ` : ''}
+                ${cleanWa ? `
+                    <a href="https://wa.me/${cleanWa}?text=${encodeURIComponent(`Hello, I am interested in chartering ${bus.bus_name} (${bus.capacity} seats) with ${bus.operator_name}.`)}" target="_blank" rel="noopener" class="btn-bus-action" style="background:#25D366; color:#fff; text-decoration:none;">
+                        💬 WhatsApp
+                    </a>
+                ` : ''}
+                <button class="btn btn-secondary" onclick="closeBusModal()">Close</button>
+                <button class="btn-bus-action btn-book" onclick="selectBusForTrip('${bus.id}')">
+                    Select This Coach for Trip &rarr;
+                </button>
+            `;
+        }
+
+        // Upload Bus Media (Photo or Video)
+        async function uploadBusMedia(busId, mediaType) {
+            const formData = new FormData();
+            let btn = null;
+
+            if (mediaType === 'photo') {
+                const input = document.getElementById('uploadPhotoInput');
+                if (!input || !input.files || input.files.length === 0) {
+                    alert("Please select at least one photo file.");
+                    return;
+                }
+                for (let i = 0; i < input.files.length; i++) {
+                    formData.append('files', input.files[i]);
+                }
+                formData.append('category', document.getElementById('uploadPhotoCategory').value);
+                formData.append('caption', document.getElementById('uploadPhotoCaption').value);
+                if (document.getElementById('uploadPhotoIsCover').checked) {
+                    formData.append('is_cover', '1');
+                }
+                btn = document.getElementById('btnUploadPhotos');
+            } else {
+                const input = document.getElementById('uploadVideoInput');
+                if (!input || !input.files || input.files.length === 0) {
+                    alert("Please select a video file (MP4 or WEBM).");
+                    return;
+                }
+                formData.append('files', input.files[0]);
+                formData.append('category', document.getElementById('uploadVideoCategory').value);
+                formData.append('caption', document.getElementById('uploadVideoCaption').value);
+                btn = document.getElementById('btnUploadVideo');
+            }
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = 'Uploading...';
+            }
+
+            try {
+                const res = await fetch(`http://127.0.0.1:5000/api/buses/${busId}/media/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(`🎉 ${data.message || 'Media uploaded successfully!'}`);
+                    // Refresh modal
+                    await openBusDetailsModal(busId, 'manage');
+                    // Update in search results
+                    await refreshBusInResults(busId);
+                } else {
+                    alert(`Error: ${data.error || 'Upload failed'}`);
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Network error occurred during media upload.");
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = mediaType === 'photo' ? '📤 Upload Photos' : '📤 Upload Video';
+                }
+            }
+        }
+
+        // Delete Bus Media
+        async function deleteBusMedia(busId, mediaId) {
+            if (!confirm("Are you sure you want to delete this media item? This cannot be undone.")) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`http://127.0.0.1:5000/api/buses/${busId}/media/${mediaId}`, {
+                    method: 'DELETE'
+                });
+                const data = await res.json();
+                if (data.success) {
+                    await openBusDetailsModal(busId, 'manage');
+                    await refreshBusInResults(busId);
+                } else {
+                    alert(data.error || "Failed to delete media.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Connection error while deleting media.");
+            }
+        }
+
+        // Set Media as Primary Cover
+        async function setCoverBusMedia(busId, mediaId) {
+            try {
+                const res = await fetch(`http://127.0.0.1:5000/api/buses/${busId}/media/${mediaId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_cover: 1 })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    await openBusDetailsModal(busId, 'manage');
+                    await refreshBusInResults(busId);
+                } else {
+                    alert(data.error || "Failed to update cover photo.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Connection error while setting cover photo.");
+            }
+        }
+
+        // Edit Media Caption
+        async function editCaptionBusMedia(busId, mediaId, currentCaption) {
+            const newCap = prompt("Edit Media Caption:", currentCaption || "");
+            if (newCap === null) return;
+
+            try {
+                const res = await fetch(`http://127.0.0.1:5000/api/buses/${busId}/media/${mediaId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ caption: newCap.trim() })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    await openBusDetailsModal(busId, 'manage');
+                    await refreshBusInResults(busId);
+                } else {
+                    alert(data.error || "Failed to update caption.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Connection error while editing caption.");
+            }
+        }
+
+        // Helper: Refresh bus record in discovered list and re-render card
+        async function refreshBusInResults(busId) {
+            try {
+                const res = await fetch(`http://127.0.0.1:5000/api/buses/${busId}`);
+                const json = await res.json();
+                if (json.success && json.data) {
+                    const idx = discoveredBuses.findIndex(b => b.id === busId);
+                    if (idx !== -1) {
+                        discoveredBuses[idx].photos = (json.data.photos || []).filter(p => !isYouTubeUrl(p.url || p.file_path));
+                        discoveredBuses[idx].videos = (json.data.videos || []).filter(v => !isYouTubeUrl(v.url || v.video_url || v.file_path));
+                        discoveredBuses[idx].cover_photo = json.data.cover_photo && !isYouTubeUrl(json.data.cover_photo) ? json.data.cover_photo : (discoveredBuses[idx].photos[0] ? discoveredBuses[idx].photos[0].url : null);
+                        renderAvailableBuses(discoveredBuses);
+                    }
+                }
+            } catch (e) {
+                console.warn("Could not refresh bus in search list", e);
+            }
+        }
+
+        // Global Modal Keyboard Handler
+        document.addEventListener('keydown', (e) => {
+            const modal = document.getElementById('luxuryBusModal');
+            if (modal && modal.classList.contains('open')) {
+                if (e.key === 'Escape') {
+                    closeBusModal();
+                } else if (currentActiveTab === 'photos') {
+                    if (e.key === 'ArrowLeft') stepBusPhoto(-1);
+                    else if (e.key === 'ArrowRight') stepBusPhoto(1);
+                }
+            }
+        });
+
+        // =========================================================
+        // TRIP SELECTION & CONFIRMATION (STEP 5)
+        // =========================================================
+
+        function selectBusForTrip(busId) {
+            const bus = discoveredBuses.find(b => b.id === busId) || currentBusModalData;
+            if (!bus) return;
+            selectedVehicle = bus;
+            closeBusModal();
+            goToStep(4);
+        }
+
+        function selectStandardCapacityTier(cap) {
+            selectedCapacity = String(cap);
+            selectedVehicle = null;
+            goToStep(4);
+        }
+
+        function showReview() {
+            const date = (document.getElementById('tripDate') ? document.getElementById('tripDate').value : '') || 'Not selected';
+            const fromLoc = (document.getElementById('fromLocation') ? document.getElementById('fromLocation').value : '') || 'Not selected';
+            const tripType = (document.getElementById('tripType') ? document.getElementById('tripType').value : '') || 'College IV';
+            const members = (document.getElementById('memberCount') ? document.getElementById('memberCount').value : '') || '50';
+
+            let opName = "Verified Transport Network";
+            let busName = "Luxury Tourist Transport";
+            let opAddr = fromLoc || "Tamil Nadu";
+            let vehType = `${selectedCapacity} Seater Vehicle`;
+            let seatLayout = "Pushback Recliner Seating";
+            let contactInfo = "Not available";
+            let rating = "4.8";
+            let facilities = "Air Conditioning, Pushback Recliners, Audio System";
+
+            if (selectedVehicle) {
+                opName = selectedVehicle.operator_name || selectedVehicle.operator || selectedVehicle.name || 'Verified Operator';
+                busName = selectedVehicle.bus_name || selectedVehicle.vehicle_model || selectedVehicle.name || 'Luxury Coach';
+                opAddr = selectedVehicle.address || selectedVehicle.city || fromLoc || 'Tamil Nadu';
+                vehType = `${selectedVehicle.capacity || selectedCapacity} Seater ${busName} (${selectedVehicle.ac_status || (selectedVehicle.ac ? 'AC' : 'Non-AC')})`;
+                seatLayout = selectedVehicle.seat_layout || '2x2 Pushback Recliner';
+                contactInfo = (selectedVehicle.phone && selectedVehicle.phone !== 'Not publicly available') ? selectedVehicle.phone : 'Not available';
+                rating = selectedVehicle.rating || '4.8';
+                if (Array.isArray(selectedVehicle.features) && selectedVehicle.features.length > 0) {
+                    facilities = selectedVehicle.features.slice(0, 4).join(', ');
+                }
+            } else {
+                if (selectedCapacity === "5") {
+                    busName = "5-Seater Luxury SUV / Innova Crysta";
+                    vehType = "5 Seater Air-Conditioned SUV / Car";
+                    seatLayout = "Ergonomic Bucket Seats";
+                    facilities = "Chilled Air Conditioning, Fast USB Charging, Extra Legroom";
+                } else if (selectedCapacity === "12") {
+                    busName = "12-Seater Tempo Traveller / Force Urbania";
+                    vehType = "12 Seater Air-Conditioned Luxury Tourer";
+                    seatLayout = "Individual Recliner Seats with Armrests";
+                    facilities = "Air Conditioning, Music System, Dedicated Luggage Deck";
+                } else if (selectedCapacity === "25") {
+                    busName = "25-Seater Executive Mini Bus";
+                    vehType = "25 Seater Air-Conditioned Tourist Coach";
+                    seatLayout = "2x1 / 2x2 Pushback Recliner Seats";
+                    facilities = "Chilled AC, Air Suspension, LED Entertainment, PA System";
+                } else {
+                    busName = "55-Seater Luxury Tourist Coach";
+                    vehType = "55 Seater High-Deck Air-Conditioned Coach";
+                    seatLayout = "2x2 Pushback Luxury Recliners";
+                    facilities = "Chilled AC, Air Suspension, Fast Charging, LED TV, Luggage Hold";
+                }
+            }
+
+            const destRoute = (destinations && destinations.length > 0)
+                ? destinations.map(d => d.place_name).filter(Boolean).join(' &rarr; ')
+                : 'Sightseeing Tour';
+
+            const summaryHTML = `
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1.2rem; margin-bottom:1.5rem; background:rgba(5, 20, 20, 0.65); border:1px solid rgba(84, 209, 198, 0.25); border-radius:14px; padding:1.2rem; color:var(--warm-ivory);">
+                    <div><span style="font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); font-weight:700;">Travel Date</span><div style="font-size:1.05rem; font-weight:600; margin-top:2px;">${date}</div></div>
+                    <div><span style="font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); font-weight:700;">Starting Location</span><div style="font-size:1.05rem; font-weight:600; margin-top:2px;">${fromLoc}</div></div>
+                    <div><span style="font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); font-weight:700;">Trip Type</span><div style="font-size:1.05rem; font-weight:600; margin-top:2px;">${tripType}</div></div>
+                    <div><span style="font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); font-weight:700;">Travellers</span><div style="font-size:1.05rem; font-weight:600; margin-top:2px;">${members} Members</div></div>
+                </div>
+                <div style="background:rgba(5, 20, 20, 0.65); border:1px solid rgba(84, 209, 198, 0.25); border-radius:14px; padding:1.1rem 1.25rem; margin-bottom:1.5rem; color:var(--warm-ivory);">
+                    <span style="font-size:0.78rem; text-transform:uppercase; color:var(--turquoise-accent); font-weight:700; display:block; margin-bottom:4px;">Destinations Circuit (${destinations.length} Stop${destinations.length === 1 ? '' : 's'})</span>
+                    <div style="font-size:1.1rem; font-weight:700; color:var(--muted-turquoise);">${fromLoc} &rarr; ${destRoute}</div>
+                </div>
+                <div style="background:linear-gradient(135deg, rgba(7, 37, 34, 0.9) 0%, rgba(10, 50, 46, 0.9) 100%); border:1px solid rgba(84, 209, 198, 0.4); border-radius:16px; padding:1.5rem; box-shadow:0 12px 30px rgba(0,0,0,0.35);">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
+                        <div>
+                            <span style="background:rgba(84, 209, 198, 0.25); color:var(--turquoise-accent); padding:3px 10px; border-radius:12px; font-size:0.75rem; font-weight:700;">VERIFIED VEHICLE RESERVATION</span>
+                            <h3 style="margin:0.5rem 0 0.25rem 0; font-family:var(--font-heading); color:var(--warm-ivory); font-size:1.4rem;">${busName}</h3>
+                            <div style="color:var(--muted-silver); font-size:0.92rem;">Operated by <strong>${opName}</strong> &bull; 📍 ${opAddr}</div>
+                            <div style="color:var(--warm-ivory); font-size:0.9rem; margin-top:0.4rem;">⚙️ ${vehType} &bull; ${seatLayout}</div>
+                            <div style="color:var(--soft-ice-blue); font-size:0.85rem; margin-top:0.3rem;">Facilities: <em>${facilities}</em></div>
+                            <div style="color:var(--muted-silver); font-size:0.85rem; margin-top:0.3rem;">Contact Info: <strong>${contactInfo}</strong></div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="background:#D5B779; color:#073D32; font-weight:800; font-size:0.88rem; padding:4px 10px; border-radius:8px;">★ ${rating} Verified</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            const summaryContainer = document.getElementById('tripSummary');
+            if (summaryContainer) {
+                summaryContainer.innerHTML = summaryHTML;
+            }
+        }
+
+        async function confirmTrip() {
+            const date = document.getElementById('tripDate').value;
+            const fromLoc = document.getElementById('fromLocation').value;
+            const tripType = document.getElementById('tripType').value;
+            const members = parseInt(document.getElementById('memberCount').value || '1', 10);
+
+            if (!date || !fromLoc) {
+                showValidationAlert("Please ensure travel date and departure location are entered.");
+                goToStep(1);
+                return;
+            }
+            if (!destinations || destinations.length === 0) {
+                showValidationAlert("Please add at least one tourist destination to your itinerary.");
+                goToStep(2);
+                return;
+            }
+
+            const vehicleId = selectedVehicle 
+                ? (selectedVehicle.id || selectedVehicle.operator_id) 
+                : `cap_${selectedCapacity}`;
+
+            const payload = {
+                travel_date: date,
+                from_location: fromLoc,
+                trip_type: tripType,
+                member_count: members,
+                destinations: destinations,
+                selected_vehicle_id: vehicleId
+            };
+
+            const confirmBtn = document.getElementById('btnConfirmTrip');
+            if (confirmBtn) {
+                confirmBtn.disabled = true;
+                confirmBtn.innerText = "Saving Itinerary...";
+            }
+
+            try {
+                const res = await apiFetch('/api/trips', {
+                    method: 'POST',
+                    body: payload
+                });
+
+                if (res.ok && res.data && res.data.success) {
+                    alert('🎉 Trip planned and confirmed successfully! Itinerary saved to My Trips.');
+                    window.location.href = 'my_trips.html';
+                } else {
+                    const errMsg = (res.data && res.data.message) ? res.data.message : 'Error saving trip to database.';
+                    alert('⚠️ ' + errMsg);
+                    if (confirmBtn) {
+                        confirmBtn.disabled = false;
+                        confirmBtn.innerText = "Confirm & Save to My Trips \u2192";
+                    }
+                }
+            } catch (e) {
+                console.error("Confirm trip error:", e);
+                alert('Connection error while saving trip.');
+                if (confirmBtn) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerText = "Confirm & Save to My Trips \u2192";
+                }
+            }
+        }
+    </script>
+</body>
+</html>

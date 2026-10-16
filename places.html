@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tourist Places | Journey DNA</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <style>
+        .places-page-header { text-align: center; margin-bottom: 30px; }
+        .places-page-header h1 { font-family: var(--font-heading); font-size: clamp(2rem, 3.2vw, 2.8rem); color: var(--warm-ivory); margin-bottom: 8px; }
+        .places-page-header p { color: var(--muted-silver); font-size: 1.05rem; }
+        .search-hero-box { max-width: 750px; margin: 0 auto 35px auto; position: relative; }
+        .search-input-wrapper { display: flex; align-items: center; background: rgba(8, 44, 58, 0.78); border: 1px solid rgba(88, 196, 193, 0.3); border-radius: 50px; padding: 12px 24px; box-shadow: 0 10px 30px rgba(5, 24, 32, 0.5); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); transition: border-color 0.2s, box-shadow 0.2s; }
+        .search-input-wrapper:focus-within { border-color: var(--muted-turquoise); box-shadow: 0 10px 32px rgba(88, 196, 193, 0.25); }
+        .search-icon { font-size: 20px; margin-right: 12px; color: var(--muted-turquoise); }
+        .search-input-field { flex: 1; border: none; outline: none; font-size: 16px; background: transparent; color: var(--warm-ivory); font-family: inherit; }
+        .search-input-field::placeholder { color: var(--muted-silver); }
+        .clear-search-btn { background: none; border: none; cursor: pointer; font-size: 16px; color: var(--muted-silver); padding: 4px; display: none; }
+        .clear-search-btn:hover { color: var(--muted-turquoise); }
+        .autocomplete-dropdown { position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: rgba(8, 44, 58, 0.96); border-radius: 18px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6); border: 1px solid rgba(88, 196, 193, 0.3); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); max-height: 320px; overflow-y: auto; z-index: 100; display: none; }
+        .autocomplete-item { padding: 12px 18px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-bottom: 1px solid rgba(88, 196, 193, 0.12); color: var(--warm-ivory); transition: background 0.15s ease; }
+        .autocomplete-item:last-child { border-bottom: none; }
+        .autocomplete-item:hover, .autocomplete-item.highlighted { background: rgba(88, 196, 193, 0.18); }
+        .autocomplete-icon { font-size: 18px; }
+        .autocomplete-name { font-weight: 600; color: var(--warm-ivory); font-size: 15px; }
+        .autocomplete-meta { font-size: 12.5px; color: var(--muted-turquoise); margin-left: auto; }
+        .filter-tags { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; }
+        .filter-btn { background: rgba(8, 44, 58, 0.65); border: 1px solid rgba(88, 196, 193, 0.28); padding: 8px 18px; border-radius: 20px; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; color: var(--soft-ice-blue); backdrop-filter: blur(8px); }
+        .filter-btn:hover, .filter-btn.active { background: rgba(88, 196, 193, 0.22); color: var(--muted-turquoise); border-color: var(--muted-turquoise); box-shadow: 0 0 16px rgba(88, 196, 193, 0.3); }
+        .places-results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+        .tourist-card { background: rgba(8, 44, 58, 0.78); border-radius: 22px; overflow: hidden; border: 1px solid rgba(88, 196, 193, 0.22); box-shadow: 0 16px 36px rgba(5, 24, 32, 0.45); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease; display: flex; flex-direction: column; cursor: pointer; color: var(--warm-ivory); }
+        .tourist-card:hover { transform: translateY(-6px); box-shadow: 0 24px 50px rgba(5, 24, 32, 0.65), 0 0 20px rgba(88, 196, 193, 0.2); border-color: rgba(88, 196, 193, 0.55); }
+        
+        /* Slideshow */
+        .slideshow-container { width: 100%; height: 220px; position: relative; background: rgba(5, 24, 32, 0.8); overflow: hidden; }
+        .slideshow-container::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(8, 44, 58, 0.88) 100%); pointer-events: none; z-index: 5; }
+        .slide { width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 0; transition: opacity 0.5s ease-in-out; z-index: 1; }
+        .slide.active { opacity: 1; z-index: 2; }
+        .slide img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .tourist-card:hover .slide.active img { transform: scale(1.05); }
+        .slide-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(8, 44, 58, 0.75); color: var(--warm-ivory); border: 1px solid rgba(88, 196, 193, 0.35); cursor: pointer; padding: 8px 12px; z-index: 10; border-radius: 50%; font-size: 16px; transition: background 0.2s; opacity: 0; pointer-events: none; backdrop-filter: blur(8px); }
+        .tourist-card:hover .slide-nav { opacity: 1; pointer-events: auto; }
+        .slide-nav:hover { background: rgba(23, 107, 122, 0.9); }
+        .slide-prev { left: 10px; }
+        .slide-next { right: 10px; }
+        .slide-indicators { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 10; }
+        .slide-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); cursor: pointer; }
+        .slide-dot.active { background: var(--muted-turquoise); box-shadow: 0 0 8px var(--muted-turquoise); }
+        .no-photo-msg { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--muted-silver); font-weight: bold; font-size: 14px; background: rgba(5, 24, 32, 0.6); }
+
+        .tourist-card-body { padding: 22px; flex: 1; display: flex; flex-direction: column; }
+        .tourist-card-tags { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .category-badge { background: rgba(88, 196, 193, 0.18); color: var(--muted-turquoise); font-size: 12px; font-weight: bold; padding: 4px 12px; border-radius: 12px; border: 1px solid rgba(88, 196, 193, 0.32); }
+        .state-badge { font-size: 12px; color: var(--muted-silver); font-weight: 600; }
+        .tourist-card-title { font-family: var(--font-heading); font-size: 20px; font-weight: bold; color: var(--warm-ivory); margin-bottom: 4px; }
+        .tourist-card-location { font-size: 13.5px; color: var(--muted-turquoise); margin-bottom: 10px; display: flex; align-items: center; gap: 4px; }
+        .tourist-card-desc { font-size: 13.5px; color: var(--muted-silver); line-height: 1.6; margin-bottom: 16px; flex: 1; }
+        .tourist-card-best-time { font-size: 13px; color: var(--soft-ice-blue); margin-bottom: 16px; font-weight: 600; background: rgba(5, 24, 32, 0.6); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(88, 196, 193, 0.2); }
+        .tourist-card-actions { margin-top: auto; display: flex; gap: 8px; }
+        .btn-action { flex: 1; text-align: center; padding: 10px 14px; border-radius: 12px; font-size: 13px; font-weight: bold; transition: all 0.2s ease; cursor: pointer; border: none; font-family: var(--font-sans); }
+        .btn-details { background: linear-gradient(135deg, #176B7A 0%, #58C4C1 100%); color: #082C3A; box-shadow: 0 4px 14px rgba(23, 107, 122, 0.3); }
+        .btn-details:hover { filter: brightness(1.08); box-shadow: 0 6px 18px rgba(88, 196, 193, 0.45); }
+        .btn-map { background: rgba(8, 44, 58, 0.65); color: var(--warm-ivory); border: 1px solid rgba(88, 196, 193, 0.28); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 4px; backdrop-filter: blur(8px); }
+        .btn-map:hover { background: rgba(23, 107, 122, 0.45); border-color: var(--muted-turquoise); color: #ffffff; }
+
+        /* Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(5, 24, 32, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: rgba(8, 44, 58, 0.96); border: 1px solid rgba(88, 196, 193, 0.28); color: var(--warm-ivory); border-radius: 22px; width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; position: relative; box-shadow: 0 24px 60px rgba(0,0,0,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .modal-close { position: absolute; top: 15px; right: 15px; background: rgba(5, 24, 32, 0.7); color: var(--warm-ivory); border: 1px solid rgba(88, 196, 193, 0.3); width: 34px; height: 34px; border-radius: 50%; font-size: 16px; cursor: pointer; z-index: 100; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        .modal-close:hover { background: rgba(239, 68, 68, 0.4); border-color: #ef4444; }
+        
+        .modal-header { position: relative; }
+        .modal-slideshow { height: 350px; position: relative; background: rgba(5, 24, 32, 0.8); }
+        .modal-header-info { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(8, 44, 58, 0.95)); padding: 40px 24px 20px; color: var(--warm-ivory); }
+        .modal-title { font-family: var(--font-heading); font-size: 32px; margin: 0 0 5px 0; color: var(--warm-ivory); }
+        .modal-subtitle { font-size: 16px; margin: 0; color: var(--muted-turquoise); }
+        
+        .modal-body { padding: 25px; display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+        @media (max-width: 768px) { .modal-body { grid-template-columns: 1fr; } }
+        
+        .modal-section { margin-bottom: 25px; }
+        .modal-section h3 { font-family: var(--font-heading); font-size: 18px; color: var(--warm-ivory); border-bottom: 1px solid rgba(88, 196, 193, 0.2); padding-bottom: 8px; margin-bottom: 15px; }
+        .modal-desc { font-size: 15px; color: var(--muted-silver); line-height: 1.6; }
+        
+        .info-card { background: rgba(5, 24, 32, 0.65); border: 1px solid rgba(88, 196, 193, 0.22); border-radius: 14px; padding: 16px; margin-bottom: 15px; color: var(--warm-ivory); }
+        .info-card h4 { font-family: var(--font-heading); margin: 0 0 10px 0; color: var(--warm-ivory); font-size: 15px; }
+        .info-card p, .info-card ul { margin: 0; font-size: 14px; color: var(--muted-silver); line-height: 1.6; }
+        .info-card ul { padding-left: 20px; margin-top: 5px; }
+        
+        /* Map in Modal */
+        .modal-map-container { height: 250px; border-radius: 14px; overflow: hidden; border: 1px solid rgba(88, 196, 193, 0.25); margin-bottom: 15px; position: relative; }
+        #modal-map { width: 100%; height: 100%; }
+        .map-view-switcher { position: absolute; top: 10px; right: 10px; z-index: 400; display: flex; background: rgba(8, 44, 58, 0.9); border: 1px solid rgba(88, 196, 193, 0.3); border-radius: 20px; padding: 3px; box-shadow: 0 4px 14px rgba(0,0,0,0.4); backdrop-filter: blur(8px); }
+        .map-view-btn { border: none; background: transparent; padding: 5px 12px; font-size: 12px; font-weight: bold; cursor: pointer; border-radius: 20px; color: var(--soft-ice-blue); }
+        .map-view-btn.active { background: rgba(88, 196, 193, 0.25); color: var(--muted-turquoise); border: 1px solid rgba(88, 196, 193, 0.4); }
+        
+        /* Month Selector */
+        .month-selector { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .month-selector select { padding: 8px 12px; border: 1px solid rgba(88, 196, 193, 0.25); border-radius: 8px; font-size: 14px; outline: none; background: rgba(5, 24, 32, 0.7); color: var(--warm-ivory); }
+        .month-result { font-weight: bold; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+        .month-excellent { color: #86efac; }
+        .month-good { color: #38bdf8; }
+        .month-moderate { color: #fde047; }
+        .month-avoid { color: #fca5a5; }
+
+        /* Owner Mode Styling */
+        .admin-badge {
+            background: rgba(213, 183, 121, 0.2);
+            border: 1px solid #D5B779;
+            color: #F0D497;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-owner-action {
+            background: rgba(8, 44, 58, 0.9);
+            border: 1px solid rgba(84, 209, 198, 0.4);
+            color: var(--turquoise-accent, #54D1C6);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-owner-action:hover {
+            background: rgba(84, 209, 198, 0.25);
+            color: #fff;
+            border-color: var(--turquoise-accent, #54D1C6);
+        }
+        .btn-owner-delete {
+            border-color: rgba(229, 62, 62, 0.5);
+            color: #feb2b2;
+        }
+        .btn-owner-delete:hover {
+            background: rgba(229, 62, 62, 0.25);
+            color: #fff;
+        }
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 600px) {
+            .form-grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        .form-control-luxury {
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            background: rgba(3, 18, 17, 0.85);
+            border: 1px solid rgba(84, 209, 198, 0.3);
+            border-radius: 10px;
+            color: var(--warm-ivory, #F5F1E8);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .form-control-luxury:focus {
+            border-color: var(--turquoise-accent, #54D1C6);
+            box-shadow: 0 0 0 3px rgba(84, 209, 198, 0.2);
+        }
+        .form-label-luxury {
+            display: block;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--turquoise-accent, #54D1C6);
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+    </style>
+<body class="places-page">
+    <header class="dashboard-header">
+        <a href="dashboard.html" class="logo">✈ Journey <span>DNA</span></a>
+        <nav class="desktop-nav"></nav>
+        <div class="auth-container user-profile-menu"></div>
+    </header>
+
+    <main class="page active">
+        <div class="places-page-header">
+            <h1 style="color: var(--warm-ivory); font-family: var(--font-heading); font-size: 32px; margin-bottom: 8px;">Explore Tourist Places 📍</h1>
+            <p style="color: var(--soft-ice-blue); font-size: 16px;">Search top destinations across Tamil Nadu and Kerala with live backend suggestions.</p>
+        </div>
+
+        <div class="search-hero-box">
+            <div class="search-input-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="placeSearchInput" class="search-input-field" placeholder="Search by place name, city, or category (e.g. Ooty, Munnar)..." autocomplete="off">
+                <button type="button" id="clearSearchBtn" class="clear-search-btn" title="Clear">✖</button>
+            </div>
+            <div id="autocompleteDropdown" class="autocomplete-dropdown"></div>
+        </div>
+
+        <!-- Owner Places Toolbar (Rendered only for authenticated owner) -->
+        <div id="ownerPlacesToolbar" style="display:none; max-width:800px; margin:0 auto 25px auto; background:rgba(8, 44, 58, 0.95); border:1px solid rgba(213, 183, 121, 0.5); border-radius:16px; padding:1.25rem 1.75rem; box-shadow:0 12px 30px rgba(0,0,0,0.5); justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-size:1.8rem;">👑</span>
+                <div>
+                    <h3 style="margin:0; font-size:1.15rem; color:#D5B779; font-family:var(--font-heading, serif);">Owner Destination Suite</h3>
+                    <p style="margin:2px 0 0 0; font-size:0.85rem; color:var(--muted-silver);">Manage tourist spots, live coordinates, photos, and publishing in real-time.</p>
+                </div>
+            </div>
+            <div>
+                <button class="btn-action" onclick="openPlaceFormModal()" style="background:linear-gradient(135deg, #d5b779 0%, #b89347 100%); color:#031d16; font-weight:800; padding:10px 18px; border-radius:10px; cursor:pointer; border:none; display:inline-flex; align-items:center; gap:6px;">
+                    ➕ Add Destination
+                </button>
+            </div>
+        </div>
+
+        <div class="filter-tags">
+            <button class="filter-btn active" data-filter="all">All Places</button>
+            <button class="filter-btn" data-filter="Tamil Nadu">Tamil Nadu</button>
+            <button class="filter-btn" data-filter="Kerala">Kerala</button>
+            <button class="filter-btn" data-filter="Hill Station">Hill Stations</button>
+            <button class="filter-btn" data-filter="Beach">Beaches</button>
+            <button class="filter-btn" data-filter="Temple">Temples & Heritage</button>
+            <button class="filter-btn" data-filter="Waterfall">Waterfalls</button>
+            <button class="filter-btn" data-filter="Nature">Nature</button>
+        </div>
+
+        <div id="placesGrid" class="places-results-grid"></div>
+    </main>
+
+    <!-- Modal for Place Details -->
+    <div class="modal-overlay" id="placeModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">✖</button>
+            <div class="modal-header">
+                <div class="modal-slideshow" id="modalSlideshow"></div>
+                <div class="modal-header-info">
+                    <h2 class="modal-title" id="modalTitle"></h2>
+                    <p class="modal-subtitle" id="modalSubtitle"></p>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-main-col">
+                    <div class="modal-section">
+                        <h3>About</h3>
+                        <div class="modal-desc" id="modalDesc"></div>
+                    </div>
+                    
+                    <div class="modal-section">
+                        <h3>Plan Your Visit</h3>
+                        <div class="info-card">
+                            <h4>Recommended Stay</h4>
+                            <p id="modalDuration"></p>
+                        </div>
+                        <div class="info-card">
+                            <h4>Why visit now?</h4>
+                            <p>🌤 Good weather</p>
+                            <p>📸 Great for photography</p>
+                            <p>🌿 Suitable for sightseeing</p>
+                            <p>🚶 Comfortable for outdoor activities</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>Things to Do</h4>
+                            <p id="modalThingsToDo"></p>
+                        </div>
+                        <div class="info-card">
+                            <h4>Travel Tips</h4>
+                            <p id="modalTravelTips"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-side-col">
+                    <div class="modal-section">
+                        <h3>Location</h3>
+                        <div class="modal-map-container">
+                            <div class="map-view-switcher">
+                                <button class="map-view-btn active" id="modalBtnNormal">Map</button>
+                                <button class="map-view-btn" id="modalBtnSatellite">Satellite</button>
+                            </div>
+                            <div id="modal-map"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-section">
+                        <h3>Best Time to Visit</h3>
+                        <p style="font-size:14px; margin-bottom:15px;" id="modalBestMonthsText"></p>
+                        
+                        <div class="month-selector">
+                            <select id="modalMonthSelect">
+                                <option value="January">January</option>
+                                <option value="February">February</option>
+                                <option value="March">March</option>
+                                <option value="April">April</option>
+                                <option value="May">May</option>
+                                <option value="June">June</option>
+                                <option value="July">July</option>
+                                <option value="August">August</option>
+                                <option value="September">September</option>
+                                <option value="October">October</option>
+                                <option value="November">November</option>
+                                <option value="December">December</option>
+                            </select>
+                        </div>
+                        <div id="modalMonthResult" class="month-result"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add / Edit Place Modal (Owner Only) -->
+    <div class="modal-overlay" id="placeFormModal" onclick="if(event.target===this) closePlaceFormModal()">
+        <div class="modal-content" style="max-width:700px; padding:25px;" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closePlaceFormModal()">✖</button>
+            <h2 id="placeFormModalTitle" style="font-family:var(--font-heading); font-size:24px; color:var(--warm-ivory); margin:0 0 4px 0;">Add Tourist Destination</h2>
+            <p style="color:var(--muted-silver); font-size:13px; margin:0 0 20px 0;">Configure destination information, GPS coordinates, and travel details.</p>
+            <form id="placeForm" onsubmit="savePlaceForm(event)" style="display:flex; flex-direction:column; gap:14px;">
+                <input type="hidden" id="placeFormId" value="">
+                <div class="form-grid-2">
+                    <div>
+                        <label class="form-label-luxury">Destination Name *</label>
+                        <input type="text" id="placeFormName" class="form-control-luxury" required placeholder="e.g. Meenakshi Amman Temple">
+                    </div>
+                    <div>
+                        <label class="form-label-luxury">State *</label>
+                        <select id="placeFormState" class="form-control-luxury" required>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Kerala">Kerala</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-grid-2">
+                    <div>
+                        <label class="form-label-luxury">Category *</label>
+                        <select id="placeFormCategory" class="form-control-luxury" required>
+                            <option value="Hill Station">Hill Station</option>
+                            <option value="Beach">Beach</option>
+                            <option value="Temple">Temple & Heritage</option>
+                            <option value="Waterfall">Waterfall</option>
+                            <option value="Nature">Nature & Wildlife</option>
+                            <option value="Historical">Historical</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label-luxury">City / District *</label>
+                        <input type="text" id="placeFormCity" class="form-control-luxury" required placeholder="e.g. Madurai">
+                    </div>
+                </div>
+                <div class="form-grid-2">
+                    <div>
+                        <label class="form-label-luxury">Latitude (GPS) *</label>
+                        <input type="number" step="any" id="placeFormLat" class="form-control-luxury" required placeholder="9.9195">
+                    </div>
+                    <div>
+                        <label class="form-label-luxury">Longitude (GPS) *</label>
+                        <input type="number" step="any" id="placeFormLng" class="form-control-luxury" required placeholder="78.1193">
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label-luxury">Description</label>
+                    <textarea id="placeFormDesc" class="form-control-luxury" rows="3" placeholder="Brief overview of history, highlights, and significance..."></textarea>
+                </div>
+                <div class="form-grid-2">
+                    <div>
+                        <label class="form-label-luxury">Best Months (comma-separated)</label>
+                        <input type="text" id="placeFormBestMonths" class="form-control-luxury" placeholder="October, November, December, January">
+                    </div>
+                    <div>
+                        <label class="form-label-luxury">Recommended Stay</label>
+                        <input type="text" id="placeFormDuration" class="form-control-luxury" placeholder="e.g. 1-2 Days or 4-5 Hours" value="1-2 Days">
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label-luxury">Things to Do</label>
+                    <input type="text" id="placeFormThingsToDo" class="form-control-luxury" placeholder="Temple Darshan, Evening Aarti, Architectural Walk">
+                </div>
+                <div>
+                    <label class="form-label-luxury">Travel Tips</label>
+                    <input type="text" id="placeFormTips" class="form-control-luxury" placeholder="e.g. Strict dress code, cameras restricted inside inner sanctum">
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
+                    <button type="button" class="btn-action" onclick="closePlaceFormModal()" style="background:rgba(5, 24, 32, 0.7); color:var(--warm-ivory); border:1px solid rgba(88, 196, 193, 0.3);">Cancel</button>
+                    <button type="submit" class="btn-action" style="background:linear-gradient(135deg, #d5b779 0%, #b89347 100%); color:#031d16; font-weight:800;">💾 Save Destination</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Place Media Studio Modal (Owner Only) -->
+    <div class="modal-overlay" id="placeMediaModal" onclick="if(event.target===this) closePlaceMediaModal()">
+        <div class="modal-content" style="max-width:760px; padding:25px;" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closePlaceMediaModal()">✖</button>
+            <h2 id="placeMediaModalTitle" style="font-family:var(--font-heading); font-size:24px; color:var(--warm-ivory); margin:0 0 4px 0;">Destination Media Studio</h2>
+            <p style="color:var(--muted-silver); font-size:13px; margin:0 0 20px 0;">Upload authentic destination photos or add high-resolution image links.</p>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px;">
+                <!-- Local Upload -->
+                <div style="background:rgba(5, 24, 32, 0.65); border:1px solid rgba(88, 196, 193, 0.25); border-radius:14px; padding:16px;">
+                    <h4 style="margin:0 0 8px 0; color:var(--turquoise-accent); font-size:14px;">📤 Upload from Computer</h4>
+                    <input type="file" id="placeMediaFileInput" accept="image/*,video/mp4" style="width:100%; margin-bottom:8px; font-size:13px; color:var(--warm-ivory);">
+                    <input type="text" id="placeMediaCaptionInput" class="form-control-luxury" placeholder="Caption (optional)" style="margin-bottom:8px; font-size:12px; padding:6px 10px;">
+                    <button type="button" class="btn-action" onclick="uploadPlaceMedia()" style="background:linear-gradient(135deg, #176B7A 0%, #58C4C1 100%); color:#082C3A; font-weight:700; width:100%;">Upload Asset</button>
+                </div>
+                <!-- Link Upload -->
+                <div style="background:rgba(5, 24, 32, 0.65); border:1px solid rgba(88, 196, 193, 0.25); border-radius:14px; padding:16px;">
+                    <h4 style="margin:0 0 8px 0; color:var(--turquoise-accent); font-size:14px;">🔗 Add Image by URL</h4>
+                    <input type="url" id="placeMediaUrlInput" class="form-control-luxury" placeholder="https://example.com/photo.jpg" style="margin-bottom:8px; font-size:12px; padding:6px 10px;">
+                    <input type="text" id="placeMediaUrlCaption" class="form-control-luxury" placeholder="Caption (optional)" style="margin-bottom:8px; font-size:12px; padding:6px 10px;">
+                    <button type="button" class="btn-action" onclick="linkPlaceMedia()" style="background:rgba(88, 196, 193, 0.2); border:1px solid var(--muted-turquoise); color:var(--turquoise-accent); font-weight:700; width:100%;">Link Image</button>
+                </div>
+            </div>
+
+            <!-- Existing Media Grid -->
+            <h4 style="margin:0 0 10px 0; color:var(--warm-ivory); font-size:15px;">Existing Photos & Media</h4>
+            <div id="placeMediaGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:10px; max-height:240px; overflow-y:auto;"></div>
+        </div>
+    </div>
+
+    <footer>
+        <b>Journey DNA</b>
+        <p>Travel designed for who you are, not just where you go.</p>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="auth.js"></script>
+    <script>
+        let allLoadedPlaces = [];
+        let activeFilter = 'all';
+        let modalMap = null;
+        let modalNormalLayer, modalSatelliteLayer, modalMarker;
+        let currentModalPlace = null;
+        let slideshowIntervals = {};
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            await requireAuth();
+            updateOwnerUI();
+
+            const searchInput = document.getElementById("placeSearchInput");
+            const clearBtn = document.getElementById("clearSearchBtn");
+            const dropdown = document.getElementById("autocompleteDropdown");
+
+            fetchPlaces("");
+
+            let debounceTimer;
+            searchInput.addEventListener("input", (e) => {
+                const query = e.target.value.trim();
+                clearBtn.style.display = query ? "block" : "none";
+
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    fetchPlaces(query);
+                    fetchAutocompleteSuggestions(query);
+                }, 180);
+            });
+
+            searchInput.addEventListener("focus", () => {
+                const query = searchInput.value.trim();
+                if (query) fetchAutocompleteSuggestions(query);
+            });
+
+            document.addEventListener("click", (e) => {
+                if (!e.target.closest(".search-hero-box")) {
+                    dropdown.style.display = "none";
+                }
+            });
+
+            clearBtn.addEventListener("click", () => {
+                searchInput.value = "";
+                clearBtn.style.display = "none";
+                dropdown.style.display = "none";
+                fetchPlaces("");
+                searchInput.focus();
+            });
+
+            document.querySelectorAll(".filter-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+                    activeFilter = btn.dataset.filter;
+                    renderPlaces(allLoadedPlaces);
+                });
+            });
+            
+            // Month selector logic
+            document.getElementById("modalMonthSelect").addEventListener("change", (e) => {
+                if(currentModalPlace) updateMonthSuggestion(currentModalPlace, e.target.value);
+            });
+            
+            // Modal map view switchers
+            document.getElementById("modalBtnNormal").addEventListener("click", function() {
+                if(modalMap.hasLayer(modalSatelliteLayer)) modalMap.removeLayer(modalSatelliteLayer);
+                modalNormalLayer.addTo(modalMap);
+                this.classList.add("active");
+                document.getElementById("modalBtnSatellite").classList.remove("active");
+            });
+            
+            document.getElementById("modalBtnSatellite").addEventListener("click", function() {
+                if(modalMap.hasLayer(modalNormalLayer)) modalMap.removeLayer(modalNormalLayer);
+                modalSatelliteLayer.addTo(modalMap);
+                this.classList.add("active");
+                document.getElementById("modalBtnNormal").classList.remove("active");
+            });
+        });
+
+        const fallbackImageCache = new Map();
+
+        async function fetchWikimediaImages(placeName, stateName = "") {
+            const query = `${placeName} ${stateName}`.trim();
+            const cacheKey = query.toLowerCase();
+            if (fallbackImageCache.has(cacheKey)) {
+                return fallbackImageCache.get(cacheKey);
+            }
+
+            try {
+                const search = encodeURIComponent(query || placeName);
+                const apiUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${search}&gsrnamespace=6&gsrlimit=5&prop=imageinfo&iiprop=url&format=json&origin=*`;
+                const response = await fetch(apiUrl, { mode: "cors" });
+                const data = await response.json();
+                const pages = data?.query?.pages || {};
+                const urls = Object.values(pages)
+                    .map(page => page?.imageinfo?.[0]?.url)
+                    .filter(url => !!url)
+                    .filter(url => !/logo|map|icon/i.test(url))
+                    .slice(0, 5);
+
+                if (urls.length) {
+                    fallbackImageCache.set(cacheKey, urls);
+                    return urls;
+                }
+            } catch (err) {
+                console.warn(`Wikimedia image lookup failed for ${placeName}:`, err);
+            }
+
+            fallbackImageCache.set(cacheKey, []);
+            return [];
+        }
+
+        async function normalizePlaceImages(place) {
+            let images = [];
+
+            if (Array.isArray(place.images)) {
+                images = place.images.filter(Boolean);
+            } else if (typeof place.images === "string") {
+                try {
+                    images = JSON.parse(place.images);
+                } catch (e) {
+                    images = [];
+                }
+            }
+
+            if (images.length) {
+                return images.filter(Boolean).map(url => url.startsWith('/') ? `http://127.0.0.1:5000${url}` : url);
+            }
+
+            const fallback = await fetchWikimediaImages(place.name, place.state || place.city || "");
+            if (fallback.length) {
+                place.images = fallback;
+                return fallback;
+            }
+
+            place.images = ["http://127.0.0.1:5000/static/images/places/test.jpg"];
+            return place.images;
+        }
+
+        async function fetchPlaces(query = "") {
+            const grid = document.getElementById("placesGrid");
+            try {
+                let url = query ? `http://127.0.0.1:5000/api/places/search?q=${encodeURIComponent(query)}` : `http://127.0.0.1:5000/api/places`;
+                const res = await fetch(url, { credentials: "include" });
+                const data = await res.json();
+                
+                if (data && data.success !== undefined) {
+                    allLoadedPlaces = data.places || [];
+                } else if (Array.isArray(data)) {
+                    allLoadedPlaces = data;
+                } else {
+                    allLoadedPlaces = [];
+                }
+                
+                for (const place of allLoadedPlaces) {
+                    place.images = await normalizePlaceImages(place);
+                }
+
+                renderPlaces(allLoadedPlaces);
+            } catch (err) {
+                console.error("Error fetching places:", err);
+                grid.innerHTML = `<div class="no-results"><h3>Unable to connect to backend server</h3></div>`;
+            }
+        }
+
+        async function fetchAutocompleteSuggestions(query) {
+            const dropdown = document.getElementById("autocompleteDropdown");
+            if (!query) {
+                dropdown.style.display = "none";
+                return;
+            }
+            try {
+                const res = await fetch(`http://127.0.0.1:5000/api/places/search?q=${encodeURIComponent(query)}`, { credentials: "include" });
+                const data = await res.json();
+                const places = (data && data.places) ? data.places : (Array.isArray(data) ? data : []);
+
+                if (places.length === 0) {
+                    dropdown.innerHTML = `<div style="padding: 12px; color: #94a3b8; text-align: center; font-size: 13.5px;">No suggestions matching "${query}"</div>`;
+                    dropdown.style.display = "block";
+                    return;
+                }
+
+                dropdown.innerHTML = places.map(place => `
+                    <div class="autocomplete-item" data-name="${place.name}">
+                        <span class="autocomplete-icon">📍</span>
+                        <div>
+                            <div class="autocomplete-name">${place.name}</div>
+                            <div style="font-size: 12px; color: #64748b;">${place.city}, ${place.state} &bull; <span style="color: #0f766e;">${place.category}</span></div>
+                        </div>
+                    </div>
+                `).join("");
+
+                dropdown.style.display = "block";
+
+                dropdown.querySelectorAll(".autocomplete-item").forEach(item => {
+                    item.addEventListener("click", () => {
+                        const name = item.dataset.name;
+                        document.getElementById("placeSearchInput").value = name;
+                        dropdown.style.display = "none";
+                        fetchPlaces(name);
+                    });
+                });
+            } catch (err) {
+                console.error("Error fetching autocomplete suggestions:", err);
+                dropdown.style.display = "none";
+            }
+        }
+        
+        function setupSlideshow(containerId, imagesStr, autoStart = true) {
+            let images = [];
+            try { images = typeof imagesStr === 'string' ? JSON.parse(imagesStr) : imagesStr; } catch(e) {}
+            
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            if (!images || images.length === 0) {
+                container.innerHTML = `<div class="no-photo-msg">Photos unavailable</div>`;
+                return;
+            }
+            
+            let html = '';
+            images.forEach((img, idx) => {
+                const active = idx === 0 ? 'active' : '';
+                html += `<div class="slide ${active}" data-index="${idx}"><img src="${img}" alt="Place Image" onerror="handleImageError(this, '${images.join(',')}');"></div>`;
+            });
+            
+            if (images.length > 1) {
+                html += `<button class="slide-nav slide-prev" onclick="moveSlide(event, '${containerId}', -1)">&#10094;</button>`;
+                html += `<button class="slide-nav slide-next" onclick="moveSlide(event, '${containerId}', 1)">&#10095;</button>`;
+                html += `<div class="slide-indicators">`;
+                images.forEach((_, idx) => {
+                    const active = idx === 0 ? 'active' : '';
+                    html += `<div class="slide-dot ${active}" onclick="goToSlide(event, '${containerId}', ${idx})"></div>`;
+                });
+                html += `</div>`;
+            }
+            
+            container.innerHTML = html;
+            
+            // Auto slideshow logic
+            if (images.length > 1 && autoStart) {
+                if(slideshowIntervals[containerId]) clearInterval(slideshowIntervals[containerId]);
+                
+                const startInterval = () => {
+                    slideshowIntervals[containerId] = setInterval(() => {
+                        moveSlide(null, containerId, 1);
+                    }, 3000);
+                };
+                
+                startInterval();
+                
+                container.addEventListener("mouseenter", () => clearInterval(slideshowIntervals[containerId]));
+                container.addEventListener("mouseleave", startInterval);
+            }
+        }
+        
+        // Expose to window for inline handlers
+        window.handleImageError = function(imgEl, imagesStr) {
+            // Find next valid image if any
+            let images = imagesStr.split(',');
+            let currentSrc = imgEl.getAttribute('src');
+            let idx = images.indexOf(currentSrc);
+            if(idx > -1 && idx < images.length - 1) {
+                // Try next
+                imgEl.src = images[idx + 1];
+            } else {
+                imgEl.outerHTML = `<div class="no-photo-msg">Photos unavailable</div>`;
+            }
+        };
+
+        window.moveSlide = function(e, containerId, dir) {
+            if(e) { e.preventDefault(); e.stopPropagation(); }
+            const container = document.getElementById(containerId);
+            if(!container) return;
+            const slides = container.querySelectorAll('.slide');
+            const dots = container.querySelectorAll('.slide-dot');
+            if(slides.length === 0) return;
+            
+            let activeIdx = 0;
+            slides.forEach((s, idx) => { if(s.classList.contains('active')) activeIdx = idx; });
+            
+            slides[activeIdx].classList.remove('active');
+            if(dots.length) dots[activeIdx].classList.remove('active');
+            
+            activeIdx = (activeIdx + dir + slides.length) % slides.length;
+            
+            slides[activeIdx].classList.add('active');
+            if(dots.length) dots[activeIdx].classList.add('active');
+        };
+        
+        window.goToSlide = function(e, containerId, targetIdx) {
+            if(e) { e.preventDefault(); e.stopPropagation(); }
+            const container = document.getElementById(containerId);
+            if(!container) return;
+            const slides = container.querySelectorAll('.slide');
+            const dots = container.querySelectorAll('.slide-dot');
+            if(slides.length === 0) return;
+            
+            slides.forEach(s => s.classList.remove('active'));
+            if(dots.length) dots.forEach(d => d.classList.remove('active'));
+            
+            slides[targetIdx].classList.add('active');
+            if(dots.length) dots[targetIdx].classList.add('active');
+        };
+
+        async function renderPlaces(places) {
+            const grid = document.getElementById("placesGrid");
+            if (!grid) return;
+
+            // Clear old intervals
+            for(let key in slideshowIntervals) {
+                clearInterval(slideshowIntervals[key]);
+            }
+            slideshowIntervals = {};
+
+            let filtered = places;
+            if (activeFilter !== 'all') {
+                filtered = places.filter(p => {
+                    const text = `${p.category} ${p.state} ${p.tags ? (typeof p.tags==='string'?p.tags:p.tags.join(' ')) : ''}`.toLowerCase();
+                    return text.includes(activeFilter.toLowerCase());
+                });
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="no-results" style="grid-column: 1/-1;text-align:center;padding:50px;"><h3>No tourist places match your query</h3></div>`;
+                return;
+            }
+
+            const resolvedPlaces = await Promise.all(filtered.map(async (place) => ({
+                ...place,
+                images: await normalizePlaceImages(place)
+            })));
+
+            const isOwner = Boolean(window.isOwner);
+
+            grid.innerHTML = resolvedPlaces.map(place => {
+                const bestTimeText = place.best_months ? place.best_months.split(',').slice(0,2).join(' - ') : 'Year-round';
+                
+                return `
+                <div class="tourist-card" onclick='openModal(${JSON.stringify(place).replace(/'/g, "&apos;")})'>
+                    ${isOwner ? `
+                        <div style="background:rgba(3,18,17,0.92); border-bottom:1px solid rgba(213,183,121,0.3); padding:8px 12px; display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap;" onclick="event.stopPropagation()">
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span class="admin-badge">👑 #${place.id}</span>
+                                <span style="font-size:0.75rem; font-weight:700; color:${(place.is_published !== 0) ? '#68d391' : '#f6ad55'}; background:rgba(0,0,0,0.4); padding:2px 7px; border-radius:10px;">
+                                    ${(place.is_published !== 0) ? '● Live' : '○ Draft'}
+                                </span>
+                            </div>
+                            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                <button class="btn-owner-action" onclick="togglePlacePublish(${place.id})" title="Toggle Publish">
+                                    ${(place.is_published !== 0) ? 'Unpublish' : 'Publish'}
+                                </button>
+                                <button class="btn-owner-action" onclick="openPlaceFormModal(${place.id})">
+                                    ✏️ Edit
+                                </button>
+                                <button class="btn-owner-action" onclick="openPlaceMediaModal(${place.id})" style="color:#d5b779; border-color:#d5b779;">
+                                    📸 Media
+                                </button>
+                                <button class="btn-owner-action btn-owner-delete" onclick="deletePlace(${place.id})">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    ` : ''}
+                    <div class="slideshow-container" id="slideshow-${place.id}"></div>
+                    <div class="tourist-card-body">
+                        <div class="tourist-card-tags">
+                            <span class="category-badge">${place.category}</span>
+                            <span class="state-badge">${place.state}</span>
+                        </div>
+                        <h3 class="tourist-card-title">${place.name}</h3>
+                        <div class="tourist-card-location">
+                            📍 <span>${place.city}, ${place.state}</span>
+                        </div>
+                        <p class="tourist-card-desc">${place.description || ''}</p>
+                        <div class="tourist-card-best-time">🗓️ Best Time: ${bestTimeText}</div>
+                        <div class="tourist-card-actions">
+                            <button class="btn-action btn-details">View Details</button>
+                            <a href="plan_trip.html?add_place=EXT_PLC_${place.id}&place_name=${encodeURIComponent(place.name)}" class="btn-action btn-map" style="background:#0284c7;color:white;border:none;" onclick="event.stopPropagation();">➕ Add to Trip</a>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join("");
+            
+            // Init slideshows
+            resolvedPlaces.forEach(place => {
+                const imagesStr = JSON.stringify(place.images || []);
+                setupSlideshow(`slideshow-${place.id}`, imagesStr);
+            });
+        }
+        
+        window.openModal = async function(place) {
+            const resolvedPlace = { ...place, images: await normalizePlaceImages(place) };
+            currentModalPlace = resolvedPlace;
+            document.getElementById("placeModal").classList.add("active");
+            document.body.style.overflow = "hidden";
+            
+            // Populate Details
+            const imagesStr = JSON.stringify(resolvedPlace.images || []);
+            setupSlideshow("modalSlideshow", imagesStr, false); // No auto start for modal
+            
+            document.getElementById("modalTitle").innerText = resolvedPlace.name;
+            document.getElementById("modalSubtitle").innerText = `${resolvedPlace.category} • ${resolvedPlace.city}, ${resolvedPlace.state}`;
+            document.getElementById("modalDesc").innerText = resolvedPlace.description || 'No description available.';
+            document.getElementById("modalDuration").innerText = resolvedPlace.recommended_duration || '1-2 Days';
+            document.getElementById("modalThingsToDo").innerText = resolvedPlace.things_to_do || 'Sightseeing, Exploring';
+            document.getElementById("modalTravelTips").innerText = resolvedPlace.travel_tips || 'Wear comfortable shoes.';
+            document.getElementById("modalBestMonthsText").innerText = `Best months: ${resolvedPlace.best_months ? resolvedPlace.best_months.split(',').join(', ') : 'Year-round'}`;
+            
+            // Set current month in selector
+            const currentMonth = new Date().toLocaleString('default', { month: 'long' });
+            const monthSelect = document.getElementById("modalMonthSelect");
+            monthSelect.value = currentMonth;
+            updateMonthSuggestion(place, currentMonth);
+            
+            // Init Map if needed
+            if(resolvedPlace.latitude && resolvedPlace.longitude) {
+                if(!modalMap) {
+                    modalMap = L.map('modal-map');
+                    modalNormalLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' });
+                    modalSatelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Tiles &copy; Esri' });
+                    modalNormalLayer.addTo(modalMap);
+                    
+                    document.getElementById("modalBtnNormal").classList.add("active");
+                    document.getElementById("modalBtnSatellite").classList.remove("active");
+                }
+                
+                modalMap.setView([resolvedPlace.latitude, resolvedPlace.longitude], 12);
+                
+                if(modalMarker) modalMap.removeLayer(modalMarker);
+                modalMarker = L.marker([resolvedPlace.latitude, resolvedPlace.longitude]).addTo(modalMap);
+                modalMarker.bindPopup(`<b>${resolvedPlace.name}</b>`).openPopup();
+                
+                setTimeout(() => { modalMap.invalidateSize(); }, 200);
+            }
+        };
+        
+        window.closeModal = function() {
+            document.getElementById("placeModal").classList.remove("active");
+            document.body.style.overflow = "auto";
+            currentModalPlace = null;
+        };
+        
+        function updateMonthSuggestion(place, month) {
+            const resultEl = document.getElementById("modalMonthResult");
+            const best = place.best_months ? place.best_months.split(',') : [];
+            const avoid = place.avoid_months ? place.avoid_months.split(',') : [];
+            
+            if(best.includes(month)) {
+                resultEl.innerHTML = `<span class="month-excellent">✓ Excellent time to visit</span>`;
+            } else if(avoid.includes(month)) {
+                resultEl.innerHTML = `<span class="month-avoid">✕ Not recommended (Weather may affect activities)</span>`;
+            } else {
+                resultEl.innerHTML = `<span class="month-moderate">⚠ Moderate time to visit</span>`;
+            }
+        }
+
+        // =========================================================
+        // OWNER DESTINATION MANAGEMENT FUNCTIONS
+        // =========================================================
+        let currentEditingPlaceMediaId = null;
+
+        function updateOwnerUI() {
+            const isOwner = Boolean(window.isOwner);
+            const toolbar = document.getElementById("ownerPlacesToolbar");
+            if (toolbar) {
+                toolbar.style.display = isOwner ? "flex" : "none";
+            }
+            if (allLoadedPlaces && allLoadedPlaces.length > 0) {
+                renderPlaces(allLoadedPlaces);
+            }
+        }
+
+        window.addEventListener("authReady", () => {
+            updateOwnerUI();
+        });
+
+        function openPlaceFormModal(placeId = null) {
+            const modal = document.getElementById('placeFormModal');
+            const title = document.getElementById('placeFormModalTitle');
+            const form = document.getElementById('placeForm');
+            form.reset();
+            document.getElementById('placeFormId').value = placeId || '';
+
+            if (placeId) {
+                title.innerText = 'Edit Tourist Destination';
+                const p = allLoadedPlaces.find(item => String(item.id) === String(placeId));
+                if (p) {
+                    document.getElementById('placeFormName').value = p.name || '';
+                    document.getElementById('placeFormState').value = p.state || 'Tamil Nadu';
+                    document.getElementById('placeFormCategory').value = p.category || 'Hill Station';
+                    document.getElementById('placeFormCity').value = p.city || '';
+                    document.getElementById('placeFormLat').value = p.latitude || '';
+                    document.getElementById('placeFormLng').value = p.longitude || '';
+                    document.getElementById('placeFormDesc').value = p.description || '';
+                    document.getElementById('placeFormBestMonths').value = p.best_months || '';
+                    document.getElementById('placeFormDuration').value = p.recommended_duration || '1-2 Days';
+                    document.getElementById('placeFormThingsToDo').value = p.things_to_do || '';
+                    document.getElementById('placeFormTips').value = p.travel_tips || '';
+                }
+            } else {
+                title.innerText = 'Add Tourist Destination';
+            }
+            modal.classList.add('active');
+        }
+
+        function closePlaceFormModal() {
+            const modal = document.getElementById('placeFormModal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        async function savePlaceForm(event) {
+            event.preventDefault();
+            const placeId = document.getElementById('placeFormId').value;
+            const payload = {
+                name: document.getElementById('placeFormName').value.trim(),
+                state: document.getElementById('placeFormState').value,
+                category: document.getElementById('placeFormCategory').value,
+                city: document.getElementById('placeFormCity').value.trim(),
+                latitude: parseFloat(document.getElementById('placeFormLat').value),
+                longitude: parseFloat(document.getElementById('placeFormLng').value),
+                description: document.getElementById('placeFormDesc').value.trim(),
+                best_months: document.getElementById('placeFormBestMonths').value.trim(),
+                recommended_duration: document.getElementById('placeFormDuration').value.trim(),
+                things_to_do: document.getElementById('placeFormThingsToDo').value.trim(),
+                travel_tips: document.getElementById('placeFormTips').value.trim()
+            };
+
+            const endpoint = placeId ? `/api/admin/places/${placeId}` : `/api/admin/places`;
+            const method = placeId ? 'PUT' : 'POST';
+
+            try {
+                const res = await apiFetch(endpoint, {
+                    method: method,
+                    body: payload
+                });
+                if (res.ok && res.data && res.data.success) {
+                    closePlaceFormModal();
+                    await fetchPlaces(document.getElementById("placeSearchInput").value);
+                } else {
+                    alert((res.data && res.data.error) || "Failed to save destination.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("An error occurred while saving destination.");
+            }
+        }
+
+        async function togglePlacePublish(placeId) {
+            try {
+                const res = await apiFetch(`/api/admin/places/${placeId}/toggle-publish`, { method: 'POST' });
+                if (res.ok) {
+                    await fetchPlaces(document.getElementById("placeSearchInput").value);
+                } else {
+                    alert((res.data && res.data.error) || "Failed to toggle status.");
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function deletePlace(placeId) {
+            if (!confirm("Are you sure you want to delete this tourist destination and all its photos?")) {
+                return;
+            }
+            try {
+                const res = await apiFetch(`/api/admin/places/${placeId}`, { method: 'DELETE' });
+                if (res.ok && res.data && res.data.success) {
+                    await fetchPlaces(document.getElementById("placeSearchInput").value);
+                } else {
+                    alert((res.data && res.data.error) || "Failed to delete destination.");
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function openPlaceMediaModal(placeId) {
+            currentEditingPlaceMediaId = placeId;
+            const p = allLoadedPlaces.find(item => String(item.id) === String(placeId));
+            document.getElementById('placeMediaModalTitle').innerText = `${p ? p.name : 'Destination'} Media Studio`;
+            document.getElementById('placeMediaFileInput').value = '';
+            document.getElementById('placeMediaCaptionInput').value = '';
+            document.getElementById('placeMediaUrlInput').value = '';
+            document.getElementById('placeMediaUrlCaption').value = '';
+            await renderPlaceMediaItems(placeId);
+            document.getElementById('placeMediaModal').classList.add('active');
+        }
+
+        function closePlaceMediaModal() {
+            document.getElementById('placeMediaModal').classList.remove('active');
+            currentEditingPlaceMediaId = null;
+        }
+
+        async function renderPlaceMediaItems(placeId) {
+            const container = document.getElementById('placeMediaGrid');
+            container.innerHTML = '<div style="color:var(--muted-silver); font-size:13px;">Loading media...</div>';
+            try {
+                const res = await apiFetch(`/api/admin/places/${placeId}`);
+                const data = res.data && res.data.data ? res.data.data : null;
+                const mediaList = data && data.media ? data.media : [];
+
+                if (mediaList.length === 0) {
+                    container.innerHTML = '<div style="color:var(--muted-silver); font-size:13px; grid-column:1/-1;">No uploaded photos yet. Use the upload cards above to add authentic photos.</div>';
+                    return;
+                }
+
+                container.innerHTML = mediaList.map(m => `
+                    <div style="position:relative; background:rgba(3,18,17,0.85); border:1px solid rgba(84,209,198,0.25); border-radius:10px; overflow:hidden; display:flex; flex-direction:column;">
+                        <img src="${m.url || m.file_path}" style="width:100%; height:90px; object-fit:cover;" alt="Media">
+                        <div style="padding:4px 6px; font-size:11px; color:var(--muted-silver); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            ${m.caption || m.category || 'Photo'}
+                        </div>
+                        <button onclick="deletePlaceMediaItem(${placeId}, ${m.id})" style="background:rgba(229,62,62,0.8); color:#fff; border:none; padding:3px; font-size:11px; cursor:pointer; width:100%;">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = '<div style="color:#feb2b2; font-size:12px;">Failed to load media items.</div>';
+            }
+        }
+
+        async function uploadPlaceMedia() {
+            if (!currentEditingPlaceMediaId) return;
+            const fileInput = document.getElementById('placeMediaFileInput');
+            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                alert("Please select an image file first.");
+                return;
+            }
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('caption', document.getElementById('placeMediaCaptionInput').value.trim());
+
+            try {
+                const res = await apiFetch(`/api/admin/places/${currentEditingPlaceMediaId}/media/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (res.ok && res.data && res.data.success) {
+                    fileInput.value = '';
+                    document.getElementById('placeMediaCaptionInput').value = '';
+                    await renderPlaceMediaItems(currentEditingPlaceMediaId);
+                    await fetchPlaces(document.getElementById("placeSearchInput").value);
+                } else {
+                    alert((res.data && res.data.error) || "Failed to upload photo.");
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function linkPlaceMedia() {
+            if (!currentEditingPlaceMediaId) return;
+            const urlInput = document.getElementById('placeMediaUrlInput');
+            const url = urlInput.value.trim();
+            if (!url) {
+                alert("Please enter a valid image URL.");
+                return;
+            }
+            const payload = {
+                url: url,
+                caption: document.getElementById('placeMediaUrlCaption').value.trim()
+            };
+            try {
+                const res = await apiFetch(`/api/admin/places/${currentEditingPlaceMediaId}/media/link`, {
+                    method: 'POST',
+                    body: payload
+                });
+                if (res.ok && res.data && res.data.success) {
+                    urlInput.value = '';
+                    document.getElementById('placeMediaUrlCaption').value = '';
+                    await renderPlaceMediaItems(currentEditingPlaceMediaId);
+                    await fetchPlaces(document.getElementById("placeSearchInput").value);
+                } else {
+                    alert((res.data && res.data.error) || "Failed to link photo.");
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function deletePlaceMediaItem(placeId, mediaId) {
+            if (!confirm("Are you sure you want to delete this photo?")) return;
+            try {
+                const res = await apiFetch(`/api/admin/places/${placeId}/media/${mediaId}`, { method: 'DELETE' });
+                if (res.ok && res.data && res.data.success) {
+                    await renderPlaceMediaItems(placeId);
+                    await fetchPlaces(document.getElementById("placeSearchInput").value);
+                } else {
+                    alert((res.data && res.data.error) || "Failed to delete photo.");
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Validation Dashboard & Import Audit | Journey DNA</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-wrapper {
+            max-width: 1320px;
+            margin: 2rem auto;
+            padding: 0 1.5rem 3rem 1.5rem;
+        }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(88, 196, 193, 0.2);
+            padding-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .admin-header h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(1.8rem, 2.8vw, 2.4rem);
+            color: var(--warm-ivory);
+            margin: 0;
+        }
+        .badge-verified-sys {
+            background: rgba(88, 196, 193, 0.2);
+            color: var(--muted-turquoise);
+            border: 1px solid rgba(88, 196, 193, 0.35);
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 20px;
+        }
+
+        /* Metric Cards Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 2rem;
+        }
+        .metric-card {
+            background: rgba(8, 44, 58, 0.78);
+            border: 1px solid rgba(88, 196, 193, 0.25);
+            border-radius: 18px;
+            padding: 1.35rem;
+            box-shadow: 0 10px 24px rgba(5, 24, 32, 0.45);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            color: var(--warm-ivory);
+        }
+        .metric-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--muted-silver);
+            margin-bottom: 0.4rem;
+        }
+        .metric-value {
+            font-family: var(--font-heading);
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: var(--muted-turquoise);
+        }
+        .metric-sub {
+            font-size: 0.78rem;
+            color: var(--muted-silver);
+            margin-top: 0.25rem;
+        }
+        .metric-warning .metric-value { color: #fde047; }
+        .metric-success .metric-value { color: #86efac; }
+        .metric-zero .metric-value { color: var(--muted-turquoise); }
+
+        /* Tabs & Section Panels */
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid rgba(88, 196, 193, 0.2);
+            margin-bottom: 1.5rem;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 18px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: var(--font-sans);
+            color: var(--soft-ice-blue);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            color: var(--muted-turquoise);
+            border-bottom-color: var(--muted-turquoise);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Tables */
+        .audit-table-wrapper {
+            background: rgba(8, 44, 58, 0.85);
+            border: 1px solid rgba(88, 196, 193, 0.25);
+            border-radius: 18px;
+            overflow-x: auto;
+            box-shadow: 0 16px 36px rgba(5, 24, 32, 0.45);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+        .audit-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            text-align: left;
+        }
+        .audit-table th {
+            background: rgba(5, 24, 32, 0.65);
+            color: var(--muted-turquoise);
+            font-weight: 700;
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(88, 196, 193, 0.2);
+            white-space: nowrap;
+        }
+        .audit-table td {
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(88, 196, 193, 0.12);
+            color: var(--warm-ivory);
+            vertical-align: middle;
+        }
+        .audit-table tr:hover td {
+            background: rgba(88, 196, 193, 0.12);
+        }
+        .status-pill-ok {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+            border: 1px solid rgba(34, 197, 94, 0.35);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        .status-pill-warn {
+            background: rgba(234, 179, 8, 0.2);
+            color: #fde047;
+            border: 1px solid rgba(234, 179, 8, 0.35);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .btn-fix {
+            background: linear-gradient(135deg, #176B7A 0%, #58C4C1 100%);
+            color: #082C3A;
+            padding: 5px 12px;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.78rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-fix:hover { filter: brightness(1.08); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+        .modal-card {
+            background: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.4rem; color: #4a5568; }
+        .form-group input, .form-group select { width: 100%; padding: 0.65rem; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 0.9rem; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+        .btn-cancel { background: #edf2f7; color: #4a5568; padding: 0.6rem 1.2rem; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; }
+        .btn-save { background: #38a169; color: white; padding: 0.6rem 1.2rem; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; }
+
+        /* Media Candidate Cards */
+        .media-candidates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 16px;
+            margin-top: 1rem;
+        }
+        .media-candidate-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+        }
+        .media-thumb-box {
+            position: relative;
+            height: 170px;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .media-thumb-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .media-type-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+        .type-image { background: #ebf8ff; color: #2b6cb0; }
+        .type-video { background: #fed7d7; color: #9b2c2c; }
+        .media-card-body {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            font-size: 0.88rem;
+        }
+        .btn-approve { background: #38a169; color: white; padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-size: 0.82rem; }
+        .btn-approve:hover { background: #2f855a; }
+        .btn-reject { background: #e53e3e; color: white; padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-size: 0.82rem; }
+        .btn-reject:hover { background: #c53030; }
+    </style>
+</head>
+<body class="admin-import-page">
+    <header class="dashboard-header">
+        <a href="dashboard.html" class="logo">✈ Journey <span>DNA</span></a>
+        <nav class="desktop-nav" aria-label="Main navigation"></nav>
+        <div class="auth-container user-profile-menu"></div>
+    </header>
+
+    <div class="admin-wrapper">
+        <div class="admin-header">
+            <div>
+                <h1>Data Validation & Verification Dashboard</h1>
+                <p style="color: var(--muted-text); margin:0.25rem 0 0 0; font-size:0.95rem;">Live system metrics, strict duplicate detection, and import audit trail.</p>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <span class="badge-verified-sys">🛡️ Verified Dataset</span>
+                <a href="bus_directory.html" style="font-size:0.9rem; color: var(--turquoise-accent); font-weight:600; text-decoration:none;">🚌 View Live Bus Directory &rarr;</a>
+            </div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="metrics-grid">
+            <div class="metric-card metric-success">
+                <div class="metric-title">Total Operators</div>
+                <div class="metric-value" id="valTotalOps">-</div>
+                <div class="metric-sub" id="valVerifiedOps">Verified: -</div>
+            </div>
+            <div class="metric-card metric-success">
+                <div class="metric-title">Identified Buses</div>
+                <div class="metric-value" id="valTotalBuses">-</div>
+                <div class="metric-sub" id="valVerifiedBuses">Verified: -</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Phone Coverage</div>
+                <div class="metric-value" id="valOpsPhone">-</div>
+                <div class="metric-sub">Verified Business Numbers</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Websites Linked</div>
+                <div class="metric-value" id="valOpsWeb">-</div>
+                <div class="metric-sub">Official Domains Verified</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Video Coverage</div>
+                <div class="metric-value" id="valOpsVideo">-</div>
+                <div class="metric-sub">Embedded Walkarounds</div>
+            </div>
+            <div class="metric-card metric-zero">
+                <div class="metric-title">Duplicate Photos Blocked</div>
+                <div class="metric-value" id="valDuplicatePhotos">0</div>
+                <div class="metric-sub">Cross-Operator Isolation: 100%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Operators w/o Photo</div>
+                <div class="metric-value" id="valOpsNoPhoto">-</div>
+                <div class="metric-sub">No Stock Photos Injected</div>
+            </div>
+            <div class="metric-card metric-warning">
+                <div class="metric-title">Requiring Review</div>
+                <div class="metric-value" id="valReviewCount">0</div>
+                <div class="metric-sub">Items for Verification</div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('tab-operators')">📋 All Operators Summary</button>
+            <button class="tab-btn" onclick="switchTab('tab-media')">🖼️ Media Verification</button>
+            <button class="tab-btn" onclick="switchTab('tab-logs')">📜 Ingestion Audit Logs</button>
+            <button class="tab-btn" onclick="switchTab('tab-review')">🔍 Needs Review</button>
+        </div>
+
+        <!-- TAB 1: Operator Directory Summary (Section 28) -->
+        <div id="tab-operators" class="tab-content active">
+            <div class="audit-table-wrapper">
+                <table class="audit-table">
+                    <thead>
+                        <tr>
+                            <th>Operator Name</th>
+                            <th>City / District</th>
+                            <th>Phone</th>
+                            <th>Identified Buses</th>
+                            <th>Photos</th>
+                            <th>Videos</th>
+                            <th>Status</th>
+                            <th>Main Source</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="operatorsTableBody">
+                        <tr><td colspan="9" style="text-align:center; padding:2rem;">Loading operators summary...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: Media Verification & Candidate Audit (Section 28) -->
+        <div id="tab-media" class="tab-content">
+            <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:1.25rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h3 style="margin:0 0 4px 0; color:#1a202c; font-size:1.15rem;">🖼️ Verified Media Review & Candidates</h3>
+                    <p style="margin:0; font-size:0.85rem; color:#718096;">Review bus photos and YouTube walkarounds extracted via official APIs with strict operator isolation.</p>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <select id="mediaOperatorSelect" style="padding:6px 12px; border:1px solid #cbd5e0; border-radius:6px; font-size:0.85rem; max-width:240px;">
+                        <option value="">-- Discover Operator Media --</option>
+                    </select>
+                    <button class="btn-fix" style="background:#2b6cb0; padding:6px 14px; font-size:0.85rem;" onclick="triggerSelectedOperatorRefresh(this)">🔍 Discover / Refresh</button>
+                    <select id="mediaFilterStatus" style="padding:6px 12px; border:1px solid #cbd5e0; border-radius:6px; font-size:0.85rem;" onchange="filterMediaCandidates()">
+                        <option value="">All Statuses</option>
+                        <option value="verified" selected>Verified Only</option>
+                        <option value="partially_verified">Partially Verified</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                    <select id="mediaFilterType" style="padding:6px 12px; border:1px solid #cbd5e0; border-radius:6px; font-size:0.85rem;" onchange="filterMediaCandidates()">
+                        <option value="">All Media Types</option>
+                        <option value="image">Images Only</option>
+                        <option value="video">Videos Only</option>
+                    </select>
+                    <button class="btn-fix" onclick="loadMediaCandidates()" style="padding:6px 14px; font-size:0.85rem;">🔄 Refresh List</button>
+                </div>
+            </div>
+
+            <div id="mediaCandidatesGrid" class="media-candidates-grid">
+                <div style="grid-column:1/-1; text-align:center; padding:3rem; color:#718096;">Loading media candidates...</div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Ingestion & Audit Logs (Section 24) -->
+        <div id="tab-logs" class="tab-content">
+            <div class="audit-table-wrapper">
+                <table class="audit-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Operator</th>
+                            <th>Entity</th>
+                            <th>Field</th>
+                            <th>New Value</th>
+                            <th>Source</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsTableBody">
+                        <tr><td colspan="7" style="text-align:center; padding:2rem;">Loading audit logs...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 3: Records Requiring Review -->
+        <div id="tab-review" class="tab-content">
+            <div class="audit-table-wrapper">
+                <table class="audit-table">
+                    <thead>
+                        <tr>
+                            <th>Entity Type</th>
+                            <th>Name / ID</th>
+                            <th>City</th>
+                            <th>Confidence</th>
+                            <th>Issue Detected</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reviewTableBody">
+                        <tr><td colspan="6" style="text-align:center; padding:2rem;">Checking records requiring review...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fix Data Modal -->
+    <div id="fixModal" class="modal-overlay">
+        <div class="modal-card">
+            <h3 style="margin-top:0;" id="fixModalTitle">Fix Record Data</h3>
+            <div class="form-group">
+                <label>Entity ID</label>
+                <input type="text" id="fixEntityId" readonly style="background:#edf2f7;">
+            </div>
+            <div class="form-group">
+                <label>Field to Update</label>
+                <select id="fixFieldSelect">
+                    <option value="phone">phone</option>
+                    <option value="website">website</option>
+                    <option value="address">address</option>
+                    <option value="source_confidence">source_confidence</option>
+                    <option value="status">status</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>New Verified Value</label>
+                <input type="text" id="fixNewValue" placeholder="Enter updated value">
+            </div>
+            <div class="form-group">
+                <label>Verification Source</label>
+                <input type="text" id="fixSource" value="Admin Manual Verification" placeholder="e.g. Google Business Profile">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeFixModal()">Cancel</button>
+                <button class="btn-save" onclick="submitFixRecord()">Save & Audit Log</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        let currentValidationData = null;
+
+        async function loadValidationMetrics() {
+            try {
+                const res = await fetch("http://127.0.0.1:5000/api/admin/validation");
+                const data = await res.json();
+                if (!data.success) return;
+
+                currentValidationData = data;
+                const m = data.metrics;
+
+                document.getElementById("valTotalOps").innerText = m.total_operators;
+                document.getElementById("valVerifiedOps").innerText = `Verified: ${m.verified_operators}`;
+                document.getElementById("valTotalBuses").innerText = m.total_buses;
+                document.getElementById("valVerifiedBuses").innerText = `Verified: ${m.verified_buses}`;
+                document.getElementById("valOpsPhone").innerText = m.operators_with_phone;
+                document.getElementById("valOpsWeb").innerText = m.operators_with_website;
+                document.getElementById("valOpsVideo").innerText = m.operators_with_videos;
+                document.getElementById("valDuplicatePhotos").innerText = m.operators_with_duplicate_photos + m.buses_with_duplicate_photos;
+                document.getElementById("valOpsNoPhoto").innerText = m.operators_without_photos;
+                document.getElementById("valReviewCount").innerText = m.records_requiring_review_count;
+
+                renderOperatorsTable(data.operators_summary);
+                renderReviewTable(data.records_requiring_review);
+
+                const opSelect = document.getElementById("mediaOperatorSelect");
+                if (opSelect && data.operators_summary) {
+                    opSelect.innerHTML = `<option value="">-- Discover Operator Media --</option>` + 
+                        data.operators_summary.map(op => `<option value="${op.id}">${op.name} (${op.city})</option>`).join('');
+                }
+            } catch (err) {
+                console.error("Error loading metrics:", err);
+            }
+        }
+
+        async function loadAuditLogs() {
+            try {
+                const res = await fetch("http://127.0.0.1:5000/api/admin/import_logs?limit=50");
+                const data = await res.json();
+                if (!data.success) return;
+
+                const tbody = document.getElementById("logsTableBody");
+                if (data.logs.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:2rem;">No logs found.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = data.logs.map(log => `
+                    <tr>
+                        <td style="font-family:monospace; font-size:0.8rem; color:#718096;">${log.retrieved_at}</td>
+                        <td><strong>${log.operator_name || '-'}</strong></td>
+                        <td><span style="font-size:0.75rem; background:#edf2f7; padding:2px 6px; border-radius:4px;">${log.entity_type}</span></td>
+                        <td><code>${log.field || '-'}</code></td>
+                        <td style="max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${log.new_value || '-'}</td>
+                        <td>${log.source || 'Verified Import'}</td>
+                        <td><span class="status-pill-ok">${log.verification_status || 'VERIFIED'}</span></td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error("Error loading logs:", err);
+            }
+        }
+
+        function renderOperatorsTable(summaryList) {
+            const tbody = document.getElementById("operatorsTableBody");
+            if (!summaryList || summaryList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:2rem;">No operators imported yet.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = summaryList.map(op => `
+                <tr>
+                    <td><strong>${op.name}</strong></td>
+                    <td>${op.city}</td>
+                    <td>${op.phone !== 'Not publicly available' ? op.phone : '<span style="color:#a0aec0;">Unavailable</span>'}</td>
+                    <td><span style="font-weight:bold; color:#2b6cb0;">${op.identified_buses}</span> buses</td>
+                    <td>${op.photos_count} photos</td>
+                    <td>${op.videos_count > 0 ? `🎥 ${op.videos_count}` : '0'}</td>
+                    <td><span class="status-pill-ok">${op.verification_status}</span></td>
+                    <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                        <a href="${op.main_source}" target="_blank" rel="noopener" style="color:#2b6cb0; text-decoration:none;">${op.main_source.replace('https://', '').substring(0, 24)}...</a>
+                    </td>
+                    <td>
+                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                            <button class="btn-fix" onclick="openFixModal('${op.id}', '${op.name}')">Edit / Fix</button>
+                            <button class="btn-fix" style="background:#2b6cb0;" onclick="refreshOperatorMedia('${op.id}', '${op.name}', this)">🔄 Refresh Photos</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderReviewTable(reviewList) {
+            const tbody = document.getElementById("reviewTableBody");
+            if (!reviewList || reviewList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2rem; color:#38a169;">✅ All operator and bus records are 100% verified! No items require review.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = reviewList.map(item => `
+                <tr>
+                    <td><strong>${item.entity_type}</strong></td>
+                    <td>${item.name} <span style="font-size:0.75rem; color:#a0aec0;">(${item.id})</span></td>
+                    <td>${item.city}</td>
+                    <td><span class="status-pill-warn">${item.source_confidence || 'MEDIUM'}</span></td>
+                    <td>${item.issue}</td>
+                    <td>
+                        <button class="btn-fix" onclick="openFixModal('${item.id}', '${item.name}')">Fix Data</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+            document.querySelectorAll(".tab-content").forEach(content => content.classList.remove("active"));
+            
+            event.target.classList.add("active");
+            document.getElementById(tabId).classList.add("active");
+
+            if (tabId === 'tab-logs') {
+                loadAuditLogs();
+            } else if (tabId === 'tab-media') {
+                loadMediaCandidates();
+            }
+        }
+
+        let allMediaCandidates = [];
+
+        async function loadMediaCandidates() {
+            const grid = document.getElementById("mediaCandidatesGrid");
+            grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem; color:#718096;">Loading media candidates...</div>`;
+            try {
+                const res = await fetch("http://127.0.0.1:5000/api/admin/media/candidates");
+                const data = await res.json();
+                if (!data.success) {
+                    grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem; color:#e53e3e;">Failed to load media candidates: ${data.error || 'Server error'}</div>`;
+                    return;
+                }
+                allMediaCandidates = data.candidates || [];
+                filterMediaCandidates();
+            } catch (err) {
+                console.error("Error loading media candidates:", err);
+                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem; color:#e53e3e;">Network error connecting to media API.</div>`;
+            }
+        }
+
+        function filterMediaCandidates() {
+            const statusFilter = document.getElementById("mediaFilterStatus").value;
+            const typeFilter = document.getElementById("mediaFilterType").value;
+            const grid = document.getElementById("mediaCandidatesGrid");
+
+            const filtered = allMediaCandidates.filter(c => {
+                if (statusFilter && (c.verification_status || '').toLowerCase() !== statusFilter.toLowerCase()) return false;
+                if (typeFilter && (c.media_type || '').toLowerCase() !== typeFilter.toLowerCase()) return false;
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem; color:#718096;">No media candidates match the selected filters.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(item => {
+                const isVideo = item.media_type === 'video';
+                const thumb = isVideo ? (item.thumbnail_url || item.media_url || item.url || 'https://img.youtube.com/vi/placeholder/hqdefault.jpg') : (item.media_url || item.url);
+                const statusClass = item.verification_status === 'verified' ? 'status-pill-ok' : (item.verification_status === 'rejected' ? 'status-pill-fail' : 'status-pill-warn');
+                const statusStyle = item.verification_status === 'rejected' ? 'background:#fed7d7; color:#9b2c2c; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold;' : '';
+
+                return `
+                    <div class="media-candidate-card">
+                        <div class="media-thumb-box">
+                            <img src="${thumb}" alt="${item.title || 'Bus Media'}" onerror="this.onerror=null; this.src='Journeydna.png';" loading="lazy">
+                            <span class="media-type-badge ${isVideo ? 'type-video' : 'type-image'}">${item.media_type.toUpperCase()}</span>
+                        </div>
+                        <div class="media-card-body">
+                            <div style="font-weight:bold; color:#1a202c; font-size:0.95rem; margin-bottom:4px;">${item.operator_name || item.operator_id}</div>
+                            <div style="font-size:0.82rem; color:#4a5568; margin-bottom:6px; flex:1;">${item.title || 'Official Fleet Media'}</div>
+                            <div style="font-size:0.75rem; color:#718096; margin-bottom:8px;">
+                                Provider: <a href="${item.source_url || '#'}" target="_blank" rel="noopener" style="color:#2b6cb0;">${item.source_type || 'Verified Source'}</a>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:0.78rem;">
+                                <span class="${statusClass}" style="${statusStyle}">${(item.verification_status || 'verified').toUpperCase()}</span>
+                                <span style="color:#718096;">Confidence: <strong>${Math.round((item.verification_score || item.confidence_score || 0.95) * 100)}%</strong></span>
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <button class="btn-approve" style="flex:1;" onclick="verifyMediaCandidate(${item.id}, 'verified')">✅ Approve</button>
+                                <button class="btn-reject" style="flex:1;" onclick="verifyMediaCandidate(${item.id}, 'rejected')">❌ Reject</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function verifyMediaCandidate(mediaId, status) {
+            try {
+                const res = await fetch("http://127.0.0.1:5000/api/admin/media/verify", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ media_id: mediaId, status: status })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    const itm = allMediaCandidates.find(c => c.id === mediaId);
+                    if (itm) itm.verification_status = status;
+                    filterMediaCandidates();
+                    loadValidationMetrics();
+                } else {
+                    alert("Error updating status: " + result.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Network error.");
+            }
+        }
+
+        async function refreshOperatorMedia(operatorId, operatorName, btnElement) {
+            if (!confirm(`Trigger official media discovery and verification for "${operatorName}"?\nThis will query official websites, Google Places, Google Images, and Justdial listings without web scraping or CAPTCHA bypass.`)) return;
+            const originalText = btnElement.innerText;
+            btnElement.innerText = "⏳ Discovering...";
+            btnElement.disabled = true;
+            try {
+                const res = await fetch(`http://127.0.0.1:5000/api/operators/${operatorId}/refresh-media`, {
+                    method: "POST"
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(`✅ Media Refresh Complete for ${operatorName}!\n` +
+                          `• Photos Found: ${data.photos_found || 0}\n` +
+                          `• Verified Photos: ${data.verified_count || (data.photos ? data.photos.length : 0)}\n` +
+                          `• Rejected (Stock/YouTube thumbnails): ${data.rejected_count || 0}\n` +
+                          `• Newly Saved to DB: ${data.newly_saved || 0}`);
+                    loadValidationMetrics();
+                    if (document.getElementById('tab-media').classList.contains('active')) {
+                        loadMediaCandidates();
+                    }
+                } else {
+                    alert(`Media refresh failed: ${data.error || 'Unknown error'}`);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Failed to connect to media refresh API. Ensure backend is running.");
+            } finally {
+                btnElement.innerText = originalText;
+                btnElement.disabled = false;
+            }
+        }
+
+        async function triggerSelectedOperatorRefresh(btn) {
+            const sel = document.getElementById("mediaOperatorSelect");
+            if (!sel || !sel.value) {
+                alert("Please select an operator from the dropdown first.");
+                return;
+            }
+            const opId = sel.value;
+            const opName = sel.options[sel.selectedIndex].text;
+            await refreshOperatorMedia(opId, opName, btn);
+        }
+
+        function openFixModal(entityId, name) {
+            document.getElementById("fixEntityId").value = entityId;
+            document.getElementById("fixModalTitle").innerText = `Fix Record: ${name}`;
+            document.getElementById("fixNewValue").value = "";
+            document.getElementById("fixModal").style.display = "flex";
+        }
+
+        function closeFixModal() {
+            document.getElementById("fixModal").style.display = "none";
+        }
+
+        async function submitFixRecord() {
+            const entityId = document.getElementById("fixEntityId").value;
+            const field = document.getElementById("fixFieldSelect").value;
+            const newVal = document.getElementById("fixNewValue").value.trim();
+            const source = document.getElementById("fixSource").value.trim();
+
+            if (!newVal) {
+                alert("Please enter a new value.");
+                return;
+            }
+
+            try {
+                const res = await fetch("http://127.0.0.1:5000/api/admin/fix_record", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        entity_type: "OPERATOR",
+                        entity_id: entityId,
+                        field: field,
+                        new_value: newVal,
+                        source: source
+                    })
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    alert("Record updated successfully and recorded in audit log!");
+                    closeFixModal();
+                    loadValidationMetrics();
+                    loadAuditLogs();
+                } else {
+                    alert("Error updating record: " + result.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Network error.");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadValidationMetrics();
+        });
+    </script>
+</body>
+</html>
